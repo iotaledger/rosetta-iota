@@ -1,6 +1,5 @@
 use crate::{
     consts,
-    iota::Client,
     error::ApiError,
     filters::{handle, with_empty_request, with_options, EmptyRequest},
     options::Options,
@@ -11,6 +10,7 @@ use crate::{
 };
 use log::debug;
 use warp::Filter;
+use iota::Client;
 
 pub fn routes(
     options: Options,
