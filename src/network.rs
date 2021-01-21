@@ -128,8 +128,9 @@ async fn network_status(
     let node_info = iota_client.get_info().await?;
 
     let genesis_milestone = iota_client.get_milestone(1);
-    let latest_milestone_index = node_info.latest_milestone_index as u64;
-    let latest_milestone = iota_client.get_milestone(latest_milestone_index);
+    let solid_milestone_index = node_info.solid_milestone_index as u64;
+    let solid_milestone = iota_client.get_milestone(solid_milestone_index);
+    let current_block_timestamp = solid_milestone.timestamp;
     let num_peers = 1;
 
     let genesis_block_identifier = BlockIdentifier {
@@ -138,8 +139,8 @@ async fn network_status(
     };
 
     let current_block_identifier = BlockIdentifier {
-        index: latest_milestone.index,
-        hash: latest_milestone.messageId,
+        index: solid_milestone.index,
+        hash: solid_milestone.messageId,
     };
 
     let peers: Vec<Peer> = (0..num_peers)
