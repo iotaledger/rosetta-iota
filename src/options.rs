@@ -3,7 +3,7 @@ use url::Url;
 
 #[derive(Clone, Debug, StructOpt)]
 pub struct Options {
-    #[structopt(long, parse(try_from_str = Url::parse))]
+    #[structopt(long)]
     pub iota_endpoint: String,
 
     #[structopt(long)]
