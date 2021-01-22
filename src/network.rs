@@ -122,6 +122,7 @@ async fn network_status(
         .with_network(&options.network)
         .with_node(&options.iota_endpoint)
         .unwrap()
+        .with_node_sync_disabled()
         .finish()
         .unwrap();
     let node_info = iota_client.get_info().await.unwrap();
