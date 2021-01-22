@@ -118,10 +118,9 @@ async fn network_status(
         return Err(ApiError::BadNetwork);
     }
 
-    let iota_client = iota::Client::builder() // Crate a client instance builder
-        // optional, because "testnet2" is default
+    let iota_client = iota::Client::builder()
         .with_network(&options.network)
-        .with_node(&options.iota_endpoint) // Insert the node here
+        .with_node(&options.iota_endpoint)
         .unwrap()
         .finish()
         .unwrap();
