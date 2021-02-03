@@ -134,13 +134,13 @@ async fn network_status(
     let num_peers = 1;
 
     let genesis_block_identifier = BlockIdentifier {
-        index: genesis_milestone.index,
-        hash: genesis_milestone.message_id,
+        index: genesis_milestone.index as u64,
+        hash: genesis_milestone.message_id.to_string(),
     };
 
     let current_block_identifier = BlockIdentifier {
-        index: solid_milestone.index,
-        hash: solid_milestone.message_id,
+        index: solid_milestone.index as u64,
+        hash: solid_milestone.message_id.to_string(),
     };
 
     let peers: Vec<Peer> = (0..num_peers)
