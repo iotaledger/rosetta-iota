@@ -232,11 +232,13 @@ impl ApiError {
 
 impl warp::reject::Reject for ApiError {}
 
-impl std::convert::From<ApiError> for warp::reject::Rejection {
-    fn from(api_error: ApiError) -> Self {
-        warp::reject::custom(api_error)
-    }
-}
+/* commented out after bumping to warp 0.3
+remember to use impl<T: Reject> From<T> for Rejection */
+// impl std::convert::From<ApiError> for warp::reject::Rejection {
+//     fn from(api_error: ApiError) -> Self {
+//         warp::reject::custom(api_error)
+//     }
+// }
 
 impl Reply for ApiError {
     fn into_response(self) -> warp::reply::Response {
