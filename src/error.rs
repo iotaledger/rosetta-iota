@@ -14,6 +14,8 @@ pub enum ApiError {
     UnableToBuildClient,
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
+    #[error("unable to get milestone")]
+    UnableToGetMilestone,
 }
 
 impl ApiError {
@@ -23,6 +25,7 @@ impl ApiError {
             ApiError::NotImplemented => 20,
             ApiError::UnableToBuildClient => 30,
             ApiError::UnableToGetNodeInfo => 40,
+            ApiError::UnableToGetMilestone => 50,
         }
     }
 
@@ -32,6 +35,7 @@ impl ApiError {
             ApiError::NotImplemented => false,
             ApiError::UnableToBuildClient => false,
             ApiError::UnableToGetNodeInfo => false,
+            ApiError::UnableToGetMilestone => false,
         }
     }
 
@@ -41,6 +45,7 @@ impl ApiError {
             ApiError::NotImplemented => StatusCode::BAD_REQUEST,
             ApiError::UnableToBuildClient => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetNodeInfo => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetMilestone => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -80,7 +85,13 @@ impl ApiError {
                 code: 40,
                 retriable: false,
                 details: None,
-            }
+            },
+            types::Error {
+                message: "Unable to get Milestone".to_string(),
+                code: 50,
+                retriable: false,
+                details: None,
+            },
         ]
     }
 

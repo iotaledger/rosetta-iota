@@ -125,12 +125,19 @@ async fn network_status(
         Err(_) => return Err(ApiError::UnableToGetNodeInfo),
     };
 
-    let genesis_milestone = iota_client.get_milestone(1).await.unwrap();
+    let genesis_milestone = match iota_client.get_milestone(1).await {
+        Ok(genesis_milestone) => genesis_milestone,
+        Err(_) => return Err(ApiError::UnableToGetMilestone),
+    };
+
     let solid_milestone_index = node_info.solid_milestone_index as u64;
-    let solid_milestone = iota_client.get_milestone(solid_milestone_index).await.unwrap();
+    let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
+        Ok(solid_milestone) => solid_milestone,
+        Err(_) => return Err(ApiError::UnableToGetMilestone),
+    };
+
     let current_block_timestamp = solid_milestone.timestamp;
     let peers = iota_client.get_peers().await.unwrap();
-
 
     let genesis_block_identifier = BlockIdentifier {
         index: genesis_milestone.index as u64,
