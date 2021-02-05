@@ -124,7 +124,9 @@ async fn network_status(
         .unwrap()
         .with_node_sync_disabled()
         .finish()
+        .await
         .unwrap();
+
     let node_info = iota_client.get_info().await.unwrap();
 
     let genesis_milestone = iota_client.get_milestone(1).await.unwrap();
