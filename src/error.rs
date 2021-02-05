@@ -10,6 +10,8 @@ pub enum ApiError {
     BadNetwork,
     #[error("Unimplemented")]
     NotImplemented,
+    #[error("unable to build iota client")]
+    UnableToBuildClient,
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
 }
@@ -19,7 +21,8 @@ impl ApiError {
         match self {
             ApiError::BadNetwork => 10,
             ApiError::NotImplemented => 20,
-            ApiError::UnableToGetNodeInfo => 30,
+            ApiError::UnableToBuildClient => 30,
+            ApiError::UnableToGetNodeInfo => 40,
         }
     }
 
@@ -27,6 +30,7 @@ impl ApiError {
         match self {
             ApiError::BadNetwork => false,
             ApiError::NotImplemented => false,
+            ApiError::UnableToBuildClient => false,
             ApiError::UnableToGetNodeInfo => false,
         }
     }
@@ -35,7 +39,8 @@ impl ApiError {
         match self {
             ApiError::BadNetwork => StatusCode::BAD_REQUEST,
             ApiError::NotImplemented => StatusCode::BAD_REQUEST,
-            ApiError::UnableToGetNodeInfo => StatusCode::CONFLICT,
+            ApiError::UnableToBuildClient => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetNodeInfo => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -65,8 +70,14 @@ impl ApiError {
                 details: None,
             },
             types::Error {
-                message: "Unable to get Node Info".to_string(),
+                message: "Unable to build IOTA Client".to_string(),
                 code: 30,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Node Info".to_string(),
+                code: 40,
                 retriable: false,
                 details: None,
             }

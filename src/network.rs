@@ -109,14 +109,16 @@ async fn network_status(
         return Err(ApiError::BadNetwork);
     }
 
-    let iota_client = iota::Client::builder()
+    let iota_client = match iota::Client::builder()
         .with_network(&options.network)
         .with_node(&options.iota_endpoint)
         .unwrap()
         .with_node_sync_disabled()
         .finish()
-        .await
-        .unwrap();
+        .await {
+        Ok(iota_client) => iota_client,
+        Err(_) => return Err(ApiError::UnableToBuildClient),
+    };
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,
