@@ -75,20 +75,10 @@ async fn network_options(
     // }
 
     let operation_types = vec![
-        "burn".to_string(),
-        "cancelburn".to_string(),
-        "mint".to_string(),
-        "to_lbr_exchange_rate_update".to_string(),
-        "preburn".to_string(),
-        "receivedpayment".to_string(),
-        "sentpayment".to_string(),
-        "upgrade".to_string(),
-        "newepoch".to_string(),
-        "newblock".to_string(),
-        "createaccount".to_string(),
-        "unknown".to_string(),
-        "sentfee".to_string(), // NOTE: not from diem events, since tx fees aren't events
-        "receivedfee".to_string(), // NOTE: not from diem events, since tx fees aren't events
+        "message".to_string(),
+        "indexed_message".to_string(),
+        "transaction".to_string(),
+        // "streams_channel".to_string(), // Streams operations?
     ];
 
     let errors = ApiError::all_errors();
