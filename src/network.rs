@@ -118,7 +118,10 @@ async fn network_status(
         .await
         .unwrap();
 
-    let node_info = iota_client.get_info().await.unwrap();
+    let node_info = match iota_client.get_info().await {
+        Ok(node_info) => node_info,
+        Err(_) => return Err(ApiError::UnableToGetNodeInfo),
+    };
 
     let genesis_milestone = iota_client.get_milestone(1).await.unwrap();
     let solid_milestone_index = node_info.solid_milestone_index as u64;
