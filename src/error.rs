@@ -27,7 +27,7 @@ impl ApiError {
         match self {
             ApiError::BadNetwork => false,
             ApiError::NotImplemented => false,
-            ApiError::UnableToGetNodeInfo => true,
+            ApiError::UnableToGetNodeInfo => false,
         }
     }
 
@@ -66,7 +66,7 @@ impl ApiError {
             },
             types::Error {
                 message: "Unable to get Node Info".to_string(),
-                code: 20,
+                code: 30,
                 retriable: false,
                 details: None,
             }
