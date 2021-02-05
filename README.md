@@ -7,7 +7,7 @@ IOTA Rosetta API Implementation
 
 - [x] `/network/list`
 - [ ] `/network/options`
-- [ ] `/network/status`
+- [x] `/network/status`
 - [ ] `/account/balance`
 - [ ] `/account/coins`
 - [ ] `/block`

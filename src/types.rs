@@ -1,3 +1,4 @@
+use bee_rest_api::types;
 use serde::{Deserialize, Serialize};
 
 // Objects
@@ -331,7 +332,7 @@ pub struct NetworkStatusResponse {
     pub current_block_identifier: BlockIdentifier,
     pub current_block_timestamp: u64,
     pub genesis_block_identifier: BlockIdentifier,
-    pub peers: Vec<Peer>,
+    pub peers: Vec<bee_rest_api::types::PeerDto>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

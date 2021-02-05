@@ -11,6 +11,7 @@ use crate::{
 use log::debug;
 use warp::Filter;
 use iota::Client;
+use bee_rest_api::types;
 
 pub fn routes(
     options: Options,
@@ -133,7 +134,8 @@ async fn network_status(
     let solid_milestone_index = node_info.solid_milestone_index as u64;
     let solid_milestone = iota_client.get_milestone(solid_milestone_index).await.unwrap();
     let current_block_timestamp = solid_milestone.timestamp;
-    let num_peers = 1;
+    let peers = iota_client.get_peers().await.unwrap();
+
 
     let genesis_block_identifier = BlockIdentifier {
         index: genesis_milestone.index as u64,
@@ -144,12 +146,6 @@ async fn network_status(
         index: solid_milestone.index as u64,
         hash: solid_milestone.message_id.to_string(),
     };
-
-    let peers: Vec<Peer> = (0..num_peers)
-        .map(|i| Peer {
-            peer_id: format!("peer{}", i),
-        })
-        .collect();
 
     let response = NetworkStatusResponse {
         current_block_identifier,
