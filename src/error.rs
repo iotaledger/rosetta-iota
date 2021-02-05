@@ -16,6 +16,8 @@ pub enum ApiError {
     UnableToGetNodeInfo,
     #[error("unable to get milestone")]
     UnableToGetMilestone,
+    #[error("unable to get peers")]
+    UnableToGetPeers,
 }
 
 impl ApiError {
@@ -26,6 +28,7 @@ impl ApiError {
             ApiError::UnableToBuildClient => 30,
             ApiError::UnableToGetNodeInfo => 40,
             ApiError::UnableToGetMilestone => 50,
+            ApiError::UnableToGetPeers => 60,
         }
     }
 
@@ -36,6 +39,7 @@ impl ApiError {
             ApiError::UnableToBuildClient => false,
             ApiError::UnableToGetNodeInfo => false,
             ApiError::UnableToGetMilestone => false,
+            ApiError::UnableToGetPeers => false,
         }
     }
 
@@ -46,6 +50,7 @@ impl ApiError {
             ApiError::UnableToBuildClient => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetNodeInfo => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetMilestone => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetPeers => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -89,6 +94,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Milestone".to_string(),
                 code: 50,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Peers".to_string(),
+                code: 60,
                 retriable: false,
                 details: None,
             },

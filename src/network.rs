@@ -137,7 +137,10 @@ async fn network_status(
     };
 
     let current_block_timestamp = solid_milestone.timestamp;
-    let peers = iota_client.get_peers().await.unwrap();
+    let peers = match iota_client.get_peers().await {
+        Ok(peers) => peers,
+        Err(_) => return Err(ApiError::UnableToGetPeers),
+    };
 
     let genesis_block_identifier = BlockIdentifier {
         index: genesis_milestone.index as u64,
