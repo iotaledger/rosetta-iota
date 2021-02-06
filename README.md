@@ -1,31 +1,6 @@
 # rosetta-iota
 IOTA Rosetta API Implementation
 
-## Progress
-
-### Data API
-
-- [x] `/network/list`
-- [ ] `/network/options`
-- [x] `/network/status`
-- [ ] `/account/balance`
-- [ ] `/account/coins`
-- [ ] `/block`
-- [ ] `/block/transaction`
-- [ ] `/mempool`
-- [ ] `/mempool/transaction`
-
-### Construction API
-
-- [ ] `/construction/combine`
-- [ ] `/construction/derive`
-- [ ] `/construction/hash`
-- [ ] `/construction/metadata`
-- [ ] `/construction/parse`
-- [ ] `/construction/payloads`
-- [ ] `/construction/preprocess`
-- [ ] `/construction/submit`
-
 ## Testing
 
 ## Environment
@@ -48,8 +23,8 @@ $ ./run_2nd.sh
 The `test.sh` shell script automates testing via `rosetta-cli`.
 
 The overall development goal is to pass all tests imposed by `rosetta-cli` with options:
-- [ ] `check:data`
-- [ ] `check:construction`
+- `check:data`
+- `check:construction`
 
 ### curl
 
