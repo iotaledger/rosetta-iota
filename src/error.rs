@@ -20,6 +20,8 @@ pub enum ApiError {
     UnableToGetPeers,
     #[error("bad block/milestone request")]
     BadMilestoneRequest,
+    #[error("unable to get milestone utxo changes")]
+    UnableToGetMilestoneUTXOChanges,
 }
 
 impl ApiError {
@@ -32,6 +34,7 @@ impl ApiError {
             ApiError::UnableToGetMilestone => 50,
             ApiError::UnableToGetPeers => 60,
             ApiError::BadMilestoneRequest => 70,
+            ApiError::UnableToGetMilestoneUTXOChanges => 80,
         }
     }
 
@@ -44,6 +47,7 @@ impl ApiError {
             ApiError::UnableToGetMilestone => false,
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
+            ApiError::UnableToGetMilestoneUTXOChanges => false,
         }
     }
 
@@ -56,6 +60,7 @@ impl ApiError {
             ApiError::UnableToGetMilestone => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetPeers => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
+            ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -109,8 +114,14 @@ impl ApiError {
                 details: None,
             },
             types::Error {
-                message: "Unable to get Milestone".to_string(),
+                message: "Bad Milestone Request".to_string(),
                 code: 70,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Milestone UTXO Changes".to_string(),
+                code: 80,
                 retriable: false,
                 details: None,
             },
