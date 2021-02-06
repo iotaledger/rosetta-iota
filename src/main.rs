@@ -6,10 +6,9 @@ use structopt::StructOpt;
 use warp::{http::StatusCode, Filter};
 
 // mod account;
-// mod block;
+mod block;
 // mod construction;
 mod consts;
-// mod diem;
 mod error;
 mod filters;
 mod network;
@@ -68,7 +67,7 @@ async fn main() {
     let options = Options::from_args();
 
     let routes = network::routes(options.clone())
-        // .or(block::routes(options.clone()))
+        .or(block::routes(options.clone()))
         // .or(account::routes(options.clone()))
         // .or(construction::routes(options.clone()))
         .recover(handle_rejection);

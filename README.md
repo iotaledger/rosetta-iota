@@ -64,4 +64,5 @@ $ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1
 ```
 $ curl --request POST 'http://localhost:3030/network/list' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"metadata":{}}' | jq
 $ curl --request POST 'http://localhost:3030/network/status' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"alphanet1"}}' | jq
+$ curl --request POST 'http://localhost:3030/block' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"alphanet1"},"block_identifier":{"index":2,"hash":""}}' | jq
 ```

@@ -1,6 +1,6 @@
+use iota::Client;
 use crate::{
     consts,
-//    diem::{self, Diem},
     error::ApiError,
     filters::{handle, with_options},
     options::Options,
@@ -9,7 +9,6 @@ use crate::{
         Operation, OperationIdentifier, Transaction, TransactionIdentifier,
     },
 };
-// use diem_json_rpc_client::views::{AmountView, EventDataView, TransactionDataView};
 use log::debug;
 use warp::Filter;
 
@@ -34,191 +33,69 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         return Err(ApiError::BadNetwork);
     }
 
-    let diem = Diem::new(&options.diem_endpoint);
+    let iota_client = match iota::Client::builder()
+        .with_network(&options.network)
+        .with_node(&options.iota_endpoint)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await {
+        Ok(iota_client) => iota_client,
+        Err(_) => return Err(ApiError::UnableToBuildClient),
+    };
 
-    let block_version = block_request
+    let milestone_index = block_request
         .block_identifier
         .index
-        .ok_or_else(|| ApiError::BadBlockRequest)?;
+        .ok_or_else(|| ApiError::BadMilestoneRequest)?;
 
-    let metadata = diem.get_metadata(Some(block_version)).await?;
-    let tx = if block_version == 0 {
-        // For the genesis block, we populate parent_block_identifier with the
-        // same genesis block. Refer to
-        // https://www.rosetta-api.org/docs/common_mistakes.html#malformed-genesis-block
-        let one_tx = diem.get_transactions(block_version, 1, true).await?;
-        vec![one_tx[0].clone(), one_tx[0].clone()]
-    } else {
-        diem.get_transactions(block_version - 1, 2, true).await?
+    let milestone = match iota_client.get_milestone(milestone_index).await {
+        Ok(milestone) => milestone,
+        Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
-    let block_identifier = BlockIdentifier {
-        index: tx[1].version,
-        hash: tx[1].hash.clone().to_string(),
-    };
-
-    let parent_block_identifier = BlockIdentifier {
-        index: tx[0].version,
-        hash: tx[0].hash.clone().to_string(),
-    };
-
-    // block timestamp is in usecs, and Rosetta wants millis
-    // Note that this timestamp is 0 for genesis block and any following timeout blocks
-    let timestamp = metadata.timestamp / 1000;
-
-    let status = diem::vmstatus_to_str(&tx[1].vm_status);
-
-    let mut operations = tx[1]
-        .events
-        .iter()
-        .filter(|event| {
-            // NOTE: mint, preburn, burn, and cancelburn emit extra sent/recv
-            // payment events, which are used instead, so we filter thse
-            // out. We also filter out some other events we don't care about.
-            match &event.data {
-                // events that are represented better with sent/recv payment
-                EventDataView::Mint { .. }
-                | EventDataView::ReceivedMint { .. }
-                | EventDataView::Preburn { .. }
-                | EventDataView::Burn { .. }
-                | EventDataView::CancelBurn { .. } => false,
-                // events that we don't care about
-                EventDataView::ComplianceKeyRotation { .. }
-                | EventDataView::BaseUrlRotation { .. }
-                | EventDataView::Unknown { .. } => false,
-                _ => true,
-            }
-        })
-        .enumerate()
-        .map(|(index, event)| {
-            let index = index as u64;
-            let operation_identifier = OperationIdentifier {
-                index,
-                network_index: None,
-            };
-
-            #[derive(Debug)]
-            enum AmountKind<'a> {
-                Credit(&'a AmountView),
-                Debit(&'a AmountView),
-            }
-            use AmountKind::*;
-
-            let (type_, amount, account) = match &event.data {
-                // NOTE: mint, preburn, burn, and cancelburn are filtered out above.
-                EventDataView::Mint { .. } => unreachable!(),
-                EventDataView::ReceivedMint { .. } => unreachable!(),
-                EventDataView::Preburn { .. } => unreachable!(),
-                EventDataView::Burn { .. } => unreachable!(),
-                EventDataView::CancelBurn { .. } => unreachable!(),
-                EventDataView::ComplianceKeyRotation { .. } => unreachable!(),
-                EventDataView::BaseUrlRotation { .. } => unreachable!(),
-                EventDataView::Unknown { .. } => unreachable!(),
-
-                EventDataView::ToXDXExchangeRateUpdate { .. } => {
-                    ("to_xdx_exchange_rate_update", None, None)
-                }
-                EventDataView::AdminTransaction { .. } => ("upgrade", None, None),
-                EventDataView::NewEpoch { .. } => ("newepoch", None, None),
-                EventDataView::NewBlock { .. } => ("newblock", None, None),
-                EventDataView::CreateAccount { .. } => ("createaccount", None, None),
-
-                EventDataView::ReceivedPayment {
-                    amount, receiver, ..
-                } => ("receivedpayment", Some(Credit(amount)), Some(receiver)),
-                EventDataView::SentPayment { amount, sender, .. } => {
-                    ("sentpayment", Some(Debit(amount)), Some(sender))
-                }
-            };
-
-            let type_ = type_.to_string();
-            let status = Some(status.to_string());
-            let account = account.map(|account| AccountIdentifier {
-                address: account.0.to_lowercase(),
-                sub_account: None,
-            });
-            let amount = amount.map(|amount| {
-                let (currency, value) = match amount {
-                    Credit(amount) => (amount.currency.clone(), format!("{}", amount.amount)),
-                    Debit(amount) => (amount.currency.clone(), format!("-{}", amount.amount)),
-                };
-                Amount {
-                    value,
-                    currency: Currency {
-                        symbol: currency,
-                        decimals: 6, // TODO: use get_currencies instead of hardcoding
-                    },
-                }
-            });
-
-            Operation {
-                operation_identifier,
-                related_operations: None,
-                type_,
-                status,
-                account,
-                amount,
-            }
-        })
-        .collect::<Vec<_>>();
-
-    // Handle transcation fees
-
-    // There are no events for transaction fees, since gas is used regardless
-    // of transaction status. We append the sent_fee operation to represent fee
-    // payment. Fee receipt is not represented, since the fees do not live in a "balance"
-    // under the association account, so are not visible to Rosetta.
-    if let TransactionDataView::UserTransaction {
-        sender,
-        gas_unit_price,
-        gas_currency,
-        ..
-    } = &tx[1].transaction
-    {
-        if *gas_unit_price > 0 {
-            let value = gas_unit_price * tx[1].gas_used;
-
-            let currency = Currency {
-                symbol: gas_currency.clone(),
-                decimals: 6, // TODO: use get_currencies instead of hardcoding
-            };
-
-            let status = "executed".to_string(); // NOTE: tx fees are always charged
-
-            let sent_fee_op = Operation {
-                operation_identifier: OperationIdentifier {
-                    index: tx[1].events.len() as u64,
-                    network_index: None,
-                },
-                related_operations: None,
-                type_: "sentfee".to_string(),
-                status: Some(status),
-                account: Some(AccountIdentifier {
-                    address: sender.to_string().to_lowercase(),
-                    sub_account: None,
-                }),
-                amount: Some(Amount {
-                    value: format!("-{}", value),
-                    currency: currency.clone(),
-                }),
-            };
-
-            operations.push(sent_fee_op);
-        }
+    let block_request_hash = block_request.block_identifier.hash.unwrap();
+    if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
+        return Err(ApiError::BadMilestoneRequest);
     }
 
-    let transactions = vec![Transaction {
-        transaction_identifier: TransactionIdentifier {
-            hash: tx[1].hash.clone().to_string(),
-        },
-        operations,
-    }];
+    let block_identifier = BlockIdentifier {
+        index: milestone_index,
+        hash: milestone.message_id.to_string(),
+    };
+
+    let parent_block_identifier;
+    if milestone_index == 1 {
+        parent_block_identifier = BlockIdentifier {
+            index: milestone.index as u64,
+            hash: milestone.message_id.to_string(),
+        };
+    } else {
+        let parent_milestone = match iota_client.get_milestone(milestone_index - 1).await {
+            Ok(parent_milestone) => parent_milestone,
+            Err(_) => return Err(ApiError::UnableToGetMilestone),
+        };
+
+        parent_block_identifier = BlockIdentifier {
+            index: parent_milestone.index as u64,
+            hash: parent_milestone.message_id.to_string(),
+        };
+    }
+
+    let timestamp = milestone.timestamp;
+
+    // let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
+    //     Ok(parent_milestone) => parent_milestone,
+    //     Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
+    // };
+
+    let utxo_changes = vec![];
 
     let block = Block {
-        block_identifier,
-        parent_block_identifier,
-        timestamp,
-        transactions,
+        block_identifier: block_identifier,
+        parent_block_identifier: parent_block_identifier,
+        timestamp: timestamp,
+        transactions: utxo_changes,
     };
 
     let response = BlockResponse { block };
