@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
+iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "api" }
 bee-rest-api = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2" }
 log = "0.4"
 warp = "0.3"
