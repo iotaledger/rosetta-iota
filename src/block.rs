@@ -92,7 +92,8 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     let mut transactions = vec![];
 
     for output_id in utxo_changes.created_outputs {
-        // output = UTXOInput::from_str(output_id);
+        // todo: uncomment below as soon as get_milestone_utxo_changes drops Vec<String> for outputs
+        // input = UTXOInput::from_str(output_id);
 
         let transaction_identifier = TransactionIdentifier {
             hash: output_id
@@ -111,6 +112,22 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         //     account: Option<AccountIdentifier>,
         //     amount: Option<Amount>,
         // });
+
+        transactions.push(Transaction {
+            transaction_identifier: transaction_identifier,
+            operations: operations
+        });
+    }
+
+    for output_id in utxo_changes.consumed_outputs {
+        // todo: uncomment below as soon as get_milestone_utxo_changes drops Vec<String> for outputs
+        // output = UTXOOutput:from_str(output_id);
+
+        let transaction_identifier = TransactionIdentifier {
+            hash: output_id
+        };
+
+        let operations  = vec![];
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
