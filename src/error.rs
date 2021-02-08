@@ -22,6 +22,8 @@ pub enum ApiError {
     BadMilestoneRequest,
     #[error("unable to get milestone utxo changes")]
     UnableToGetMilestoneUTXOChanges,
+    #[error("unable to get transaction outputs")]
+    UnableToGetOutput,
 }
 
 impl ApiError {
@@ -35,6 +37,7 @@ impl ApiError {
             ApiError::UnableToGetPeers => 60,
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
+            ApiError::UnableToGetOutput => 90,
         }
     }
 
@@ -48,6 +51,7 @@ impl ApiError {
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => false,
+            ApiError::UnableToGetOutput => false,
         }
     }
 
@@ -61,6 +65,7 @@ impl ApiError {
             ApiError::UnableToGetPeers => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetOutput => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -122,6 +127,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Milestone UTXO Changes".to_string(),
                 code: 80,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Transaction Outputs".to_string(),
+                code: 90,
                 retriable: false,
                 details: None,
             },
