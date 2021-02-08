@@ -84,18 +84,45 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
     let timestamp = milestone.timestamp;
 
-    // let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
-    //     Ok(parent_milestone) => parent_milestone,
-    //     Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
-    // };
+    let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
+        Ok(utxo_changes) => utxo_changes,
+        Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
+    };
 
-    let utxo_changes = vec![];
+    let mut transactions = vec![];
+
+    for output_id in utxo_changes.created_outputs {
+        // output = UTXOInput::from_str(output_id);
+
+        let transaction_identifier = TransactionIdentifier {
+            hash: output_id
+        };
+
+        let operations  = vec![];
+        // operations.push(Operation {
+        //     // here we might want to consume a constant representation of Created Outputs as OperationIdentifier
+        //     operation_identifier: OperationIdentifier {
+        //         index: 0,
+        //         network_index: 0,
+        //     },
+        //     related_operations: Option<Vec<OperationIdentifier>>,
+        //     type_: String::from(""),
+        //     status: Option<String>,
+        //     account: Option<AccountIdentifier>,
+        //     amount: Option<Amount>,
+        // });
+
+        transactions.push(Transaction {
+            transaction_identifier: transaction_identifier,
+            operations: operations
+        });
+    }
 
     let block = Block {
         block_identifier: block_identifier,
         parent_block_identifier: parent_block_identifier,
         timestamp: timestamp,
-        transactions: utxo_changes,
+        transactions: transactions,
     };
 
     let response = BlockResponse { block };
