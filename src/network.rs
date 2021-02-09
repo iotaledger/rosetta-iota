@@ -5,14 +5,13 @@ use crate::{
     options::Options,
     types::{
         Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse,
-        NetworkRequest, NetworkStatusResponse, OperationStatus, Peer, Version,
+        NetworkRequest, NetworkStatusResponse, Peer, Version,
     },
     operations::*
 };
 use log::debug;
 use warp::Filter;
-use iota::Client;
-use bee_rest_api::types;
+use iota;
 
 pub fn routes(
     options: Options,

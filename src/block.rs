@@ -1,4 +1,4 @@
-use iota::Client;
+use iota;
 use bee_message::prelude::UTXOInput;
 use bee_rest_api::types::{OutputDto, AddressDto};
 use crate::{
@@ -7,8 +7,8 @@ use crate::{
     filters::{handle, with_options},
     options::Options,
     types::{
-        AccountIdentifier, Amount, Block, BlockIdentifier, BlockRequest, BlockResponse, Currency,
-        Operation, OperationIdentifier, Transaction, TransactionIdentifier,
+        Block, BlockIdentifier, BlockRequest, BlockResponse,
+        Transaction, TransactionIdentifier,
     },
     operations::*
 };

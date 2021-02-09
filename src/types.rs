@@ -1,4 +1,3 @@
-use bee_rest_api::types;
 use serde::{Deserialize, Serialize};
 
 // Objects

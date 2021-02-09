@@ -1,10 +1,10 @@
-use iota::Client;
+use iota;
 use crate::{
     consts,
     error::ApiError,
     filters::{handle, with_options},
     options::Options,
-    types::{AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier, Currency},
+    types::{AccountBalanceRequest, AccountBalanceResponse, BlockIdentifier},
 };
 use log::debug;
 use warp::Filter;
