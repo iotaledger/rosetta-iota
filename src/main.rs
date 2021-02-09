@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use structopt::StructOpt;
 use warp::{http::StatusCode, Filter};
 
-// mod account;
+mod account;
 mod block;
 // mod construction;
 mod consts;

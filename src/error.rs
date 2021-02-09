@@ -26,6 +26,8 @@ pub enum ApiError {
     UnableToGetOutput,
     #[error("unable to get genesis milestone. try pointing to a permanode instead")]
     UnableToGetGenesisMilestone,
+    #[error("Historical balances are not supported.")]
+    HistoricalBalancesUnsupported,
 }
 
 impl ApiError {
@@ -41,6 +43,7 @@ impl ApiError {
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
             ApiError::UnableToGetOutput => 90,
             ApiError::UnableToGetGenesisMilestone => 100,
+            ApiError::HistoricalBalancesUnsupported => 110,
         }
     }
 
@@ -56,6 +59,7 @@ impl ApiError {
             ApiError::UnableToGetMilestoneUTXOChanges => false,
             ApiError::UnableToGetOutput => false,
             ApiError::UnableToGetGenesisMilestone => false,
+            ApiError::HistoricalBalancesUnsupported => false,
         }
     }
 
@@ -71,6 +75,7 @@ impl ApiError {
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetOutput => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetGenesisMilestone => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::HistoricalBalancesUnsupported => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -144,6 +149,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Genesis Milestone, try pointing to a Permanode instead.".to_string(),
                 code: 100,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Historical balances not supported.".to_string(),
+                code: 110,
                 retriable: false,
                 details: None,
             },
