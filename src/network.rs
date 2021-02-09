@@ -7,6 +7,7 @@ use crate::{
         Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse,
         NetworkRequest, NetworkStatusResponse, OperationStatus, Peer, Version,
     },
+    operations::*
 };
 use log::debug;
 use warp::Filter;
@@ -67,19 +68,10 @@ async fn network_options(
     };
 
     let mut operation_statuses = Vec::new();
-    // for op in diem::vmstatus_all_strs() {
-    //     operation_statuses.push(OperationStatus {
-    //         status: op.to_string(),
-    //         successful: op == "executed",
-    //     });
-    // }
+    operation_statuses.push(operation_status_success());
+    operation_statuses.push(operation_status_fail());
 
-    let operation_types = vec![
-        "message".to_string(),
-        "indexed_message".to_string(),
-        "transaction".to_string(),
-        // "streams_channel".to_string(), // Streams operations?
-    ];
+    let operation_types = operation_type_list();
 
     let errors = ApiError::all_errors();
 
@@ -88,7 +80,7 @@ async fn network_options(
         operation_types,
         errors,
         historical_balance_lookup: false,
-        timestamp_start_index: Some(3), // FIXME: hardcoded based on current testnet
+        timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
     };

@@ -3,18 +3,25 @@ use crate::types::{
 };
 use crate::currency::iota_currency;
 
-pub enum UTXOOperationIndex {
-    consumed,
-    created,
+pub enum OperationIndex {
+    utxo_consumed,
+    utxo_created,
 }
 
-const CONSUMED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIdentifier {
-    index: UTXOOperationIndex::consumed as u64,
+pub fn operation_type_list() -> Vec<String> {
+    let mut ret = vec![];
+    ret.push(String::from("UTXO_CONSUMED"));
+    ret.push(String::from("UTXO_CREATED"));
+    ret
+}
+
+pub const CONSUMED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIdentifier {
+    index: OperationIndex::utxo_consumed as u64,
     network_index: None, // no sharding in IOTA yet :(
 };
 
-const CREATED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIdentifier {
-    index: UTXOOperationIndex::created as u64,
+pub const CREATED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIdentifier {
+    index: OperationIndex::utxo_created as u64,
     network_index: None, // no sharding in IOTA yet :(
 };
 
