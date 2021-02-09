@@ -1,4 +1,6 @@
 use iota::Client;
+use bee_message::prelude::UTXOInput;
+use bee_rest_api::types::{OutputDto, AddressDto};
 use crate::{
     consts,
     error::ApiError,
@@ -8,7 +10,9 @@ use crate::{
         AccountIdentifier, Amount, Block, BlockIdentifier, BlockRequest, BlockResponse, Currency,
         Operation, OperationIdentifier, Transaction, TransactionIdentifier,
     },
+    operations::*
 };
+use std::str::FromStr;
 use log::debug;
 use warp::Filter;
 
@@ -91,27 +95,36 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
     let mut transactions = vec![];
 
-    for output_id in utxo_changes.created_outputs {
-        // todo: uncomment below as soon as get_milestone_utxo_changes drops Vec<String> for outputs
-        // input = UTXOInput::from_str(output_id);
+    for output_id_str in utxo_changes.created_outputs {
+        let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
 
-        let transaction_identifier = TransactionIdentifier {
-            hash: output_id
+        let output = match iota_client.get_output(&output_id).await {
+            Ok(output) => output,
+            Err(_) => return Err(ApiError::UnableToGetOutput)
         };
 
-        let operations  = vec![];
-        // operations.push(Operation {
-        //     // here we might want to consume a constant representation of Created Outputs as OperationIdentifier
-        //     operation_identifier: OperationIdentifier {
-        //         index: 0,
-        //         network_index: 0,
-        //     },
-        //     related_operations: Option<Vec<OperationIdentifier>>,
-        //     type_: String::from(""),
-        //     status: Option<String>,
-        //     account: Option<AccountIdentifier>,
-        //     amount: Option<Amount>,
-        // });
+        let is_spent = output.is_spent;
+
+        let (amount, address) = match output.output {
+            OutputDto::Treasury(_) => panic!("Can't be used as input"),
+            OutputDto::SignatureLockedSingle(r) => match r.address {
+                AddressDto::Ed25519(ed25519) => {
+                    (r.amount, ed25519.address)
+                }
+            },
+            OutputDto::SignatureLockedDustAllowance(r) => match r.address  {
+                AddressDto::Ed25519(ed25519) => {
+                    (r.amount, ed25519.address)
+                }
+            },
+        };
+
+        let transaction_identifier = TransactionIdentifier {
+            hash: output_id_str
+        };
+
+        let mut operations  = vec![];
+        operations.push(created_utxo_operation(is_spent, address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
@@ -119,15 +132,36 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         });
     }
 
-    for output_id in utxo_changes.consumed_outputs {
-        // todo: uncomment below as soon as get_milestone_utxo_changes drops Vec<String> for outputs
-        // output = UTXOOutput:from_str(output_id);
+    for output_id_str in utxo_changes.consumed_outputs {
+        let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
 
-        let transaction_identifier = TransactionIdentifier {
-            hash: output_id
+        let output = match iota_client.get_output(&output_id).await {
+            Ok(output) => output,
+            Err(_) => return Err(ApiError::UnableToGetOutput),
         };
 
-        let operations  = vec![];
+        let is_spent = output.is_spent;
+
+        let (amount, address) = match output.output {
+            OutputDto::Treasury(_) => panic!("Can't be used as input"),
+            OutputDto::SignatureLockedSingle(r) => match r.address {
+                AddressDto::Ed25519(ed25519) => {
+                    (r.amount, ed25519.address)
+                }
+            },
+            OutputDto::SignatureLockedDustAllowance(r) => match r.address  {
+                AddressDto::Ed25519(ed25519) => {
+                    (r.amount, ed25519.address)
+                }
+            },
+        };
+
+        let transaction_identifier = TransactionIdentifier {
+            hash: output_id_str
+        };
+
+        let mut operations  = vec![];
+        operations.push(consumed_utxo_operation(is_spent, address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,

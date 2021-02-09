@@ -2470,6 +2470,7 @@ name = "rosetta-iota"
 version = "0.1.0"
 dependencies = [
  "bcs",
+ "bee-message",
  "bee-rest-api",
  "env_logger",
  "futures",
