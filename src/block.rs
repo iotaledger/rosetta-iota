@@ -123,6 +123,8 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
             hash: output_id_str
         };
 
+        // todo: related_transactions (?)
+
         let mut operations  = vec![];
         operations.push(created_utxo_operation(is_spent, address, amount));
 
@@ -159,6 +161,8 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let transaction_identifier = TransactionIdentifier {
             hash: output_id_str
         };
+
+        // todo: related_transactions (?)
 
         let mut operations  = vec![];
         operations.push(consumed_utxo_operation(is_spent, address, amount));

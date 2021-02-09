@@ -104,6 +104,7 @@ pub struct Signature {
 pub struct Transaction {
     pub transaction_identifier: TransactionIdentifier,
     pub operations: Vec<Operation>,
+    // pub related_transactions // todo
 }
 
 // Identifiers
