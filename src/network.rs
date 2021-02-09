@@ -127,6 +127,12 @@ async fn network_status(
 
     let genesis_milestone = match iota_client.get_milestone(1).await {
         Ok(genesis_milestone) => genesis_milestone,
+        Err(_) => return Err(ApiError::UnableToGetGenesisMilestone),
+    };
+
+    let latest_milestone_index = node_info.latest_milestone_index as u64;
+    let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
+        Ok(latest_milestone) => latest_milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
@@ -136,7 +142,7 @@ async fn network_status(
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
-    let current_block_timestamp = solid_milestone.timestamp;
+    let current_block_timestamp = latest_milestone.timestamp;
     let peers = match iota_client.get_peers().await {
         Ok(peers) => peers,
         Err(_) => return Err(ApiError::UnableToGetPeers),
@@ -148,6 +154,11 @@ async fn network_status(
     };
 
     let current_block_identifier = BlockIdentifier {
+        index: latest_milestone.index as u64,
+        hash: latest_milestone.message_id.to_string(),
+    };
+
+    let oldest_block_identifier = BlockIdentifier {
         index: solid_milestone.index as u64,
         hash: solid_milestone.message_id.to_string(),
     };
@@ -156,6 +167,7 @@ async fn network_status(
         current_block_identifier,
         current_block_timestamp,
         genesis_block_identifier,
+        oldest_block_identifier,
         peers,
     };
 

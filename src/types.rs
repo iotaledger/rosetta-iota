@@ -333,6 +333,7 @@ pub struct NetworkStatusResponse {
     pub current_block_identifier: BlockIdentifier,
     pub current_block_timestamp: u64,
     pub genesis_block_identifier: BlockIdentifier,
+    pub oldest_block_identifier: BlockIdentifier,
     pub peers: Vec<bee_rest_api::types::PeerDto>,
 }
 

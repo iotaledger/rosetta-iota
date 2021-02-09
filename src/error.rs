@@ -24,6 +24,8 @@ pub enum ApiError {
     UnableToGetMilestoneUTXOChanges,
     #[error("unable to get transaction outputs")]
     UnableToGetOutput,
+    #[error("unable to get genesis milestone. try pointing to a permanode instead")]
+    UnableToGetGenesisMilestone,
 }
 
 impl ApiError {
@@ -38,6 +40,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
             ApiError::UnableToGetOutput => 90,
+            ApiError::UnableToGetGenesisMilestone => 100,
         }
     }
 
@@ -52,6 +55,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => false,
             ApiError::UnableToGetOutput => false,
+            ApiError::UnableToGetGenesisMilestone => false,
         }
     }
 
@@ -66,6 +70,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetOutput => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetGenesisMilestone => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -133,6 +138,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Transaction Outputs".to_string(),
                 code: 90,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Genesis Milestone, try pointing to a Permanode instead.".to_string(),
+                code: 100,
                 retriable: false,
                 details: None,
             },
