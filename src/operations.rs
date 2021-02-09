@@ -1,5 +1,5 @@
 use crate::types::{
-        AccountIdentifier, Amount, Operation,OperationIdentifier
+        AccountIdentifier, Amount, Operation, OperationIdentifier, OperationStatus
 };
 use crate::currency::iota_currency;
 
@@ -17,6 +17,20 @@ const CREATED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIdentifi
     index: UTXOOperationIndex::created as u64,
     network_index: None, // no sharding in IOTA yet :(
 };
+
+pub fn operation_status_success() -> OperationStatus {
+    OperationStatus {
+        status: String::from("SUCCESS"),
+        successful: true,
+    }
+}
+
+pub fn operation_status_fail() -> OperationStatus {
+    OperationStatus {
+        status: String::from("FAIL"),
+        successful: false,
+    }
+}
 
 pub fn consumed_utxo_operation(is_spent: bool, address: String, amnt: u64) -> Operation {
     let related_operations = vec![CREATED_UTXO_OPERATION_IDENTIFIER];
