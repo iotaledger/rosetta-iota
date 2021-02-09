@@ -14,6 +14,8 @@ mod filters;
 mod network;
 mod options;
 mod types;
+mod operations;
+mod currency;
 
 async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
     let message;
