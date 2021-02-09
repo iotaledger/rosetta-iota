@@ -5,7 +5,7 @@ use crate::{
     options::Options,
     types::{
         Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse,
-        NetworkRequest, NetworkStatusResponse, Peer, Version,
+        NetworkRequest, NetworkStatusResponse, Peer, PeerMetadata, Version,
     },
     operations::*
 };
@@ -134,10 +134,22 @@ async fn network_status(
     };
 
     let current_block_timestamp = latest_milestone.timestamp;
-    let peers = match iota_client.get_peers().await {
+    let peers_bee = match iota_client.get_peers().await {
         Ok(peers) => peers,
         Err(_) => return Err(ApiError::UnableToGetPeers),
     };
+
+    let mut peers = vec![];
+    for peer_bee in peers_bee {
+        peers.push(Peer {
+            peer_id: peer_bee.id,
+            metadata: PeerMetadata {
+                multi_addresses: peer_bee.multi_addresses,
+                alias: peer_bee.alias,
+                connected: peer_bee.connected
+            }
+        });
+    }
 
     let genesis_block_identifier = BlockIdentifier {
         index: genesis_milestone.index as u64,
