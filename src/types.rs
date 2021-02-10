@@ -51,6 +51,12 @@ pub struct Block {
     pub transactions: Vec<Transaction>,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Coin {
+    pub coin_identifier: CoinIdentifier,
+    pub amount: Amount,
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Currency {
     pub symbol: String,
@@ -125,6 +131,11 @@ pub struct BlockIdentifier {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CoinIdentifier {
+    pub identifier: String
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NetworkIdentifier {
     pub blockchain: String,
     pub network: String,
@@ -163,6 +174,18 @@ pub struct TransactionIdentifier {
 }
 
 // Requests and Rseponses
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountCoinsRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub account_identifier: AccountIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountCoinsResponse {
+    pub block_identifier: BlockIdentifier,
+    pub coins: Vec<Coin>,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
