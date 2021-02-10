@@ -1,35 +1,31 @@
-use crate::{
-    error::ApiError,
-    options::Options,
-};
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
+use crate::{error::ApiError, options::Options};
 use futures::future::BoxFuture;
-use serde::{Serialize, Deserialize};
-use std::{
-    convert::Infallible,
-    future::Future,
-};
+use serde::{Deserialize, Serialize};
+use std::{convert::Infallible, future::Future};
 use warp::Filter;
 
-pub fn with_options(options: Options) -> impl Filter<Extract=(Options,), Error=Infallible> + Clone {
+pub fn with_options(options: Options) -> impl Filter<Extract = (Options,), Error = Infallible> + Clone {
     warp::any().map(move || options.clone())
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct EmptyRequest;
 
-pub fn with_empty_request() -> impl Filter<Extract=(EmptyRequest,), Error=Infallible> + Clone {
+pub fn with_empty_request() -> impl Filter<Extract = (EmptyRequest,), Error = Infallible> + Clone {
     warp::any().map(move || EmptyRequest)
 }
 
 pub fn handle<'a, F, R, Req, Resp>(
     handler: F,
-) -> impl Fn(Req, Options) -> BoxFuture<'static, Result<warp::reply::WithStatus<warp::reply::Json>, Infallible>>
-+ Clone
-    where
-        F: FnOnce(Req, Options) -> R + Clone + Copy + Send + 'static,
-        R: Future<Output = Result<Resp, ApiError>> + Send,
-        Req: Deserialize<'a> + Send + 'static,
-        Resp: Serialize,
+) -> impl Fn(Req, Options) -> BoxFuture<'static, Result<warp::reply::WithStatus<warp::reply::Json>, Infallible>> + Clone
+where
+    F: FnOnce(Req, Options) -> R + Clone + Copy + Send + 'static,
+    R: Future<Output = Result<Resp, ApiError>> + Send,
+    Req: Deserialize<'a> + Send + 'static,
+    Resp: Serialize,
 {
     move |request, options| {
         let fut = async move {

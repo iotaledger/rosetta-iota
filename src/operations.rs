@@ -1,7 +1,10 @@
-use crate::types::{
-        AccountIdentifier, Amount, Operation, OperationIdentifier, OperationStatus
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
+use crate::{
+    currency::iota_currency,
+    types::{AccountIdentifier, Amount, Operation, OperationIdentifier, OperationStatus},
 };
-use crate::currency::iota_currency;
 
 pub enum OperationIndex {
     UTXOConsumed,
@@ -43,7 +46,7 @@ pub fn consumed_utxo_operation(is_spent: bool, address: String, amnt: u64) -> Op
     let related_operations = vec![CREATED_UTXO_OPERATION_IDENTIFIER];
     let status = match is_spent {
         true => String::from("spent"),
-        false => String::from("unspent")
+        false => String::from("unspent"),
     };
     let account = AccountIdentifier {
         address,
@@ -68,7 +71,7 @@ pub fn created_utxo_operation(is_spent: bool, address: String, amnt: u64) -> Ope
     let related_operations = vec![CONSUMED_UTXO_OPERATION_IDENTIFIER];
     let status = match is_spent {
         true => String::from("spent"),
-        false => String::from("unspent")
+        false => String::from("unspent"),
     };
     let account = AccountIdentifier {
         address,

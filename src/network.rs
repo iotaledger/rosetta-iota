@@ -1,23 +1,23 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::{
     consts,
     error::ApiError,
     filters::{handle, with_empty_request, with_options, EmptyRequest},
+    operations::*,
     options::Options,
     types::{
-        Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse,
-        NetworkRequest, NetworkStatusResponse, Peer, PeerMetadata, Version,
+        Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkRequest,
+        NetworkStatusResponse, Peer, PeerMetadata, Version,
     },
-    operations::*
 };
+use bee_message::prelude::{MessageId, MESSAGE_ID_LENGTH};
+use iota::{self, client::MilestoneResponse};
 use log::debug;
 use warp::Filter;
-use iota;
-use iota::client::MilestoneResponse;
-use bee_message::prelude::{MessageId, MESSAGE_ID_LENGTH};
 
-pub fn routes(
-    options: Options,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("network" / "list")
@@ -35,10 +35,7 @@ pub fn routes(
             .and_then(handle(network_status)))
 }
 
-async fn network_list(
-    _empty: EmptyRequest,
-    options: Options,
-) -> Result<NetworkListResponse, ApiError> {
+async fn network_list(_empty: EmptyRequest, options: Options) -> Result<NetworkListResponse, ApiError> {
     debug!("/network/list");
     let response = NetworkListResponse {
         network_identifiers: vec![NetworkIdentifier {
@@ -91,10 +88,7 @@ async fn network_options(
     Ok(response)
 }
 
-async fn network_status(
-    network_request: NetworkRequest,
-    options: Options,
-) -> Result<NetworkStatusResponse, ApiError> {
+async fn network_status(network_request: NetworkRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
@@ -108,7 +102,8 @@ async fn network_status(
         .unwrap()
         .with_node_sync_disabled()
         .finish()
-        .await {
+        .await
+    {
         Ok(iota_client) => iota_client,
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
@@ -152,8 +147,8 @@ async fn network_status(
             metadata: PeerMetadata {
                 multi_addresses: peer_bee.multi_addresses,
                 alias: peer_bee.alias,
-                connected: peer_bee.connected
-            }
+                connected: peer_bee.connected,
+            },
         });
     }
 

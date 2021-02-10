@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use serde::{Deserialize, Serialize};
 
 // Objects
@@ -184,7 +187,7 @@ pub struct BlockRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockResponse {
     pub block: Block,
-    //pub other_transactions: Vec<TransactionIdentifier>
+    // pub other_transactions: Vec<TransactionIdentifier>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -363,7 +366,7 @@ pub struct OperationStatus {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Peer {
     pub peer_id: String,
-    pub metadata: PeerMetadata
+    pub metadata: PeerMetadata,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

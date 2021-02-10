@@ -1,24 +1,23 @@
-use iota;
-use bee_message::prelude::UTXOInput;
-use bee_rest_api::types::{OutputDto, AddressDto};
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::{
     consts,
     error::ApiError,
     filters::{handle, with_options},
+    operations::*,
     options::Options,
-    types::{
-        Block, BlockIdentifier, BlockRequest, BlockResponse,
-        Transaction, TransactionIdentifier,
-    },
-    operations::*
+    types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier},
 };
-use std::str::FromStr;
+use bee_message::prelude::UTXOInput;
+use bee_rest_api::types::{AddressDto, OutputDto};
+use iota;
 use log::debug;
+use std::str::FromStr;
+
 use warp::Filter;
 
-pub fn routes(
-    options: Options,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post().and(
         warp::path!("block")
             .and(warp::body::json())
@@ -31,9 +30,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     debug!("/block");
 
     let network_identifier = block_request.network_identifier;
-    if network_identifier.blockchain != consts::BLOCKCHAIN
-        || network_identifier.network != options.network
-    {
+    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }
 
@@ -43,7 +40,8 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         .unwrap()
         .with_node_sync_disabled()
         .finish()
-        .await {
+        .await
+    {
         Ok(iota_client) => iota_client,
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
@@ -100,7 +98,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
         let output = match iota_client.get_output(&output_id).await {
             Ok(output) => output,
-            Err(_) => return Err(ApiError::UnableToGetOutput)
+            Err(_) => return Err(ApiError::UnableToGetOutput),
         };
 
         let is_spent = output.is_spent;
@@ -108,29 +106,23 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let (amount, address) = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => {
-                    (r.amount, ed25519.address)
-                }
+                AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
             },
-            OutputDto::SignatureLockedDustAllowance(r) => match r.address  {
-                AddressDto::Ed25519(ed25519) => {
-                    (r.amount, ed25519.address)
-                }
+            OutputDto::SignatureLockedDustAllowance(r) => match r.address {
+                AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
             },
         };
 
-        let transaction_identifier = TransactionIdentifier {
-            hash: output_id_str
-        };
+        let transaction_identifier = TransactionIdentifier { hash: output_id_str };
 
         // todo: related_transactions (?)
 
-        let mut operations  = vec![];
+        let mut operations = vec![];
         operations.push(created_utxo_operation(is_spent, address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
-            operations: operations
+            operations: operations,
         });
     }
 
@@ -147,29 +139,23 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let (amount, address) = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => {
-                    (r.amount, ed25519.address)
-                }
+                AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
             },
-            OutputDto::SignatureLockedDustAllowance(r) => match r.address  {
-                AddressDto::Ed25519(ed25519) => {
-                    (r.amount, ed25519.address)
-                }
+            OutputDto::SignatureLockedDustAllowance(r) => match r.address {
+                AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
             },
         };
 
-        let transaction_identifier = TransactionIdentifier {
-            hash: output_id_str
-        };
+        let transaction_identifier = TransactionIdentifier { hash: output_id_str };
 
         // todo: related_transactions (?)
 
-        let mut operations  = vec![];
+        let mut operations = vec![];
         operations.push(consumed_utxo_operation(is_spent, address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
-            operations: operations
+            operations: operations,
         });
     }
 

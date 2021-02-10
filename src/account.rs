@@ -1,4 +1,6 @@
-use iota;
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::{
     consts,
     error::ApiError,
@@ -6,12 +8,11 @@ use crate::{
     options::Options,
     types::{AccountBalanceRequest, AccountBalanceResponse, BlockIdentifier},
 };
+use iota;
 use log::debug;
 use warp::Filter;
 
-pub fn routes(
-    options: Options,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post().and(
         warp::path!("account" / "balance")
             .and(warp::body::json())
@@ -27,9 +28,7 @@ async fn account_balance(
     debug!("/account/balance");
 
     let network_identifier = account_balance_request.network_identifier;
-    if network_identifier.blockchain != consts::BLOCKCHAIN
-        || network_identifier.network != options.network
-    {
+    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }
 
@@ -44,7 +43,8 @@ async fn account_balance(
         .unwrap()
         .with_node_sync_disabled()
         .finish()
-        .await {
+        .await
+    {
         Ok(iota_client) => iota_client,
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };

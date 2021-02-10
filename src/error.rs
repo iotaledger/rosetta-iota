@@ -1,6 +1,7 @@
-use crate::{
-    types::{self, ErrorDetails},
-};
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
+use crate::types::{self, ErrorDetails};
 use thiserror::Error;
 use warp::{http::StatusCode, reply::Reply};
 
@@ -184,8 +185,8 @@ impl ApiError {
 
 impl warp::reject::Reject for ApiError {}
 
-/* commented out after bumping to warp 0.3
-remember to use impl<T: Reject> From<T> for Rejection */
+// commented out after bumping to warp 0.3
+// remember to use impl<T: Reject> From<T> for Rejection
 // impl std::convert::From<ApiError> for warp::reject::Rejection {
 //     fn from(api_error: ApiError) -> Self {
 //         warp::reject::custom(api_error)
