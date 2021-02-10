@@ -12,6 +12,8 @@ use crate::{
 use log::debug;
 use warp::Filter;
 use iota;
+use iota::client::MilestoneResponse;
+use bee_message::prelude::{MessageId, MESSAGE_ID_LENGTH};
 
 pub fn routes(
     options: Options,
@@ -118,7 +120,11 @@ async fn network_status(
 
     let genesis_milestone = match iota_client.get_milestone(1).await {
         Ok(genesis_milestone) => genesis_milestone,
-        Err(_) => return Err(ApiError::UnableToGetGenesisMilestone),
+        Err(_) => MilestoneResponse {
+            index: 1,
+            message_id: MessageId::new([0; MESSAGE_ID_LENGTH]),
+            timestamp: 0,
+        },
     };
 
     let latest_milestone_index = node_info.latest_milestone_index as u64;
