@@ -134,7 +134,7 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
-    let current_block_timestamp = latest_milestone.timestamp;
+    let current_block_timestamp = latest_milestone.timestamp * 1000;
     let peers_bee = match iota_client.get_peers().await {
         Ok(peers) => peers,
         Err(_) => return Err(ApiError::UnableToGetPeers),
