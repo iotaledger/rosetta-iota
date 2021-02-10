@@ -5,13 +5,13 @@ use crate::{
     options::Options,
     types::{
         Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse,
-        NetworkRequest, NetworkStatusResponse, OperationStatus, Peer, Version,
+        NetworkRequest, NetworkStatusResponse, Peer, PeerMetadata, Version,
     },
+    operations::*
 };
 use log::debug;
 use warp::Filter;
-use iota::Client;
-use bee_rest_api::types;
+use iota;
 
 pub fn routes(
     options: Options,
@@ -67,19 +67,10 @@ async fn network_options(
     };
 
     let mut operation_statuses = Vec::new();
-    // for op in diem::vmstatus_all_strs() {
-    //     operation_statuses.push(OperationStatus {
-    //         status: op.to_string(),
-    //         successful: op == "executed",
-    //     });
-    // }
+    operation_statuses.push(operation_status_success());
+    operation_statuses.push(operation_status_fail());
 
-    let operation_types = vec![
-        "message".to_string(),
-        "indexed_message".to_string(),
-        "transaction".to_string(),
-        // "streams_channel".to_string(), // Streams operations?
-    ];
+    let operation_types = operation_type_list();
 
     let errors = ApiError::all_errors();
 
@@ -88,7 +79,7 @@ async fn network_options(
         operation_types,
         errors,
         historical_balance_lookup: false,
-        timestamp_start_index: Some(3), // FIXME: hardcoded based on current testnet
+        timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
     };
@@ -127,6 +118,12 @@ async fn network_status(
 
     let genesis_milestone = match iota_client.get_milestone(1).await {
         Ok(genesis_milestone) => genesis_milestone,
+        Err(_) => return Err(ApiError::UnableToGetGenesisMilestone),
+    };
+
+    let latest_milestone_index = node_info.latest_milestone_index as u64;
+    let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
+        Ok(latest_milestone) => latest_milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
@@ -136,11 +133,23 @@ async fn network_status(
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
-    let current_block_timestamp = solid_milestone.timestamp;
-    let peers = match iota_client.get_peers().await {
+    let current_block_timestamp = latest_milestone.timestamp;
+    let peers_bee = match iota_client.get_peers().await {
         Ok(peers) => peers,
         Err(_) => return Err(ApiError::UnableToGetPeers),
     };
+
+    let mut peers = vec![];
+    for peer_bee in peers_bee {
+        peers.push(Peer {
+            peer_id: peer_bee.id,
+            metadata: PeerMetadata {
+                multi_addresses: peer_bee.multi_addresses,
+                alias: peer_bee.alias,
+                connected: peer_bee.connected
+            }
+        });
+    }
 
     let genesis_block_identifier = BlockIdentifier {
         index: genesis_milestone.index as u64,
@@ -148,6 +157,11 @@ async fn network_status(
     };
 
     let current_block_identifier = BlockIdentifier {
+        index: latest_milestone.index as u64,
+        hash: latest_milestone.message_id.to_string(),
+    };
+
+    let oldest_block_identifier = BlockIdentifier {
         index: solid_milestone.index as u64,
         hash: solid_milestone.message_id.to_string(),
     };
@@ -156,6 +170,7 @@ async fn network_status(
         current_block_identifier,
         current_block_timestamp,
         genesis_block_identifier,
+        oldest_block_identifier,
         peers,
     };
 

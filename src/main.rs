@@ -5,7 +5,7 @@ use std::convert::Infallible;
 use structopt::StructOpt;
 use warp::{http::StatusCode, Filter};
 
-// mod account;
+mod account;
 mod block;
 mod construction;
 mod consts;
@@ -14,6 +14,8 @@ mod filters;
 mod network;
 mod options;
 mod types;
+mod operations;
+mod currency;
 
 async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
     let message;

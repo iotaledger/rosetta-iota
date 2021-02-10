@@ -24,6 +24,10 @@ pub enum ApiError {
     UnableToGetMilestoneUTXOChanges,
     #[error("unable to get transaction outputs")]
     UnableToGetOutput,
+    #[error("unable to get genesis milestone. try pointing to a permanode instead")]
+    UnableToGetGenesisMilestone,
+    #[error("Historical balances are not supported.")]
+    HistoricalBalancesUnsupported,
     #[error("bad construction request: {0}")]
     BadConstructionRequest(String),
 }
@@ -40,6 +44,8 @@ impl ApiError {
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
             ApiError::UnableToGetOutput => 90,
+            ApiError::UnableToGetGenesisMilestone => 100,
+            ApiError::HistoricalBalancesUnsupported => 110,
             ApiError::BadConstructionRequest(_) => 100,
         }
     }
@@ -55,6 +61,8 @@ impl ApiError {
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => false,
             ApiError::UnableToGetOutput => false,
+            ApiError::UnableToGetGenesisMilestone => false,
+            ApiError::HistoricalBalancesUnsupported => false,
             ApiError::BadConstructionRequest(_) => false,
         }
     }
@@ -70,6 +78,8 @@ impl ApiError {
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetOutput => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetGenesisMilestone => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::HistoricalBalancesUnsupported => StatusCode::BAD_REQUEST,
             ApiError::BadConstructionRequest(_) => StatusCode::BAD_REQUEST,
         }
     }
@@ -138,6 +148,18 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Transaction Outputs".to_string(),
                 code: 90,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Genesis Milestone, try pointing to a Permanode instead.".to_string(),
+                code: 100,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Historical balances not supported.".to_string(),
+                code: 110,
                 retriable: false,
                 details: None,
             },

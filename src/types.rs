@@ -1,4 +1,3 @@
-use bee_rest_api::types;
 use serde::{Deserialize, Serialize};
 
 // Objects
@@ -104,6 +103,7 @@ pub struct Signature {
 pub struct Transaction {
     pub transaction_identifier: TransactionIdentifier,
     pub operations: Vec<Operation>,
+    // pub related_transactions // todo
 }
 
 // Identifiers
@@ -337,7 +337,8 @@ pub struct NetworkStatusResponse {
     pub current_block_identifier: BlockIdentifier,
     pub current_block_timestamp: u64,
     pub genesis_block_identifier: BlockIdentifier,
-    pub peers: Vec<bee_rest_api::types::PeerDto>,
+    pub oldest_block_identifier: BlockIdentifier,
+    pub peers: Vec<Peer>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -362,6 +363,14 @@ pub struct OperationStatus {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Peer {
     pub peer_id: String,
+    pub metadata: PeerMetadata
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PeerMetadata {
+    pub multi_addresses: Vec<String>,
+    pub alias: Option<String>,
+    pub connected: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
