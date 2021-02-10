@@ -31,6 +31,10 @@ pub enum ApiError {
     HistoricalBalancesUnsupported,
     #[error("bad construction request: {0}")]
     BadConstructionRequest(String),
+    #[error("unable to get balance")]
+    UnableToGetBalance,
+    #[error("unable to get outputs from address")]
+    UnableToGetOutputsFromAddress,
 }
 
 impl ApiError {
@@ -47,7 +51,9 @@ impl ApiError {
             ApiError::UnableToGetOutput => 90,
             ApiError::UnableToGetGenesisMilestone => 100,
             ApiError::HistoricalBalancesUnsupported => 110,
-            ApiError::BadConstructionRequest(_) => 100,
+            ApiError::BadConstructionRequest(_) => 120,
+            ApiError::UnableToGetBalance => 130,
+            ApiError::UnableToGetOutputsFromAddress => 140,
         }
     }
 
@@ -65,6 +71,8 @@ impl ApiError {
             ApiError::UnableToGetGenesisMilestone => false,
             ApiError::HistoricalBalancesUnsupported => false,
             ApiError::BadConstructionRequest(_) => false,
+            ApiError::UnableToGetBalance => false,
+            ApiError::UnableToGetOutputsFromAddress => false,
         }
     }
 
@@ -82,6 +90,8 @@ impl ApiError {
             ApiError::UnableToGetGenesisMilestone => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::HistoricalBalancesUnsupported => StatusCode::BAD_REQUEST,
             ApiError::BadConstructionRequest(_) => StatusCode::BAD_REQUEST,
+            ApiError::UnableToGetBalance => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetOutputsFromAddress => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -166,7 +176,19 @@ impl ApiError {
             },
             types::Error {
                 message: "Bad Construction Request".to_string(),
-                code: 100,
+                code: 120,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Balance".to_string(),
+                code: 130,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unable to get Outputs from Address".to_string(),
+                code: 140,
                 retriable: false,
                 details: None,
             },
