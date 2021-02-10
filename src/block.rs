@@ -56,9 +56,11 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         Err(_) => return Err(ApiError::UnableToGetMilestone),
     };
 
-    let block_request_hash = block_request.block_identifier.hash.unwrap();
-    if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
-        return Err(ApiError::BadMilestoneRequest);
+    if block_request.block_identifier.hash.is_some(){
+        let block_request_hash = block_request.block_identifier.hash.unwrap();
+        if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
+            return Err(ApiError::BadMilestoneRequest);
+        }
     }
 
     let block_identifier = BlockIdentifier {
