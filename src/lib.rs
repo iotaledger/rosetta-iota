@@ -31,7 +31,7 @@ pub async fn run_server(
 
     let routes = network::routes(options.clone())
         .or(block::routes(options.clone()))
-        // .or(account::routes(options.clone()))
+        .or(account::routes(options.clone()))
         .or(construction::routes(options.clone()))
         .recover(handle_rejection);
 

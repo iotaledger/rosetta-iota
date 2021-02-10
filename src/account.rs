@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    currency::iota_currency,
     consts,
     error::ApiError,
     filters::{handle, with_options},
     options::Options,
-    types::{AccountBalanceRequest, AccountBalanceResponse, BlockIdentifier},
+    types::{AccountBalanceRequest, AccountBalanceResponse, Amount, BlockIdentifier},
 };
 use iota;
 use log::debug;
@@ -66,11 +67,18 @@ async fn account_balance(
     };
 
     let address = account_balance_request.account_identifier.address;
-    let balances = vec![];
+
+    let balance = match iota_client.get_address().balance(&address.into()).await {
+        Ok(balance) => balance,
+        Err(_) => return Err(ApiError::UnableToGetBalance),
+    };
 
     let response = AccountBalanceResponse {
         block_identifier,
-        balances,
+        balances: Amount {
+            value: balance.balance.to_string(),
+            currency: iota_currency()
+        }
     };
 
     Ok(response)

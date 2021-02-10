@@ -175,7 +175,7 @@ pub struct AccountBalanceRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceResponse {
     pub block_identifier: BlockIdentifier,
-    pub balances: Vec<Amount>,
+    pub balances: Amount,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
