@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
+bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
 bee-rest-api = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2" }
 log = "0.4"
 warp = "0.3"
@@ -20,3 +21,7 @@ bcs = "0.1.2"
 hex = "0.4"
 env_logger = "0.7"
 futures = "0.3"
+
+[[bin]]
+name = "rosetta-iota"
+path = "src/main.rs"

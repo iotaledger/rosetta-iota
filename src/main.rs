@@ -7,7 +7,7 @@ use warp::{http::StatusCode, Filter};
 
 // mod account;
 mod block;
-// mod construction;
+mod construction;
 mod consts;
 mod error;
 mod filters;
@@ -69,7 +69,7 @@ async fn main() {
     let routes = network::routes(options.clone())
         .or(block::routes(options.clone()))
         // .or(account::routes(options.clone()))
-        // .or(construction::routes(options.clone()))
+        .or(construction::routes(options.clone()))
         .recover(handle_rejection);
 
     info!("listening on 0.0.0.0:3030");

@@ -24,6 +24,8 @@ pub enum ApiError {
     UnableToGetMilestoneUTXOChanges,
     #[error("unable to get transaction outputs")]
     UnableToGetOutput,
+    #[error("bad construction request: {0}")]
+    BadConstructionRequest(String),
 }
 
 impl ApiError {
@@ -38,6 +40,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
             ApiError::UnableToGetOutput => 90,
+            ApiError::BadConstructionRequest(_) => 100,
         }
     }
 
@@ -52,6 +55,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => false,
             ApiError::UnableToGetOutput => false,
+            ApiError::BadConstructionRequest(_) => false,
         }
     }
 
@@ -66,6 +70,7 @@ impl ApiError {
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetOutput => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::BadConstructionRequest(_) => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -133,6 +138,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Transaction Outputs".to_string(),
                 code: 90,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Bad Construction Request".to_string(),
+                code: 100,
                 retriable: false,
                 details: None,
             },

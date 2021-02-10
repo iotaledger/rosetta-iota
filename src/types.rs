@@ -229,6 +229,11 @@ pub struct ConstructionHashRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionHashResponse {
+    pub transaction_identifier: TransactionIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
     pub options: MetadataOptions,
