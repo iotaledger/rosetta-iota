@@ -66,8 +66,8 @@ async fn network_options(
     };
 
     let mut operation_statuses = Vec::new();
-    operation_statuses.push(operation_status_success());
-    operation_statuses.push(operation_status_fail());
+    operation_statuses.push(operation_status_spent());
+    operation_statuses.push(operation_status_unspent());
 
     let operation_types = operation_type_list();
 

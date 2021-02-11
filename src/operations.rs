@@ -28,16 +28,16 @@ pub const CREATED_UTXO_OPERATION_IDENTIFIER: OperationIdentifier = OperationIden
     network_index: None, // no sharding in IOTA yet :(
 };
 
-pub fn operation_status_success() -> OperationStatus {
+pub fn operation_status_spent() -> OperationStatus {
     OperationStatus {
-        status: String::from("SUCCESS"),
+        status: String::from("SPENT"),
         successful: true,
     }
 }
 
-pub fn operation_status_fail() -> OperationStatus {
+pub fn operation_status_unspent() -> OperationStatus {
     OperationStatus {
-        status: String::from("FAIL"),
+        status: String::from("UNSPENT"),
         successful: false,
     }
 }
