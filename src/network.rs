@@ -162,16 +162,10 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
         hash: latest_milestone.message_id.to_string(),
     };
 
-    let oldest_block_identifier = BlockIdentifier {
-        index: solid_milestone.index as u64,
-        hash: solid_milestone.message_id.to_string(),
-    };
-
     let response = NetworkStatusResponse {
         current_block_identifier,
         current_block_timestamp,
         genesis_block_identifier,
-        oldest_block_identifier,
         peers,
     };
 
