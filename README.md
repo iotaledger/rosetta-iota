@@ -7,7 +7,9 @@ The IOTA protocol differs from most DLT technologies in the sense that it is not
 For that reason, a few concepts have been adapted. For example, a "Milestone" is the IOTA equivalent of a "Block".
 
 ### Genesis Milestone
-IOTA fullnodes (such as [HORNET](https://github.com/gohornet/hornet.git) and [BEE](https://github.com/iotaledger/bee.git)) don't contain the entire history of the Tangle, only permanodes do (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)).
+IOTA fullnodes (such as [HORNET](https://github.com/gohornet/hornet.git) and [BEE](https://github.com/iotaledger/bee.git)) don't contain the entire history of the Tangle. They have a parameter called `pruningIndex` which represents the oldest Milestone available on the node.
+
+Only permanodes (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) have the ability of holding the entire Tangle history.
 
 The genesis milestone is not available on fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
 ```
@@ -21,28 +23,12 @@ Technically speaking, that is not 100% accurate, as the genesis milestone identi
 
 ## Testing
 
-## Environment
-
-1. Bootstrap a HORNET Coordinator for a private testnet:
-```
-$ git clone https://github.com/gohornet/hornet.git
-$ cd hornet/alphanet
-$ ./run_coo_bootstrap.sh
-``` 
-
-2. From a new terminal, start a second HORNET node:
-```
-$ cd hornet/alphanet
-$ ./run_2nd.sh
-```
-
 ### rosetta-cli
 
 The `test.sh` shell script automates testing via `rosetta-cli`.
 
-The overall development goal is to pass all tests imposed by `rosetta-cli` with options:
-- `check:data`
-- `check:construction`
+It will use the shell variables `NODE_URL` and `NETWORK` to specify the network parameters to be tested.
+Bear in mind that syncing will start from the pruned Milestone, not Genesis.
 
 ### curl
 
