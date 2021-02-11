@@ -9,7 +9,7 @@ use crate::{
     options::Options,
     types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier},
 };
-use bee_message::prelude::UTXOInput;
+use bee_message::prelude::{UTXOInput, Ed25519Address};
 use bee_rest_api::types::{AddressDto, OutputDto};
 use iota;
 use log::debug;
@@ -103,7 +103,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
         let is_spent = output.is_spent;
 
-        let (amount, address) = match output.output {
+        let (amount, ed25519_address) = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
@@ -113,12 +113,15 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
             },
         };
 
+        let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
+
         let transaction_identifier = TransactionIdentifier { hash: output_id_str };
 
         // todo: related_transactions (?)
 
         let mut operations = vec![];
-        operations.push(created_utxo_operation(is_spent, address, amount));
+        operations.push(created_utxo_operation(is_spent, bech32_address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
@@ -136,7 +139,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
         let is_spent = output.is_spent;
 
-        let (amount, address) = match output.output {
+        let (amount, ed25519_address) = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
@@ -146,12 +149,15 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
             },
         };
 
+        let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
+
         let transaction_identifier = TransactionIdentifier { hash: output_id_str };
 
         // todo: related_transactions (?)
 
         let mut operations = vec![];
-        operations.push(consumed_utxo_operation(is_spent, address, amount));
+        operations.push(consumed_utxo_operation(is_spent, bech32_address, amount));
 
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
