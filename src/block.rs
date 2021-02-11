@@ -86,7 +86,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         };
     }
 
-    let timestamp = milestone.timestamp;
+    let timestamp = milestone.timestamp * 1000;
 
     let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
         Ok(utxo_changes) => utxo_changes,
