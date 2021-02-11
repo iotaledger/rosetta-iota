@@ -1,11 +1,12 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "alphanet1"
+    "network": "testnet4"
   },
   "online_url": "http://localhost:3030",
   "data_directory": "",
-  "http_timeout": 10,
+  "http_timeout": 50,
+  "max_retries": 20,
   "tip_delay": 300,
   "max_reorg_depth": 100,
   "log_configuration": true,
@@ -13,6 +14,7 @@
   "memory_limit_disabled": false,
   "construction": null,
   "data": {
+    "start_index": 37801,
     "active_reconciliation_concurrency": 16,
     "inactive_reconciliation_concurrency": 4,
     "inactive_reconciliation_frequency": 250,
