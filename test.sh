@@ -10,7 +10,7 @@ PID=$!
 # wait for server to completely start
 sleep 1
 
-# modify rosetta-iota.json
+# modify rosetta-iota.json to make sure we are syncing from the pruned milestone
 PRUNE_MS=$(curl -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
 START_MS=`expr $PRUNE_MS + 1`
 
