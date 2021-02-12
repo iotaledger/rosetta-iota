@@ -35,6 +35,12 @@ pub enum ApiError {
     UnableToGetBalance,
     #[error("unable to get outputs from address")]
     UnableToGetOutputsFromAddress,
+    #[error("unsupported curve")]
+    UnsupportedCurve,
+    #[error("hex decoding failed: {0:?}")]
+    HexDecodingFailed(#[from] hex::FromHexError),
+    #[error("{0:?}")]
+    BeeMessageError(#[from] bee_message::Error),
 }
 
 impl ApiError {
@@ -54,6 +60,9 @@ impl ApiError {
             ApiError::BadConstructionRequest(_) => 120,
             ApiError::UnableToGetBalance => 130,
             ApiError::UnableToGetOutputsFromAddress => 140,
+            ApiError::UnsupportedCurve => 150,
+            ApiError::HexDecodingFailed(_) => 160,
+            ApiError::BeeMessageError(_) => 170,
         }
     }
 
@@ -73,6 +82,9 @@ impl ApiError {
             ApiError::BadConstructionRequest(_) => false,
             ApiError::UnableToGetBalance => false,
             ApiError::UnableToGetOutputsFromAddress => false,
+            ApiError::UnsupportedCurve => false,
+            ApiError::HexDecodingFailed(_) => false,
+            ApiError::BeeMessageError(_) => false,
         }
     }
 
@@ -92,6 +104,9 @@ impl ApiError {
             ApiError::BadConstructionRequest(_) => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetBalance => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetOutputsFromAddress => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnsupportedCurve => StatusCode::BAD_REQUEST,
+            ApiError::HexDecodingFailed(_) => StatusCode::BAD_REQUEST,
+            ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
         }
     }
 
