@@ -90,15 +90,23 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
     let timestamp = milestone.timestamp * 1000;
 
-    let consumed_utxo = match iota_client.get_milestone_utxo_changes(milestone_index).await {
-        Ok(utxo_changes) => utxo_changes.consumed_outputs,
+    let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
+        Ok(utxo_changes) => utxo_changes,
         Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
     };
 
-    let mut transaction_hashset = HashSet::new();
-    let mut output_hashmap: HashMap<String, Vec<OutputResponse>> = HashMap::new();
+    // all_outputs has both created and consumed, but we still keep track of which is which
+    // by checking if output_counter > n_consumed_outputs
+    // very unelegant! todo: refactor
+    let mut output_counter = 0;
+    let n_consumed_outputs = utxo_changes.consumed_outputs.len();
+    let mut all_outputs = utxo_changes.consumed_outputs;
+    all_outputs.extend(utxo_changes.created_outputs);
 
-    for output_id_str in consumed_utxo {
+    let mut transaction_hashset = HashSet::new();
+    let mut output_hashmap: HashMap<String, (Vec<OutputResponse>, bool)> = HashMap::new();
+
+    for output_id_str in all_outputs {
         let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
 
         let output = match iota_client.get_output(&output_id).await {
@@ -111,18 +119,24 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
         match output_hashmap.get(&transaction_id[..]) {
             None => {
-                output_hashmap.insert(transaction_id, vec![output.clone()]);
+                //                                                                todo: refactor
+                output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter > n_consumed_outputs));
                 ()
             },
-            Some(output_vec) => {
+            Some((output_vec, consumed)) => {
                 let mut output_vec_clone = output_vec.clone();
                 output_vec_clone.push(output.clone());
 
                 // update output_vec_value with output_vec_clone
-                let output_vec_value = output_hashmap.entry(transaction_id).or_insert(vec![output]);
-                *output_vec_value = output_vec_clone;
+                //                                                                                                                           todo: refactor
+                let output_vec_value = output_hashmap.entry(transaction_id).or_insert((vec![output], output_counter > n_consumed_outputs));
+
+                // this is ok                          todo: refactor
+                *output_vec_value = (output_vec_clone, output_counter > n_consumed_outputs);
             }
         }
+
+        output_counter = output_counter + 1;
     }
 
     let mut transactions = vec![];
@@ -133,7 +147,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let mut operations = vec![];
         
         match output_hashmap.get(&transaction[..]) {
-            Some(output_vec) => {
+            Some((output_vec, consumed)) => {
                 let mut operation_counter = 0;
 
                 for output in output_vec {
@@ -152,7 +166,11 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                     let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
-                    operations.push(consumed_utxo_operation(is_spent, bech32_address, amount, output.output_index, operation_counter));
+                    // todo: refactor
+                    match consumed {
+                        true => operations.push(consumed_utxo_operation(is_spent, bech32_address, amount, output.output_index, operation_counter)),
+                        false => operations.push(created_utxo_operation(is_spent, bech32_address, amount, output.output_index, operation_counter)),
+                    }
                     operation_counter = operation_counter + 1;
                 }
             },
