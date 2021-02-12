@@ -7,30 +7,30 @@ use crate::{
 };
 
 // operation types
-pub const CONSUMED_UTXO: &str = "CONSUMED_UTXO";
-pub const CREATED_UTXO: &str = "CREATED_UTXO";
+pub const UTXO_CONSUMED: &str = "UTXO_CONSUMED";
+pub const UTXO_CREATED: &str = "UTXO_CREATED";
 
 // operation status
-pub const SPENT: &str = "SPENT";
-pub const UNSPENT: &str = "UNSPENT";
+pub const UTXO_SPENT: &str = "UTXO_SPENT";
+pub const UTXO_UNSPENT: &str = "UTXO_UNSPENT";
 
 pub fn operation_type_list() -> Vec<String> {
     let mut ret = vec![];
-    ret.push(CONSUMED_UTXO.into());
-    ret.push(CREATED_UTXO.into());
+    ret.push(UTXO_CONSUMED.into());
+    ret.push(UTXO_CREATED.into());
     ret
 }
 
 pub fn operation_status_spent() -> OperationStatus {
     OperationStatus {
-        status: SPENT.into(),
+        status: UTXO_SPENT.into(),
         successful: true,
     }
 }
 
 pub fn operation_status_unspent() -> OperationStatus {
     OperationStatus {
-        status: UNSPENT.into(),
+        status: UTXO_UNSPENT.into(),
         successful: false,
     }
 }
@@ -38,8 +38,8 @@ pub fn operation_status_unspent() -> OperationStatus {
 pub fn consumed_utxo_operation(is_spent: bool, address: String, amnt: u64, output_index: u16, operation_counter: u32) -> Operation {
     //let related_operations = vec![CREATED_UTXO_OPERATION_IDENTIFIER]; // todo
     let status = match is_spent {
-        true => SPENT,
-        false => UNSPENT,
+        true => UTXO_SPENT,
+        false => UTXO_UNSPENT,
     };
     let account = AccountIdentifier {
         address,
@@ -56,7 +56,7 @@ pub fn consumed_utxo_operation(is_spent: bool, address: String, amnt: u64, outpu
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
         related_operations: None, // todo
-        type_: CONSUMED_UTXO.into(),
+        type_: UTXO_CONSUMED.into(),
         status: Some(status.into()),
         account: Some(account),
         amount: Some(amount),
@@ -66,8 +66,8 @@ pub fn consumed_utxo_operation(is_spent: bool, address: String, amnt: u64, outpu
 pub fn created_utxo_operation(is_spent: bool, address: String, amnt: u64, output_index: u16, operation_counter: u32) -> Operation {
     //let related_operations = vec![CREATED_UTXO_OPERATION_IDENTIFIER]; // todo
     let status = match is_spent {
-        true => SPENT,
-        false => UNSPENT,
+        true => UTXO_SPENT,
+        false => UTXO_UNSPENT,
     };
     let account = AccountIdentifier {
         address,
@@ -84,7 +84,7 @@ pub fn created_utxo_operation(is_spent: bool, address: String, amnt: u64, output
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
         related_operations: None, // todo
-        type_: CREATED_UTXO.into(),
+        type_: UTXO_CREATED.into(),
         status: Some(status.into()),
         account: Some(account),
         amount: Some(amount),
