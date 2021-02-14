@@ -2473,6 +2473,8 @@ dependencies = [
  "bee-common",
  "bee-message",
  "bee-rest-api",
+ "blake2",
+ "digest 0.9.0",
  "env_logger",
  "futures",
  "hex",
