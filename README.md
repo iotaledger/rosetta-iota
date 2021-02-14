@@ -36,7 +36,7 @@ Curl commands can also be used for manual inspection of each API endpoint.
 
 1. Kickstart a `rosetta-iota` server:
 ```
-$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1 --hrp iota
+$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1
 ```
 
 2. From a new terminal, you can test each endpoint via `curl`:
