@@ -43,6 +43,18 @@ async fn construction_derive_request(
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
+    let iota_client = match iota::Client::builder()
+        .with_network(&options.network)
+        .with_node(&options.iota_endpoint)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await
+    {
+        Ok(iota_client) => iota_client,
+        Err(_) => return Err(ApiError::UnableToBuildClient),
+    };
+
     is_bad_network(&options, &construction_derive_request.network_identifier)?;
 
     if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
@@ -62,8 +74,10 @@ async fn construction_derive_request(
     let ed25519_address = Ed25519Address::new(result.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);
 
+    let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+
     Ok(ConstructionDeriveResponse {
-        account_identifier: AccountIdentifier { address: address.to_bech32(&options.hrp), sub_account: None }
+        account_identifier: AccountIdentifier { address: address.to_bech32(&bech32_hrp), sub_account: None }
     })
 }
 
