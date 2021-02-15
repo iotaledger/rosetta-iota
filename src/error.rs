@@ -41,6 +41,8 @@ pub enum ApiError {
     HexDecodingFailed(#[from] hex::FromHexError),
     #[error("{0:?}")]
     BeeMessageError(#[from] bee_message::Error),
+    #[error("{0:?}")]
+    IotaClientError(#[from] iota::client::Error),
 }
 
 impl ApiError {
@@ -63,6 +65,7 @@ impl ApiError {
             ApiError::UnsupportedCurve => 150,
             ApiError::HexDecodingFailed(_) => 160,
             ApiError::BeeMessageError(_) => 170,
+            ApiError::IotaClientError(_) => 180,
         }
     }
 
@@ -85,6 +88,7 @@ impl ApiError {
             ApiError::UnsupportedCurve => false,
             ApiError::HexDecodingFailed(_) => false,
             ApiError::BeeMessageError(_) => false,
+            ApiError::IotaClientError(_) => false,
         }
     }
 
@@ -107,6 +111,7 @@ impl ApiError {
             ApiError::UnsupportedCurve => StatusCode::BAD_REQUEST,
             ApiError::HexDecodingFailed(_) => StatusCode::BAD_REQUEST,
             ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
+            ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
         }
     }
 

@@ -7,6 +7,7 @@ use log::{error, info};
 pub use options::Options;
 use std::{convert::Infallible, net::SocketAddr};
 use warp::{http::StatusCode, Filter};
+use crate::types::NetworkIdentifier;
 
 mod account;
 mod block;
@@ -85,4 +86,16 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     let json = warp::reply::json(&error);
 
     Ok(warp::reply::with_status(json, status))
+}
+
+pub fn is_bad_network(
+    options: &Options,
+    network_identifier: &NetworkIdentifier,
+) -> Result<(), ApiError> {
+    if network_identifier.blockchain != consts::BLOCKCHAIN
+        || network_identifier.network != options.network
+    {
+        return Err(ApiError::BadNetwork);
+    }
+    Ok(())
 }
