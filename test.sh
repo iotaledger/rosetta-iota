@@ -12,7 +12,7 @@ sleep 1
 
 # modify rosetta-iota.json to make sure we are syncing from the pruned milestone
 PRUNE_MS=$(curl -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
-START_MS=`expr $PRUNE_MS + 1`
+START_MS=`expr $PRUNE_MS + 2`
 
 cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' rosetta-iota.json) > rosetta-iota.json
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-iota.json) > rosetta-iota.json
