@@ -316,6 +316,12 @@ pub struct ConstructionSubmitRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitResponse {
     pub transaction_identifier: TransactionIdentifier,
+    pub metadata: ConstructionSubmitResponseMetadata,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionSubmitResponseMetadata {
+    pub message_id: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
