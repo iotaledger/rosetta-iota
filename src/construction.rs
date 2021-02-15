@@ -4,13 +4,12 @@
 use crate::{error::ApiError, filters::{handle, with_options}, options::Options, types::{
     ConstructionHashRequest, ConstructionHashResponse, ConstructionSubmitRequest, ConstructionSubmitResponse,
     TransactionIdentifier,
-}, consts};
+}, is_bad_network};
 use bee_common::packable::Packable;
-use iota::Message;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, Transaction};
-use bee_message::prelude::{Ed25519Address, Address, TransactionPayload};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata};
+use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
@@ -61,13 +60,15 @@ async fn construction_derive_request(
         return Err(ApiError::BadNetwork);
     }
 
+    is_bad_network(&options, &construction_derive_request.network_identifier)?;
+
     if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
         return Err(ApiError::UnsupportedCurve);
     };
 
     let public_key_bytes = hex::decode(construction_derive_request.public_key.hex_bytes)?;
 
-    // Hash the public key to get the address
+    // Hash the public key to get the address as in https://github.com/iotaledger/wallet.rs/blob/develop/src/stronghold.rs#L531
     let mut hasher = VarBlake2b::new(32).unwrap();
     hasher.update(public_key_bytes);
     let mut result = vec![];
@@ -91,14 +92,13 @@ async fn construction_hash_request(
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
 
-    let signed_transaction_hex_string = construction_hash_request.signed_transaction;
-    let signed_transaction_hex_bytes = hex::decode(signed_transaction_hex_string)?;
+    is_bad_network(&options, &construction_hash_request.network_identifier)?;
 
-    let unpacked_transaction = TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice())?;
+    let transaction = transaction_from_hex_string(&construction_hash_request.signed_transaction)?;
 
     Ok(ConstructionHashResponse {
         transaction_identifier: TransactionIdentifier {
-            hash: unpacked_transaction.id().to_string(),
+            hash: transaction.id().to_string(),
         },
     })
 }
@@ -108,7 +108,8 @@ async fn construction_submit_request(
     options: Options,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
-    let message = message_from_hex(&construction_submit_request.signed_transaction)?;
+
+    is_bad_network(&options, &construction_submit_request.network_identifier)?;
 
     let iota_client = match iota::Client::builder()
         .with_network(&options.network)
@@ -122,22 +123,27 @@ async fn construction_submit_request(
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
 
+
+    let transaction = transaction_from_hex_string(&construction_submit_request.signed_transaction)?;
+    let transaction_id = transaction.id();
+
+    let message = iota_client
+        .message()
+        .finish_message(Some(Payload::Transaction(Box::new(transaction))))
+        .await?;
+
     match iota_client.post_message(&message).await {
         Ok(message_id) => Ok(ConstructionSubmitResponse {
             transaction_identifier: TransactionIdentifier {
-                hash: message_id.to_string(),
+                hash: transaction_id.to_string(),
             },
+            metadata: ConstructionSubmitResponseMetadata { message_id: message_id.to_string() }
         }),
         Err(_) => Err(ApiError::BadConstructionRequest("can not submit message".to_string())),
     }
 }
 
-fn message_from_hex(hex_str: &str) -> Result<Message, ApiError> {
-    match hex::decode(hex_str) {
-        Ok(bytes) => Ok(Message::unpack(&mut bytes.as_slice())
-            .map_err(|_| ApiError::BadConstructionRequest("can not build message from hex string".to_string()))?),
-        Err(e) => Err(ApiError::BadConstructionRequest(
-            "can not build message from hex string".to_string(),
-        )),
-    }
+fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiError> {
+    let signed_transaction_hex_bytes = hex::decode(hex_str)?;
+    Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice())?)
 }
