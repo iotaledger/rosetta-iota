@@ -8,7 +8,7 @@ use crate::{error::ApiError, filters::{handle, with_options}, options::Options, 
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, MetadataOptions};
 use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload};
 use blake2::{
     digest::{Update, VariableOutput},
@@ -24,6 +24,12 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
                 .and(warp::body::json())
                 .and(with_options(options.clone()))
                 .and_then(handle(construction_derive_request)),
+        )
+        .or(
+            warp::path!("construction" / "preprocess")
+                .and(warp::body::json())
+                .and(with_options(options.clone()))
+                .and_then(handle(construction_preprocess_request)),
         )
         .or(
             warp::path!("construction" / "hash")
@@ -64,6 +70,23 @@ async fn construction_derive_request(
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier { address: address.to_bech32(&options.hrp), sub_account: None }
+    })
+}
+
+async fn construction_preprocess_request(
+    construction_preprocess_request: ConstructionPreprocessRequest,
+    options: Options,
+) -> Result<ConstructionPreprocessResponse, ApiError> {
+    debug!("/construction/preprocess");
+
+    is_bad_network(&options, &construction_preprocess_request.network_identifier)?;
+
+    construction_preprocess_request.operations.
+    
+
+
+    Ok(ConstructionPreprocessResponse {
+        options: MetadataOptions { sender_address: () }
     })
 }
 
