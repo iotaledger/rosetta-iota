@@ -1,0 +1,25 @@
+{
+  "network": {
+    "blockchain": "iota",
+    "network": "testnet4"
+  },
+  "online_url": "http://localhost:3030",
+  "data_directory": "",
+  "http_timeout": 300,
+  "max_retries": 20,
+  "construction": {
+    "constructor_dsl_file": "iota.ros",
+    "end_conditions": {
+      "create_account": 10,
+      "transfer": 10
+    }
+  },
+  "data": {
+    "start_index": 84202,
+    "historical_balance_enabled": false,
+    "inactive_discrepency_search_disabled": true,
+    "end_conditions": {
+      "tip": true
+    }
+  }
+}

@@ -83,10 +83,10 @@ async fn account_balance(
 
     let response = AccountBalanceResponse {
         block_identifier,
-        balances: Amount {
+        balances: vec![Amount {
             value: balance.balance.to_string(),
             currency: iota_currency()
-        }
+        }]
     };
 
     Ok(response)
