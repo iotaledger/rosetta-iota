@@ -18,9 +18,9 @@ cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' ros
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-iota.json) > rosetta-iota.json
 
 # test Data API
-~/bin/rosetta-cli check:data --configuration-file rosetta-iota.json
+~/bin/rosetta-cli check:data --configuration-file rosetta-cli-conf/rosetta-iota.json
 
 # test Construction API
-# ~/bin/rosetta-cli check:construction --configuration-file rosetta-iota.json
+# ~/bin/rosetta-cli check:construction --configuration-file rosetta-cli-conf/rosetta-iota.json
 
 kill $PID
