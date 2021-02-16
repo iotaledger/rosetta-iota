@@ -304,7 +304,8 @@ pub struct ConstructionPreprocessRequest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionPreprocessResponse {
-    pub options: MetadataOptions,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<MetadataOptions>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

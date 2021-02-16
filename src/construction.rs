@@ -8,7 +8,7 @@ use crate::{error::ApiError, filters::{handle, with_options}, options::Options, 
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, MetadataOptions};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse};
 use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload};
 use blake2::{
     digest::{Update, VariableOutput},
@@ -61,11 +61,6 @@ async fn construction_derive_request(
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
 
-    let network_identifier = construction_derive_request.network_identifier;
-    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
-        return Err(ApiError::BadNetwork);
-    }
-
     is_bad_network(&options, &construction_derive_request.network_identifier)?;
 
     if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
@@ -100,12 +95,8 @@ async fn construction_preprocess_request(
 
     is_bad_network(&options, &construction_preprocess_request.network_identifier)?;
 
-    construction_preprocess_request.operations.
-    
-
-
     Ok(ConstructionPreprocessResponse {
-        options: MetadataOptions { sender_address: () }
+        options: None
     })
 }
 
