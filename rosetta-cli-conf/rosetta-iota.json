@@ -10,6 +10,19 @@
   "construction": {
     "offline_url": "http://localhost:3030",
     "constructor_dsl_file": "iota.ros",
+    "prefunded_accounts": [
+      {
+        "account_identifier": {
+          "address": "atoi1qxcv8zdqn8tveagdy3m7rjetm6cp7eac5hd37purn8fh20x5ge3ty4nn2w5"
+        },
+        "privkey": "3ada770dca2c802df6837df29bdd8cd6c6d9d72cc4041743c7942cc11e6834bd",
+        "curve_type": "edwards25519",
+        "currency": {
+          "symbol": "IOTA",
+          "decimals": 0
+        }
+      }
+    ],
     "end_conditions": {
       "create_account": 10,
       "transfer": 10
