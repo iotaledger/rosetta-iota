@@ -9,4 +9,6 @@ pub struct Options {
     pub iota_endpoint: String,
     #[structopt(long)]
     pub network: String,
+    #[structopt(long)]
+    pub port: u16,
 }

@@ -14,5 +14,8 @@ async fn main() {
             .expect("failed to install CTRL+C signal handler");
     };
 
-    run_server("0.0.0.0:3030".parse().unwrap(), options, shutdown).await;
+    let mut binding_addr = String::from("0.0.0.0:");
+    binding_addr.push_str(&options.port.to_string());
+
+    run_server(binding_addr.parse().expect("Unable to parse socket address"), options, shutdown).await;
 }
