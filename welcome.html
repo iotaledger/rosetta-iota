@@ -289,12 +289,12 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <ul>
 <li><code>/account/balance</code></li>
 </ul>
-<pre><code>$ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;account_identifier&quot;:{&quot;address&quot;:&quot;atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld&quot;}}' | jq```
+<pre><code>$ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;account_identifier&quot;:{&quot;address&quot;:&quot;atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld&quot;}}' | jq
 </code></pre>
 <ul>
 <li><code>/construction/derive</code></li>
 </ul>
-<pre><code>$ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;}}' | jq```
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;}}' | jq
 </code></pre>
 
                     </main>
