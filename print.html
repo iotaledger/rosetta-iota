@@ -263,7 +263,7 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <ol>
 <li>Kickstart a <code>rosetta-iota</code> server:</li>
 </ol>
-<pre><code>$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1
+<pre><code>$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1 --port 3030 --mode online
 </code></pre>
 <ol start="2">
 <li>From a new terminal, you can test each endpoint via <code>curl</code>:</li>
