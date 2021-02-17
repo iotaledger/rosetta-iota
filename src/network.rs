@@ -90,6 +90,11 @@ async fn network_options(
 
 async fn network_status(network_request: NetworkRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
+
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
     {

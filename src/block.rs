@@ -31,6 +31,10 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
 async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     let network_identifier = block_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);

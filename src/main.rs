@@ -3,10 +3,17 @@
 
 use rosetta_iota::{run_server, Options};
 use structopt::StructOpt;
+use std::process;
 
 #[tokio::main]
 async fn main() {
     let options = Options::from_args();
+
+    // todo: use consts::ONLINE and consts::OFFLINE
+    if (options.mode != "online") && (options.mode != "offline") {
+        println!("mode needs to be either online or offline!");
+        process::exit(0);
+    }
 
     let shutdown = async {
         tokio::signal::ctrl_c()

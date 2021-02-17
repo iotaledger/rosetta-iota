@@ -43,6 +43,8 @@ pub enum ApiError {
     BeeMessageError(#[from] bee_message::Error),
     #[error("{0:?}")]
     IotaClientError(#[from] iota::client::Error),
+    #[error("unsupported offline")]
+    UnavailableOffline,
 }
 
 impl ApiError {
@@ -66,6 +68,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => 160,
             ApiError::BeeMessageError(_) => 170,
             ApiError::IotaClientError(_) => 180,
+            ApiError::UnavailableOffline => 190,
         }
     }
 
@@ -89,6 +92,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => false,
             ApiError::BeeMessageError(_) => false,
             ApiError::IotaClientError(_) => false,
+            ApiError::UnavailableOffline => false,
         }
     }
 
@@ -112,6 +116,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => StatusCode::BAD_REQUEST,
             ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
             ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
+            ApiError::UnavailableOffline => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -209,6 +214,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Outputs from Address".to_string(),
                 code: 140,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unavailable Offline".to_string(),
+                code: 190,
                 retriable: false,
                 details: None,
             },

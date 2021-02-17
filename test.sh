@@ -4,7 +4,7 @@ NODE_URL="http://honeycombos.iota.cafe:14265"
 NETWORK="testnet4"
 
 # start server
-RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 &
+RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
 PID=$!
 
 # wait for server to completely start

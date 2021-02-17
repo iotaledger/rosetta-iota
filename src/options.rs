@@ -10,5 +10,7 @@ pub struct Options {
     #[structopt(long)]
     pub network: String,
     #[structopt(long)]
+    pub mode: String,
+    #[structopt(long)]
     pub port: u16,
 }

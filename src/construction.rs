@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, filters::{handle, with_options}, options::Options, types::{
+use crate::{consts, error::ApiError, filters::{handle, with_options}, options::Options, types::{
     ConstructionHashRequest, ConstructionHashResponse, ConstructionSubmitRequest, ConstructionSubmitResponse,
     TransactionIdentifier,
 }, is_bad_network};
@@ -123,6 +123,10 @@ async fn construction_submit_request(
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     is_bad_network(&options, &construction_submit_request.network_identifier)?;
 
     let iota_client = match iota::Client::builder()
@@ -161,3 +165,10 @@ fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiE
     let signed_transaction_hex_bytes = hex::decode(hex_str)?;
     Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice())?)
 }
+
+// todo: add the following verification to construction_metadata() implementation
+/*
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+ */

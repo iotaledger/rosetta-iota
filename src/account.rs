@@ -36,6 +36,10 @@ async fn account_balance(
 ) -> Result<AccountBalanceResponse, ApiError> {
     debug!("/account/balance");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     let network_identifier = account_balance_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
@@ -97,6 +101,10 @@ async fn account_coins(
     options: Options,
 ) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
+
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
 
     let network_identifier = account_coins_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
