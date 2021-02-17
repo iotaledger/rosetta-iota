@@ -14,8 +14,8 @@ sleep 1
 PRUNE_MS=$(curl -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
 START_MS=`expr $PRUNE_MS + 2`
 
-cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' rosetta-iota.json) > rosetta-iota.json
-cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-iota.json) > rosetta-iota.json
+cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
 
 # test Data API
 ~/bin/rosetta-cli check:data --configuration-file rosetta-cli-conf/rosetta-iota.json
