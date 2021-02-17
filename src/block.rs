@@ -59,7 +59,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
     let milestone = match iota_client.get_milestone(milestone_index).await {
         Ok(milestone) => milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index)),
     };
 
     if block_request.block_identifier.hash.is_some(){
@@ -83,7 +83,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     } else {
         let parent_milestone = match iota_client.get_milestone(milestone_index - 1).await {
             Ok(parent_milestone) => parent_milestone,
-            Err(_) => return Err(ApiError::UnableToGetMilestone),
+            Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index - 1)),
         };
 
         parent_block_identifier = BlockIdentifier {

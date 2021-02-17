@@ -15,8 +15,8 @@ pub enum ApiError {
     UnableToBuildClient,
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
-    #[error("unable to get milestone")]
-    UnableToGetMilestone,
+    #[error("unable to get milestone {0}")]
+    UnableToGetMilestone(u64),
     #[error("unable to get peers")]
     UnableToGetPeers,
     #[error("bad block/milestone request")]
@@ -54,7 +54,7 @@ impl ApiError {
             ApiError::NotImplemented => 20,
             ApiError::UnableToBuildClient => 30,
             ApiError::UnableToGetNodeInfo => 40,
-            ApiError::UnableToGetMilestone => 50,
+            ApiError::UnableToGetMilestone(_) => 50,
             ApiError::UnableToGetPeers => 60,
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
@@ -78,7 +78,7 @@ impl ApiError {
             ApiError::NotImplemented => false,
             ApiError::UnableToBuildClient => false,
             ApiError::UnableToGetNodeInfo => false,
-            ApiError::UnableToGetMilestone => true,
+            ApiError::UnableToGetMilestone(_) => true,
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => true,
@@ -102,7 +102,7 @@ impl ApiError {
             ApiError::NotImplemented => StatusCode::BAD_REQUEST,
             ApiError::UnableToBuildClient => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetNodeInfo => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::UnableToGetMilestone => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetMilestone(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetPeers => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,

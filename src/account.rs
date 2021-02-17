@@ -70,7 +70,7 @@ async fn account_balance(
     let solid_milestone_index = node_info.solid_milestone_index as u64;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
@@ -131,7 +131,7 @@ async fn account_coins(
     let solid_milestone_index = node_info.solid_milestone_index as u64;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
