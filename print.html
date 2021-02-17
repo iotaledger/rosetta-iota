@@ -1,0 +1,361 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IOTA rosetta-api</title>
+        
+        <meta name="robots" content="noindex" />
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">IOTA rosetta-api</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/iotaledger/rosetta-iota" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#rosetta-iota" id="rosetta-iota">rosetta-iota</a></h1>
+<p>IOTA Rosetta API Implementation</p>
+<h2><a class="header" href="#iota-protocol" id="iota-protocol">IOTA protocol</a></h2>
+<p>The IOTA protocol differs from most DLT technologies in the sense that it is not a Blockchain, but a Directed Acyclic Graph (DAG), popularly known as <a href="https://assets.ctfassets.net/r1dr6vzfxhev/2t4uxvsIqk0EUau6g2sw0g/45eae33637ca92f85dd9f4a3a218e1ec/iota1_4_3.pdf">the Tangle</a>.</p>
+<p>For that reason, a few concepts have been adapted in relation to the Rosetta API.</p>
+<h3><a class="header" href="#messages-and-transactions" id="messages-and-transactions">Messages and Transactions</a></h3>
+<p>IOTA uses messages as a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a utxo-based model for transfering value.</p>
+<h3><a class="header" href="#blocks-and-milestones" id="blocks-and-milestones">Blocks and Milestones</a></h3>
+<p>Being a DAG, IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, nodes settle the current ledger state by creating a special message that defines a new Milestone.</p>
+<p>IOTA Fullnodes (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">BEE</a>) don't contain the entire history of the Tangle. They have a parameter called <code>pruningIndex</code> which represents the oldest Milestone available on the node.</p>
+<p>Only Permanodes (such as <a href="https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node">Chronicle</a>) have the ability of holding the entire Tangle history.</p>
+<h2><a class="header" href="#iota-and-rosetta" id="iota-and-rosetta">IOTA and Rosetta</a></h2>
+<p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
+<h3><a class="header" href="#genesis-milestone" id="genesis-milestone">Genesis Milestone</a></h3>
+<p>The genesis milestone is not available on Fullnodes, but the <code>/network/status</code> endpoint response contains a <code>genesis_block_identifier</code> field. Therefore, whenever a fullnode is used by the <code>rosetta-iota</code> server, the <code>genesis_block_identifier</code> is populated as such:</p>
+<pre><code>&quot;genesis_block_identifier&quot;: {
+  &quot;index&quot;: 1,
+  &quot;hash&quot;: &quot;0000000000000000000000000000000000000000000000000000000000000000&quot;
+}
+</code></pre>
+<p>Technically speaking, that is not 100% accurate, as the genesis milestone identifier is not a series of <code>0</code>s. However, a dummy value is used as a compromise in order not to render the <code>/network/status</code> endpoint unavailable. </p>
+<p>Nevertheless, the correct value is returned when a Permanode with full Tangle history is used.</p>
+<p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
+<h3><a class="header" href="#transactions-and-operations" id="transactions-and-operations">Transactions and Operations</a></h3>
+<p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
+That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
+<p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
+<p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
+<p>Each <code>Transaction</code> Object has an array of <code>Operations</code>, each one representing a UTXO Output. The <code>index</code> of the <code>OperationIdentifier</code> is incremented from 0 and its <code>network_index</code> is defined by <code>output_index</code>.</p>
+<p>UTXO Operation types are defined as:</p>
+<ul>
+<li><code>UTXO_CONSUMED</code></li>
+<li><code>UTXO_CREATED</code></li>
+</ul>
+<p>UTXO Operation statuses are defined as:</p>
+<ul>
+<li><code>UTXO_SPENT</code></li>
+<li><code>UTXO_UNSPENT</code></li>
+</ul>
+<p>Here's an example of a Transaction Object:</p>
+<pre><code>{
+   &quot;transaction_identifier&quot;:{
+      &quot;hash&quot;:&quot;61ac6191f8821ee0685b9f402e7a73a93914b54ff1454492bf94fe9fbc6f59b2&quot;
+   },
+   &quot;operations&quot;:[
+      {
+         &quot;operation_identifier&quot;:{
+            &quot;index&quot;:0,
+            &quot;network_index&quot;:0
+         },
+         &quot;type&quot;:&quot;UTXO_CONSUMED&quot;,
+         &quot;status&quot;:&quot;UTXO_SPENT&quot;,
+         &quot;account&quot;:{
+            &quot;address&quot;:&quot;atoi1qx0s7p6z46eupqp5njqv0hhm8q5hgejtr67mexmtgzvn57rjd8k8jd43kz8&quot;
+         },
+         &quot;amount&quot;:{
+            &quot;value&quot;:&quot;9000000&quot;,
+            &quot;currency&quot;:{
+               &quot;symbol&quot;:&quot;IOTA&quot;,
+               &quot;decimals&quot;:0
+            }
+         }
+      },
+      {
+         &quot;operation_identifier&quot;:{
+            &quot;index&quot;:1,
+            &quot;network_index&quot;:1
+         },
+         &quot;type&quot;:&quot;UTXO_CREATED&quot;,
+         &quot;status&quot;:&quot;UTXO_UNSPENT&quot;,
+         &quot;account&quot;:{
+            &quot;address&quot;:&quot;atoi1qxstpvdjjku0g5756ej65sj6xcxgjux0q4k5rpjn8qjy9mn38tdhwdwn505&quot;
+         },
+         &quot;amount&quot;:{
+            &quot;value&quot;:&quot;1000000&quot;,
+            &quot;currency&quot;:{
+               &quot;symbol&quot;:&quot;IOTA&quot;,
+               &quot;decimals&quot;:0
+            }
+         }
+      }
+   ]
+}
+</code></pre>
+<h2><a class="header" href="#testing" id="testing">Testing</a></h2>
+<h3><a class="header" href="#rosetta-cli" id="rosetta-cli">rosetta-cli</a></h3>
+<p>The <code>test.sh</code> shell script automates testing via <code>rosetta-cli</code>.</p>
+<p>It will use the shell variables <code>NODE_URL</code> and <code>NETWORK</code> to specify the network parameters to be tested.
+Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
+<h3><a class="header" href="#curl" id="curl">curl</a></h3>
+<p>Curl commands can also be used for manual inspection of each API endpoint.</p>
+<ol>
+<li>Kickstart a <code>rosetta-iota</code> server:</li>
+</ol>
+<pre><code>$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network alphanet1
+</code></pre>
+<ol start="2">
+<li>From a new terminal, you can test each endpoint via <code>curl</code>:</li>
+</ol>
+<ul>
+<li><code>/network/list</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/network/list' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;metadata&quot;:{}}' | jq
+</code></pre>
+<ul>
+<li><code>/network/status</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/network/status' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;}}' | jq
+</code></pre>
+<ul>
+<li><code>/network/options</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/network/options' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;}}' | jq
+</code></pre>
+<ul>
+<li><code>/block</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/block' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;block_identifier&quot;:{&quot;index&quot;:2,&quot;hash&quot;:&quot;&quot;}}' | jq
+</code></pre>
+<ul>
+<li><code>/account/balance</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;account_identifier&quot;:{&quot;address&quot;:&quot;atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld&quot;}}' | jq```
+</code></pre>
+<ul>
+<li><code>/construction/derive</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;alphanet1&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;}}' | jq```
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>
