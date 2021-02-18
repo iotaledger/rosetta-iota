@@ -150,10 +150,10 @@ async fn account_coins(
         let amount = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => r.amount,
+                AddressDto::Ed25519(_) => r.amount,
             },
             OutputDto::SignatureLockedDustAllowance(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => r.amount,
+                AddressDto::Ed25519(_) => r.amount,
             },
         };
 

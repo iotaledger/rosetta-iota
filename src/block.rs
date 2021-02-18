@@ -127,7 +127,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                 output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter > n_consumed_outputs));
                 ()
             },
-            Some((output_vec, consumed)) => {
+            Some((output_vec, _)) => {
                 let mut output_vec_clone = output_vec.clone();
                 output_vec_clone.push(output.clone());
 

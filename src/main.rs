@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use rosetta_iota::{run_server, Options};
+use rosetta_iota::{consts, run_server, Options};
 use structopt::StructOpt;
 use std::process;
 
@@ -9,8 +9,7 @@ use std::process;
 async fn main() {
     let options = Options::from_args();
 
-    // todo: use consts::ONLINE and consts::OFFLINE
-    if (options.mode != "online") && (options.mode != "offline") {
+    if (options.mode != consts::ONLINE_MODE) && (options.mode != consts::ONLINE_MODE) {
         println!("mode needs to be either online or offline!");
         process::exit(0);
     }

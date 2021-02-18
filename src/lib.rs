@@ -12,7 +12,7 @@ use crate::types::NetworkIdentifier;
 mod account;
 mod block;
 mod construction;
-mod consts;
+pub mod consts;
 mod currency;
 mod error;
 mod filters;
