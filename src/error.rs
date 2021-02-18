@@ -77,7 +77,7 @@ impl ApiError {
             ApiError::BadNetwork => false,
             ApiError::NotImplemented => false,
             ApiError::UnableToBuildClient => false,
-            ApiError::UnableToGetNodeInfo => false,
+            ApiError::UnableToGetNodeInfo => true,
             ApiError::UnableToGetMilestone(_) => true,
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
