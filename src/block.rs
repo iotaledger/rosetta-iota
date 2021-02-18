@@ -31,6 +31,10 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
 async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     let network_identifier = block_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
@@ -55,7 +59,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
     let milestone = match iota_client.get_milestone(milestone_index).await {
         Ok(milestone) => milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index)),
     };
 
     if block_request.block_identifier.hash.is_some(){
@@ -79,7 +83,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     } else {
         let parent_milestone = match iota_client.get_milestone(milestone_index - 1).await {
             Ok(parent_milestone) => parent_milestone,
-            Err(_) => return Err(ApiError::UnableToGetMilestone),
+            Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index - 1)),
         };
 
         parent_block_identifier = BlockIdentifier {
@@ -123,7 +127,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                 output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter > n_consumed_outputs));
                 ()
             },
-            Some((output_vec, consumed)) => {
+            Some((output_vec, _)) => {
                 let mut output_vec_clone = output_vec.clone();
                 output_vec_clone.push(output.clone());
 

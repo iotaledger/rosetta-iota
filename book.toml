@@ -1,0 +1,22 @@
+[book]
+authors = [""]
+language = "en"
+multilingual = false
+src = "./docs"
+title = "IOTA rosetta-api"
+
+[output.html]
+git-repository-url = "https://github.com/iotaledger/rosetta-iota"
+git-repository-icon = "fa-github"
+
+[output.html.playpen]
+editable = false
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2

@@ -90,6 +90,11 @@ async fn network_options(
 
 async fn network_status(network_request: NetworkRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
+
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
     {
@@ -125,13 +130,7 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
     let latest_milestone_index = node_info.latest_milestone_index as u64;
     let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
         Ok(latest_milestone) => latest_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
-    };
-
-    let solid_milestone_index = node_info.solid_milestone_index as u64;
-    let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
-        Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(latest_milestone_index)),
     };
 
     let current_block_timestamp = latest_milestone.timestamp * 1000;

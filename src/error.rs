@@ -15,8 +15,8 @@ pub enum ApiError {
     UnableToBuildClient,
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
-    #[error("unable to get milestone")]
-    UnableToGetMilestone,
+    #[error("unable to get milestone {0}")]
+    UnableToGetMilestone(u64),
     #[error("unable to get peers")]
     UnableToGetPeers,
     #[error("bad block/milestone request")]
@@ -43,6 +43,8 @@ pub enum ApiError {
     BeeMessageError(#[from] bee_message::Error),
     #[error("{0:?}")]
     IotaClientError(#[from] iota::client::Error),
+    #[error("unsupported offline")]
+    UnavailableOffline,
 }
 
 impl ApiError {
@@ -52,7 +54,7 @@ impl ApiError {
             ApiError::NotImplemented => 20,
             ApiError::UnableToBuildClient => 30,
             ApiError::UnableToGetNodeInfo => 40,
-            ApiError::UnableToGetMilestone => 50,
+            ApiError::UnableToGetMilestone(_) => 50,
             ApiError::UnableToGetPeers => 60,
             ApiError::BadMilestoneRequest => 70,
             ApiError::UnableToGetMilestoneUTXOChanges => 80,
@@ -66,6 +68,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => 160,
             ApiError::BeeMessageError(_) => 170,
             ApiError::IotaClientError(_) => 180,
+            ApiError::UnavailableOffline => 190,
         }
     }
 
@@ -74,8 +77,8 @@ impl ApiError {
             ApiError::BadNetwork => false,
             ApiError::NotImplemented => false,
             ApiError::UnableToBuildClient => false,
-            ApiError::UnableToGetNodeInfo => false,
-            ApiError::UnableToGetMilestone => true,
+            ApiError::UnableToGetNodeInfo => true,
+            ApiError::UnableToGetMilestone(_) => true,
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => true,
@@ -89,6 +92,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => false,
             ApiError::BeeMessageError(_) => false,
             ApiError::IotaClientError(_) => false,
+            ApiError::UnavailableOffline => false,
         }
     }
 
@@ -98,7 +102,7 @@ impl ApiError {
             ApiError::NotImplemented => StatusCode::BAD_REQUEST,
             ApiError::UnableToBuildClient => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetNodeInfo => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::UnableToGetMilestone => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToGetMilestone(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToGetPeers => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::BadMilestoneRequest => StatusCode::BAD_REQUEST,
             ApiError::UnableToGetMilestoneUTXOChanges => StatusCode::INTERNAL_SERVER_ERROR,
@@ -112,6 +116,7 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => StatusCode::BAD_REQUEST,
             ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
             ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
+            ApiError::UnavailableOffline => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -209,6 +214,12 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Outputs from Address".to_string(),
                 code: 140,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unavailable Offline".to_string(),
+                code: 190,
                 retriable: false,
                 details: None,
             },

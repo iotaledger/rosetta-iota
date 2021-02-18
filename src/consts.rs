@@ -5,3 +5,5 @@ pub const BLOCKCHAIN: &str = "iota";
 pub const MIDDLEWARE_VERSION: &str = "1.0.0";
 pub const NODE_VERSION: &str = "0.6.0-alpha";
 pub const ROSETTA_VERSION: &str = "1.3.1";
+pub const ONLINE_MODE: &str = "online";
+pub const OFFLINE_MODE: &str = "offline";

@@ -36,6 +36,10 @@ async fn account_balance(
 ) -> Result<AccountBalanceResponse, ApiError> {
     debug!("/account/balance");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     let network_identifier = account_balance_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
@@ -66,7 +70,7 @@ async fn account_balance(
     let solid_milestone_index = node_info.solid_milestone_index as u64;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
@@ -98,6 +102,10 @@ async fn account_coins(
 ) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
     let network_identifier = account_coins_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
@@ -123,7 +131,7 @@ async fn account_coins(
     let solid_milestone_index = node_info.solid_milestone_index as u64;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
@@ -142,10 +150,10 @@ async fn account_coins(
         let amount = match output.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
             OutputDto::SignatureLockedSingle(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => r.amount,
+                AddressDto::Ed25519(_) => r.amount,
             },
             OutputDto::SignatureLockedDustAllowance(r) => match r.address {
-                AddressDto::Ed25519(ed25519) => r.amount,
+                AddressDto::Ed25519(_) => r.amount,
             },
         };
 
