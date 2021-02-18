@@ -8,8 +8,8 @@ use crate::{error::ApiError, filters::{handle, with_options}, options::Options, 
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse};
-use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation};
+use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload, Input, Output};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
@@ -27,6 +27,12 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
         )
         .or(
             warp::path!("construction" / "preprocess")
+                .and(warp::body::json())
+                .and(with_options(options.clone()))
+                .and_then(handle(construction_preprocess_request)),
+        )
+        .or(
+            warp::path!("construction" / "payloads")
                 .and(warp::body::json())
                 .and(with_options(options.clone()))
                 .and_then(handle(construction_preprocess_request)),
@@ -99,6 +105,41 @@ async fn construction_preprocess_request(
         options: None
     })
 }
+
+async fn construction_payloads_request(
+    construction_payloads_request: ConstructionPayloadsRequest,
+    options: Options,
+) -> Result<ConstructionPayloadsResponse, ApiError> {
+    debug!("/construction/payloads");
+
+    is_bad_network(&options, &construction_payloads_request.network_identifier)?;
+
+    let (inputs, outputs) = process_operations(construction_payloads_request.operations).await;
+
+
+    unimplemented!()
+
+
+    //Ok(ConstructionPayloadsResponse {
+    //    unsigned_transaction: (),
+    //    payloads: ()
+    //})
+}
+
+async fn process_operations(operations: Vec<Operation>) -> (Vec<Input>, Vec<Output>) {
+    let mut inputs = Vec::new();
+    let mut outputs = Vec::new();
+
+    for operation in operations {
+        let operation: Operation = operation;
+
+
+    }
+
+    (inputs, outputs)
+}
+
+
 
 async fn construction_hash_request(
     construction_hash_request: ConstructionHashRequest,
