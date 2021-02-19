@@ -202,24 +202,24 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <li><code>network_index</code>: <code>output_index</code></li>
 </ul>
 <p>The <code>UTXO Operation</code> <code>related_operations</code> field is defined as an array with the <code>index</code> of all <code>UTXO Operation</code> Objects contained in the same <code>Transaction</code> Object.</p>
-<p>The <code>UTXO Operation</code> <code>type</code> field is always <code>UTXO</code>.</p>
+<p>The <code>UTXO Operation</code> <code>type</code> field is always <code>&quot;UTXO&quot;</code>.</p>
 <p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
 <ul>
-<li><code>UTXO_SPENT</code>, meaning that the UTXO Output has already been spent.</li>
-<li><code>UTXO_UNSPENT</code>, meaning that the UTXO Output has not yet been spent.</li>
+<li><code>&quot;UTXO_SPENT&quot;</code>, meaning that the UTXO Output has already been spent.</li>
+<li><code>&quot;UTXO_UNSPENT&quot;</code>, meaning that the UTXO Output has not yet been spent.</li>
 </ul>
-<p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the <code>UTXO</code>.</p>
+<p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
 <p>The <code>UTXO Operation</code> <code>coin_change</code> Object (<a href="https://www.rosetta-api.org/docs/models/CoinChange.html">CoinChange</a> type) is defined as:</p>
 <ul>
 <li><code>coin_identifier</code>: <code>output_id</code></li>
 <li><code>coin_action</code>: either
 <ul>
-<li><code>UTXO_CONSUMED</code>, where coins are coming from into the Transaction</li>
-<li><code>UTXO_CREATED</code>, where coins are going out from the Transaction</li>
+<li><code>&quot;UTXO_CONSUMED&quot;</code>, where coins are coming from into the Transaction</li>
+<li><code>&quot;UTXO_CREATED&quot;</code>, where coins are going out from the Transaction</li>
 </ul>
 </li>
 </ul>
-<p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>coin_spent</code> and <code>coin_created</code>. These terms are analogous to <code>UTXO_CONSUMED</code> and <code>UTXO_CREATED</code>, and <strong>must not be confused</strong> with <code>UTXO_SPENT</code> and <code>UTXO_UNSPENT</code>.</p>
+<p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
 <p>Here's an example of a Transaction Object:</p>
 <pre><code>{
    &quot;transaction_identifier&quot;:{
