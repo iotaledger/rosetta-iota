@@ -57,6 +57,12 @@ pub struct Coin {
     pub amount: Amount,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CoinChange {
+    pub coin_identifier: CoinIdentifier,
+    pub coin_action: String
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Currency {
     pub symbol: String,
@@ -84,6 +90,7 @@ pub struct Operation {
     pub account: Option<AccountIdentifier>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<Amount>,
+    pub coin_change: CoinChange,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

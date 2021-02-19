@@ -44,21 +44,35 @@ Each UTXO Output contains a `output_id`, a `transaction_id` and a `output_index`
 
 In terms of Rosetta Models, the `TransactionIdentifier` of a `Transaction` Object is defined by an IOTA `transaction_id`.
 
-Each `Transaction` Object has an array of `Operations`, each one representing a UTXO Output. The `index` of the `OperationIdentifier` is incremented from 0 and its `network_index` is defined by `output_index`.
+Each [Transaction](https://www.rosetta-api.org/docs/models/Transaction.html) Object has an array of [Operations](https://www.rosetta-api.org/docs/models/Operation.html), each one representing a UTXO Output.
 
-UTXO Operation types are defined as:
-- `UTXO_CONSUMED`
-- `UTXO_CREATED`
+The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https://www.rosetta-api.org/docs/models/OperationIdentifier.html) type) is defined as:
+* `index`: incremented from `0` for each `Operation` Object in the `Transaction`
+* `network_index`: `output_index`
 
-UTXO Operation statuses are defined as:
-- `UTXO_SPENT`
-- `UTXO_UNSPENT`
+The `UTXO Operation` `related_operations` field is defined as an array with the `index` of all `UTXO Operation` Objects contained in the same `Transaction` Object.
+
+The `UTXO Operation` `type` field is always `"UTXO"`.
+
+The `UTXO Operation` `status` field is defined as either:
+* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent.
+* `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
+
+The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
+
+The `UTXO Operation` `coin_change` Object ([CoinChange](https://www.rosetta-api.org/docs/models/CoinChange.html) type) is defined as:
+* `coin_identifier`: `output_id`
+* `coin_action`: either
+    - `"UTXO_CONSUMED"`, where coins are coming from into the Transaction
+    - `"UTXO_CREATED"`, where coins are going out from the Transaction
+
+**Note:** Rosetta's definition of [CoinAction](https://www.rosetta-api.org/docs/models/CoinAction.html) is an `enum` valued with `"coin_spent"` and `"coin_created"`. These terms are analogous to `"UTXO_CONSUMED"` and `"UTXO_CREATED"`, and **must not be confused** with `"UTXO_SPENT"` and `"UTXO_UNSPENT"`.
 
 Here's an example of a Transaction Object:
 ```
 {
    "transaction_identifier":{
-      "hash":"61ac6191f8821ee0685b9f402e7a73a93914b54ff1454492bf94fe9fbc6f59b2"
+      "hash":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd"
    },
    "operations":[
       {
@@ -66,17 +80,28 @@ Here's an example of a Transaction Object:
             "index":0,
             "network_index":0
          },
-         "type":"UTXO_CONSUMED",
-         "status":"UTXO_SPENT",
+         "related_operations":[
+            {
+               "index":1
+            }
+         ],
+         "type":"UTXO",
+         "status":"UTXO_UNSPENT",
          "account":{
-            "address":"atoi1qx0s7p6z46eupqp5njqv0hhm8q5hgejtr67mexmtgzvn57rjd8k8jd43kz8"
+            "address":"atoi1qxslutqz5466ucd60d8qrkcl9cw6m6shgnfuyvpdam5442m60kpt7xns4l0"
          },
          "amount":{
-            "value":"9000000",
+            "value":"10000000",
             "currency":{
                "symbol":"IOTA",
                "decimals":0
             }
+         },
+         "coin_change":{
+            "coin_identifier":{
+               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0000"
+            },
+            "coin_action":"UTXO_CONSUMED"
          }
       },
       {
@@ -84,17 +109,28 @@ Here's an example of a Transaction Object:
             "index":1,
             "network_index":1
          },
-         "type":"UTXO_CREATED",
-         "status":"UTXO_UNSPENT",
+         "related_operations":[
+            {
+               "index":0
+            }
+         ],
+         "type":"UTXO",
+         "status":"UTXO_SPENT",
          "account":{
-            "address":"atoi1qxstpvdjjku0g5756ej65sj6xcxgjux0q4k5rpjn8qjy9mn38tdhwdwn505"
+            "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
          },
          "amount":{
-            "value":"1000000",
+            "value":"997731000000",
             "currency":{
                "symbol":"IOTA",
                "decimals":0
             }
+         },
+         "coin_change":{
+            "coin_identifier":{
+               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0100"
+            },
+            "coin_action":"UTXO_CONSUMED"
          }
       }
    ]
