@@ -55,7 +55,7 @@ The `UTXO Operation` `related_operations` field is defined as an array with the 
 The `UTXO Operation` `type` field is always `"UTXO"`.
 
 The `UTXO Operation` `status` field is defined as either:
-* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent.
+* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent (possibly by another Transaction).
 * `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
 
 The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
