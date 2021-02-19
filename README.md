@@ -22,7 +22,7 @@ Here we describe how concepts from the IOTA protocol were adapted for the Rosett
 
 ### Genesis Milestone
 
-The genesis milestone is not available on Fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
+The genesis milestone is not available on Fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a Fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
 ```
 "genesis_block_identifier": {
   "index": 1,
@@ -38,7 +38,7 @@ Syncing `rosetta-cli` is also affected by this. Syncing from genesis is only pos
 
 ### Transactions and Operations
 The `/block` endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
+That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA Fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
 
 Each UTXO Output contains a `output_id`, a `transaction_id` and a `output_index`, where `output_id = transaction_id + output_index`.
 
