@@ -38,7 +38,7 @@ Syncing `rosetta-cli` is also affected by this. Syncing from genesis is only pos
 
 ### Transactions and Operations
 The `/block` endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA Fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
+That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA Fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned. All returned outputs from this endpoint describe included ledger-changes.
 
 Each UTXO Output contains a `output_id`, a `transaction_id` and a `output_index`, where `output_id = transaction_id + output_index`.
 
@@ -52,11 +52,14 @@ The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https:
 
 The `UTXO Operation` `related_operations` field is defined as an array with the `index` of all `UTXO Operation` Objects contained in the same `Transaction` Object.
 
-The `UTXO Operation` `type` field is always `"UTXO"`.
+The `UTXO Operation` `type` field can be either:
+* `"UTXO_INPUT"`, describes where coins are coming from to the Transaction
+* `"UTXO_OUTPUT"`, describes where coins are going out from the Transaction
 
 The `UTXO Operation` `status` field is defined as either:
-* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent (possibly by another Transaction).
-* `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
+* `"SUCCESS"`, meaning that the output has been included in the ledger state.
+* `"SKIPPED"`, meaning that the output has not been included in the ledger state (e.g. since it conflicts with another Transaction).
+Note, that the operations that are used to construct a transaction (Construction API) don't populate the `status` field.
 
 The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
 
