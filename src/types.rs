@@ -91,6 +91,13 @@ pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<Amount>,
     pub coin_change: CoinChange,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<OperationMetadata>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct OperationMetadata {
+    pub is_spent: String
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
