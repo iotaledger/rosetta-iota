@@ -99,7 +99,7 @@ Here's an example of a Transaction Object:
          },
          "coin_change":{
             "coin_identifier":{
-               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0000"
+               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0"
             },
             "coin_action":"UTXO_CONSUMED"
          }
@@ -128,9 +128,9 @@ Here's an example of a Transaction Object:
          },
          "coin_change":{
             "coin_identifier":{
-               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0100"
+               "identifier":"fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd1"
             },
-            "coin_action":"UTXO_CONSUMED"
+            "coin_action":"UTXO_CREATED"
          }
       }
    ]
