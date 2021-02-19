@@ -195,21 +195,34 @@
 That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
 <p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
 <p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
-<p>Each <code>Transaction</code> Object has an array of <code>Operations</code>, each one representing a UTXO Output. The <code>index</code> of the <code>OperationIdentifier</code> is incremented from 0 and its <code>network_index</code> is defined by <code>output_index</code>.</p>
-<p>UTXO Operation types are defined as:</p>
+<p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
+<p>The UTXO <a href="https://www.rosetta-api.org/docs/models/OperationIdentifier.html">OperationIdentifier</a> Object is defined as:</p>
 <ul>
-<li><code>UTXO_CONSUMED</code></li>
-<li><code>UTXO_CREATED</code></li>
+<li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
+<li><code>network_index</code>: <code>output_index</code></li>
 </ul>
-<p>UTXO Operation statuses are defined as:</p>
+<p>The <code>UTXO Operation</code> <code>related_operations</code> field is defined as an array with the <code>index</code> of all <code>UTXO Operation</code> Objects contained in the same <code>Transaction</code> Object.</p>
+<p>The <code>UTXO Operation</code> <code>type</code> field is always <code>UTXO</code>.</p>
+<p>The <code>UTXO Operation</code> <code>status</code> field is defined as:</p>
 <ul>
-<li><code>UTXO_SPENT</code></li>
-<li><code>UTXO_UNSPENT</code></li>
+<li><code>UTXO_SPENT</code>, meaning that the UTXO Output has already been spent.</li>
+<li><code>UTXO_UNSPENT</code>, meaning that the UTXO Output has not yet been spent.</li>
+</ul>
+<p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the <code>UTXO</code>.</p>
+<p>The <code>UTXO Operation</code> <a href="https://www.rosetta-api.org/docs/models/CoinChange.html">coin_change</a> Object is defined as:</p>
+<ul>
+<li><code>coin_identifier</code>: <code>output_id</code></li>
+<li><code>coin_action</code>:
+<ul>
+<li><code>UTXO_CONSUMED</code>, where coins are coming from into the Transaction</li>
+<li><code>UTXO_CREATED</code>, where coins are going out from the Transaction</li>
+</ul>
+</li>
 </ul>
 <p>Here's an example of a Transaction Object:</p>
 <pre><code>{
    &quot;transaction_identifier&quot;:{
-      &quot;hash&quot;:&quot;61ac6191f8821ee0685b9f402e7a73a93914b54ff1454492bf94fe9fbc6f59b2&quot;
+      &quot;hash&quot;:&quot;fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd&quot;
    },
    &quot;operations&quot;:[
       {
@@ -217,17 +230,28 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
             &quot;index&quot;:0,
             &quot;network_index&quot;:0
          },
-         &quot;type&quot;:&quot;UTXO_CONSUMED&quot;,
-         &quot;status&quot;:&quot;UTXO_SPENT&quot;,
+         &quot;related_operations&quot;:[
+            {
+               &quot;index&quot;:1
+            }
+         ],
+         &quot;type&quot;:&quot;UTXO&quot;,
+         &quot;status&quot;:&quot;UTXO_UNSPENT&quot;,
          &quot;account&quot;:{
-            &quot;address&quot;:&quot;atoi1qx0s7p6z46eupqp5njqv0hhm8q5hgejtr67mexmtgzvn57rjd8k8jd43kz8&quot;
+            &quot;address&quot;:&quot;atoi1qxslutqz5466ucd60d8qrkcl9cw6m6shgnfuyvpdam5442m60kpt7xns4l0&quot;
          },
          &quot;amount&quot;:{
-            &quot;value&quot;:&quot;9000000&quot;,
+            &quot;value&quot;:&quot;10000000&quot;,
             &quot;currency&quot;:{
                &quot;symbol&quot;:&quot;IOTA&quot;,
                &quot;decimals&quot;:0
             }
+         },
+         &quot;coin_change&quot;:{
+            &quot;coin_identifier&quot;:{
+               &quot;identifier&quot;:&quot;fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0000&quot;
+            },
+            &quot;coin_action&quot;:&quot;UTXO_CONSUMED&quot;
          }
       },
       {
@@ -235,17 +259,28 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
             &quot;index&quot;:1,
             &quot;network_index&quot;:1
          },
-         &quot;type&quot;:&quot;UTXO_CREATED&quot;,
-         &quot;status&quot;:&quot;UTXO_UNSPENT&quot;,
+         &quot;related_operations&quot;:[
+            {
+               &quot;index&quot;:0
+            }
+         ],
+         &quot;type&quot;:&quot;UTXO&quot;,
+         &quot;status&quot;:&quot;UTXO_SPENT&quot;,
          &quot;account&quot;:{
-            &quot;address&quot;:&quot;atoi1qxstpvdjjku0g5756ej65sj6xcxgjux0q4k5rpjn8qjy9mn38tdhwdwn505&quot;
+            &quot;address&quot;:&quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
          },
          &quot;amount&quot;:{
-            &quot;value&quot;:&quot;1000000&quot;,
+            &quot;value&quot;:&quot;997731000000&quot;,
             &quot;currency&quot;:{
                &quot;symbol&quot;:&quot;IOTA&quot;,
                &quot;decimals&quot;:0
             }
+         },
+         &quot;coin_change&quot;:{
+            &quot;coin_identifier&quot;:{
+               &quot;identifier&quot;:&quot;fc11e18ab005fe3b1d5ba92dca77a289fe497b3ee41b843526589ec4d5cb9edd0100&quot;
+            },
+            &quot;coin_action&quot;:&quot;UTXO_CONSUMED&quot;
          }
       }
    ]
