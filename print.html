@@ -205,7 +205,7 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 </ul>
 <p>The <code>UTXO Operation</code> <code>related_operations</code> field is defined as an array with the <code>index</code> of all <code>UTXO Operation</code> Objects contained in the same <code>Transaction</code> Object.</p>
 <p>The <code>UTXO Operation</code> <code>type</code> field is always <code>UTXO</code>.</p>
-<p>The <code>UTXO Operation</code> <code>status</code> field is defined as:</p>
+<p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
 <ul>
 <li><code>UTXO_SPENT</code>, meaning that the UTXO Output has already been spent.</li>
 <li><code>UTXO_UNSPENT</code>, meaning that the UTXO Output has not yet been spent.</li>
@@ -214,13 +214,14 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <p>The <code>UTXO Operation</code> <a href="https://www.rosetta-api.org/docs/models/CoinChange.html">coin_change</a> Object is defined as:</p>
 <ul>
 <li><code>coin_identifier</code>: <code>output_id</code></li>
-<li><code>coin_action</code>:
+<li><code>coin_action</code>: either
 <ul>
 <li><code>UTXO_CONSUMED</code>, where coins are coming from into the Transaction</li>
 <li><code>UTXO_CREATED</code>, where coins are going out from the Transaction</li>
 </ul>
 </li>
 </ul>
+<p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>coin_spent</code> and <code>coin_created</code>. These terms are analogous to <code>UTXO_CONSUMED</code> and <code>UTXO_CREATED</code>, and <strong>must not be confused</strong> with <code>UTXO_SPENT</code> and <code>UTXO_UNSPENT</code>.</p>
 <p>Here's an example of a Transaction Object:</p>
 <pre><code>{
    &quot;transaction_identifier&quot;:{
