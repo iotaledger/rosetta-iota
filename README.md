@@ -85,7 +85,7 @@ Here's an example of a Transaction Object:
                "index":1
             }
          ],
-         "type":"UTXO",
+         "type":"UTXO_INPUT",
          "status":"UTXO_UNSPENT",
          "account":{
             "address":"atoi1qxslutqz5466ucd60d8qrkcl9cw6m6shgnfuyvpdam5442m60kpt7xns4l0"
@@ -114,7 +114,7 @@ Here's an example of a Transaction Object:
                "index":0
             }
          ],
-         "type":"UTXO",
+         "type":"UTXO_OUTPUT",
          "status":"UTXO_UNSPENT",
          "account":{
             "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
