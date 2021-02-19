@@ -205,7 +205,7 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <p>The <code>UTXO Operation</code> <code>type</code> field is always <code>&quot;UTXO&quot;</code>.</p>
 <p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
 <ul>
-<li><code>&quot;UTXO_SPENT&quot;</code>, meaning that the UTXO Output has already been spent.</li>
+<li><code>&quot;UTXO_SPENT&quot;</code>, meaning that the UTXO Output has already been spent (possibly by another Transaction).</li>
 <li><code>&quot;UTXO_UNSPENT&quot;</code>, meaning that the UTXO Output has not yet been spent.</li>
 </ul>
 <p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
