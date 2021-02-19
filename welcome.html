@@ -192,7 +192,7 @@
 <p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
 <h3><a class="header" href="#transactions-and-operations" id="transactions-and-operations">Transactions and Operations</a></h3>
 <p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
+That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned. All returned outputs from this endpoint describe included ledger-changes.</p>
 <p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
 <p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
 <p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
@@ -202,11 +202,16 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <li><code>network_index</code>: <code>output_index</code></li>
 </ul>
 <p>The <code>UTXO Operation</code> <code>related_operations</code> field is defined as an array with the <code>index</code> of all <code>UTXO Operation</code> Objects contained in the same <code>Transaction</code> Object.</p>
-<p>The <code>UTXO Operation</code> <code>type</code> field is always <code>&quot;UTXO&quot;</code>.</p>
+<p>The <code>UTXO Operation</code> <code>type</code> field can be either:</p>
+<ul>
+<li><code>&quot;UTXO_INPUT&quot;</code>, describes where coins are coming from to the Transaction</li>
+<li><code>&quot;UTXO_OUTPUT&quot;</code>, describes where coins are going out from the Transaction</li>
+</ul>
 <p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
 <ul>
-<li><code>&quot;UTXO_SPENT&quot;</code>, meaning that the UTXO Output has already been spent (possibly by another Transaction).</li>
-<li><code>&quot;UTXO_UNSPENT&quot;</code>, meaning that the UTXO Output has not yet been spent.</li>
+<li><code>&quot;SUCCESS&quot;</code>, meaning that the output has been included in the ledger state.</li>
+<li><code>&quot;SKIPPED&quot;</code>, meaning that the output has not been included in the ledger state (e.g. since it conflicts with another Transaction).
+Note, that the operations that are used to construct a transaction (Construction API) don't populate the <code>status</code> field.</li>
 </ul>
 <p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
 <p>The <code>UTXO Operation</code> <code>coin_change</code> Object (<a href="https://www.rosetta-api.org/docs/models/CoinChange.html">CoinChange</a> type) is defined as:</p>
@@ -236,8 +241,8 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
                &quot;index&quot;:1
             }
          ],
-         &quot;type&quot;:&quot;UTXO&quot;,
-         &quot;status&quot;:&quot;UTXO_UNSPENT&quot;,
+         &quot;type&quot;:&quot;UTXO_INPUT&quot;,
+         &quot;status&quot;:&quot;SUCCESS&quot;,
          &quot;account&quot;:{
             &quot;address&quot;:&quot;atoi1qxslutqz5466ucd60d8qrkcl9cw6m6shgnfuyvpdam5442m60kpt7xns4l0&quot;
          },
@@ -265,8 +270,8 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
                &quot;index&quot;:0
             }
          ],
-         &quot;type&quot;:&quot;UTXO&quot;,
-         &quot;status&quot;:&quot;UTXO_SPENT&quot;,
+         &quot;type&quot;:&quot;UTXO_OUTPUT&quot;,
+         &quot;status&quot;:&quot;SUCCESS&quot;,
          &quot;account&quot;:{
             &quot;address&quot;:&quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
          },
