@@ -115,7 +115,7 @@ Here's an example of a Transaction Object:
             }
          ],
          "type":"UTXO",
-         "status":"UTXO_SPENT",
+         "status":"UTXO_UNSPENT",
          "account":{
             "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
          },
