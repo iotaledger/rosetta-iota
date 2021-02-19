@@ -181,7 +181,7 @@
 <h2><a class="header" href="#iota-and-rosetta" id="iota-and-rosetta">IOTA and Rosetta</a></h2>
 <p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
 <h3><a class="header" href="#genesis-milestone" id="genesis-milestone">Genesis Milestone</a></h3>
-<p>The genesis milestone is not available on Fullnodes, but the <code>/network/status</code> endpoint response contains a <code>genesis_block_identifier</code> field. Therefore, whenever a fullnode is used by the <code>rosetta-iota</code> server, the <code>genesis_block_identifier</code> is populated as such:</p>
+<p>The genesis milestone is not available on Fullnodes, but the <code>/network/status</code> endpoint response contains a <code>genesis_block_identifier</code> field. Therefore, whenever a Fullnode is used by the <code>rosetta-iota</code> server, the <code>genesis_block_identifier</code> is populated as such:</p>
 <pre><code>&quot;genesis_block_identifier&quot;: {
   &quot;index&quot;: 1,
   &quot;hash&quot;: &quot;0000000000000000000000000000000000000000000000000000000000000000&quot;
@@ -192,7 +192,7 @@
 <p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
 <h3><a class="header" href="#transactions-and-operations" id="transactions-and-operations">Transactions and Operations</a></h3>
 <p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
+That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
 <p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
 <p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
 <p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
