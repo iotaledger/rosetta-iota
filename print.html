@@ -198,7 +198,7 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
 <p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
 <p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
-<p>The UTXO <a href="https://www.rosetta-api.org/docs/models/OperationIdentifier.html">OperationIdentifier</a> Object is defined as:</p>
+<p>The <code>UTXO Operation</code> <code>operation_identifier</code> Object (<a href="https://www.rosetta-api.org/docs/models/OperationIdentifier.html">OperationIdentifier</a> type) is defined as:</p>
 <ul>
 <li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
 <li><code>network_index</code>: <code>output_index</code></li>
