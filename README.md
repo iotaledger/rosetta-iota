@@ -66,7 +66,7 @@ The `UTXO Operation` `coin_change` Object ([CoinChange](https://www.rosetta-api.
     - `"UTXO_CONSUMED"`, where coins are coming from into the Transaction
     - `"UTXO_CREATED"`, where coins are going out from the Transaction
 
-**Note:** Rosetta's definition of [CoinAction](https://www.rosetta-api.org/docs/models/CoinAction.html) is an `enum` valued with `"coin_spent"` and `"coin_created"`. These terms are analogous to `"UTXO_CONSUMED"` and `"UTXO_CREATED"`, and **must not be confused** with `"UTXO_SPENT"` and `"UTXO_UNSPENT"`.
+**Note:** Rosetta's definition of [CoinAction](https://www.rosetta-api.org/docs/models/CoinAction.html) is an `enum` valued with `"coin_spent"` and `"coin_created"`. These terms are analogous to IOTA's `"UTXO_CONSUMED"` and `"UTXO_CREATED"`, and **must not be confused** with IOTA's `"UTXO_SPENT"` and `"UTXO_UNSPENT"`.
 
 Here's an example of a Transaction Object:
 ```
