@@ -299,6 +299,7 @@ pub struct ConstructionPayloadsRequest {
     pub network_identifier: NetworkIdentifier,
     pub operations: Vec<Operation>,
     pub metadata: ConstructionMetadata,
+    pub public_keys: Vec<PublicKey>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
