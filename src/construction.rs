@@ -35,7 +35,7 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
             warp::path!("construction" / "payloads")
                 .and(warp::body::json())
                 .and(with_options(options.clone()))
-                .and_then(handle(construction_preprocess_request)),
+                .and_then(handle(construction_payloads_request)),
         )
         .or(
             warp::path!("construction" / "hash")
