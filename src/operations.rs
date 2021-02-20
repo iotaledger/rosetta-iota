@@ -77,8 +77,8 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
             false => UTXO_OUTPUT.into(),
         },
         status: Some(SUCCESS.into()),
-        account: Some(account),
-        amount: Some(amount),
+        account: account,
+        amount: amount,
         coin_change: CoinChange {
             coin_identifier: CoinIdentifier {
                 identifier: output_id
@@ -88,11 +88,11 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
                 false => UTXO_CREATED.into(),
             },
         },
-        metadata: Some(OperationMetadata {
+        metadata: OperationMetadata {
             is_spent: match is_spent {
                 true => UTXO_SPENT.into(),
                 false => UTXO_UNSPENT.into()
             }
-        })
+        }
     }
 }

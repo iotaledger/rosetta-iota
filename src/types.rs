@@ -86,13 +86,10 @@ pub struct Operation {
     #[serde(rename = "type")]
     pub type_: String,
     pub status: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub account: Option<AccountIdentifier>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount: Option<Amount>,
+    pub account: AccountIdentifier,
+    pub amount: Amount,
     pub coin_change: CoinChange,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<OperationMetadata>,
+    pub metadata: OperationMetadata,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -446,6 +443,5 @@ pub struct ErrorDetails {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadata {
-    pub chain_id: u8,
-    pub sequence_number: u64,
+
 }
