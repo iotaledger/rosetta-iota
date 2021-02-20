@@ -45,6 +45,8 @@ pub enum ApiError {
     IotaClientError(#[from] iota::client::Error),
     #[error("unsupported offline")]
     UnavailableOffline,
+    #[error("output has already been spent")]
+    UnableToSpend,
 }
 
 impl ApiError {
@@ -69,6 +71,7 @@ impl ApiError {
             ApiError::BeeMessageError(_) => 170,
             ApiError::IotaClientError(_) => 180,
             ApiError::UnavailableOffline => 190,
+            ApiError::UnableToSpend => 200,
         }
     }
 
@@ -93,6 +96,7 @@ impl ApiError {
             ApiError::BeeMessageError(_) => false,
             ApiError::IotaClientError(_) => false,
             ApiError::UnavailableOffline => false,
+            ApiError::UnableToSpend => false,
         }
     }
 
@@ -117,6 +121,7 @@ impl ApiError {
             ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
             ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
             ApiError::UnavailableOffline => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnableToSpend => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -244,6 +249,12 @@ impl ApiError {
             types::Error {
                 message: "Unavailable Offline".to_string(),
                 code: 190,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Already Spent".to_string(),
+                code: 200,
                 retriable: false,
                 details: None,
             },

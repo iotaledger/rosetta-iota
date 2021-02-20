@@ -116,7 +116,32 @@ async fn construction_payloads_request(
 
     is_bad_network(&options, &construction_payloads_request.network_identifier)?;
 
-    let (inputs, outputs) = process_operations(construction_payloads_request.operations).await;
+    let mut inputs = vec![];
+    let mut outputs = vec![];
+
+    for operation in construction_payloads_request.operations {
+        match &operation.type_[..] {
+            "UTXO_INPUT" => {
+                if operation.metadata.is_spent == UTXO_SPENT {
+                    return Err(ApiError::UnableToSpend);
+                }
+                let output_id_str = operation.coin_change.coin_identifier.identifier;
+                let output_id_bytes = hex::decode(output_id_str).unwrap();
+                let (transaction_id, index) = output_id_bytes.split_at(32);
+                let output_index = u16::from_le_bytes(index.try_into().unwrap());
+                let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
+                let input: Input = Input::UTXO(utxo_input);
+                inputs.push(input);
+            },
+            "UTXO_OUTPUT" => {
+                let address = Address::try_from_bech32(&operation.account.address).unwrap();
+                let amount = operation.amount.value.parse::<u64>().unwrap();
+                let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
+                outputs.push(output);
+            },
+            _ => ()
+        }
+    }
 
     unimplemented!()
 
@@ -125,40 +150,6 @@ async fn construction_payloads_request(
     //    payloads: ()
     //})
 }
-
-async fn process_operations(operations: Vec<Operation>) -> (Vec<Input>, Vec<Output>) {
-    let mut inputs = Vec::new();
-    let mut outputs = Vec::new();
-
-    for operation in operations {
-        match &operation.type_[..] {
-            "UTXO_INPUT" => {
-                if operation.metadata.is_spent == UTXO_SPENT {
-                    panic!();
-                    // can't spend spent! todo: treat properly
-                }
-                let output_id_str = operation.coin_change.coin_identifier.identifier;
-                let output_id_bytes = hex::decode(output_id_str).unwrap();
-                let (transaction_id, index) = output_id_bytes.split_at(32);
-                let output_index = u16::from_le_bytes(index.try_into().unwrap());
-                let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
-                let input = Input::UTXO(utxo_input);
-                inputs.push(input);
-            },
-            "UTXO_OUTPUT" => {
-                let address = Address::try_from_bech32(&operation.account.address).unwrap();
-                let amount = operation.amount.value.parse::<u64>().unwrap();
-                let output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
-                outputs.push(output);
-            },
-            _ => ()
-        }
-    }
-
-    (inputs, outputs)
-}
-
-
 
 async fn construction_hash_request(
     construction_hash_request: ConstructionHashRequest,
