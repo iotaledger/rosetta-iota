@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, filters::{handle, with_options}, options::Options, types::{
+use crate::{consts, operations, error::ApiError, filters::{handle, with_options}, options::Options, types::{
     ConstructionHashRequest, ConstructionHashResponse, ConstructionSubmitRequest, ConstructionSubmitResponse,
     TransactionIdentifier,
 }, is_bad_network};
@@ -9,13 +9,15 @@ use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation};
-use bee_message::prelude::{Ed25519Address, Address, TransactionPayload, Payload, Input, Output};
+use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, Payload, Input, Output, SignatureLockedSingleOutput, UTXOInput};
+use iota::Client;
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
 };
 
 use std::convert::TryInto;
+use crate::operations::UTXO_SPENT;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
@@ -116,9 +118,7 @@ async fn construction_payloads_request(
 
     let (inputs, outputs) = process_operations(construction_payloads_request.operations).await;
 
-
     unimplemented!()
-
 
     //Ok(ConstructionPayloadsResponse {
     //    unsigned_transaction: (),
@@ -131,9 +131,28 @@ async fn process_operations(operations: Vec<Operation>) -> (Vec<Input>, Vec<Outp
     let mut outputs = Vec::new();
 
     for operation in operations {
-        let operation: Operation = operation;
-
-
+        match &operation.type_[..] {
+            "UTXO_INPUT" => {
+                if operation.metadata.is_spent == UTXO_SPENT {
+                    panic!();
+                    // can't spend spent! todo: treat properly
+                }
+                let output_id_str = operation.coin_change.coin_identifier.identifier;
+                let output_id_bytes = hex::decode(output_id_str).unwrap();
+                let (transaction_id, index) = output_id_bytes.split_at(32);
+                let output_index = u16::from_le_bytes(index.try_into().unwrap());
+                let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
+                let input = Input::UTXO(utxo_input);
+                inputs.push(input);
+            },
+            "UTXO_OUTPUT" => {
+                let address = Address::try_from_bech32(&operation.account.address).unwrap();
+                let amount = operation.amount.value.parse::<u64>().unwrap();
+                let output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
+                outputs.push(output);
+            },
+            _ => ()
+        }
     }
 
     (inputs, outputs)
