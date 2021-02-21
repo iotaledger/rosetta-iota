@@ -2481,6 +2481,7 @@ dependencies = [
  "iota-core",
  "log",
  "serde",
+ "serde_json",
  "structopt",
  "thiserror",
  "tokio",

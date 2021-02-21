@@ -8,8 +8,8 @@ use crate::{consts, operations, error::ApiError, filters::{handle, with_options}
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation};
-use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, Payload, Input, Output, SignatureLockedSingleOutput, UTXOInput};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType};
+use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, TransactionPayloadEssence, Payload, Input, Output, SignatureLockedSingleOutput, UTXOInput};
 use iota::Client;
 use blake2::{
     digest::{Update, VariableOutput},
@@ -17,7 +17,9 @@ use blake2::{
 };
 
 use std::convert::TryInto;
+use std::str;
 use crate::operations::UTXO_SPENT;
+use serde::Serialize;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
@@ -119,6 +121,8 @@ async fn construction_payloads_request(
     let mut inputs = vec![];
     let mut outputs = vec![];
 
+    let mut signing_payloads = vec![];
+
     for operation in construction_payloads_request.operations {
         match &operation.type_[..] {
             "UTXO_INPUT" => {
@@ -130,8 +134,14 @@ async fn construction_payloads_request(
                 let (transaction_id, index) = output_id_bytes.split_at(32);
                 let output_index = u16::from_le_bytes(index.try_into().unwrap());
                 let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
-                let input: Input = Input::UTXO(utxo_input);
+                let input: Input = Input::UTXO(utxo_input.clone());
                 inputs.push(input);
+
+                signing_payloads.push( SigningPayload {
+                    address: operation.account.address,
+                    hex_bytes: hex::encode(utxo_input.to_string()),
+                    signature_type: Some(SignatureType::Edwards25519)
+                });
             },
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&operation.account.address).unwrap();
@@ -144,12 +154,29 @@ async fn construction_payloads_request(
         }
     }
 
-    unimplemented!()
+    let mut transaction_payload_essence_builder = TransactionPayloadEssence::builder();
 
-    //Ok(ConstructionPayloadsResponse {
-    //    unsigned_transaction: (),
-    //    payloads: ()
-    //})
+    // todo: Rosetta indexation payload?
+    // builder = builder.with_payload(p);
+
+    for i in inputs {
+        transaction_payload_essence_builder = transaction_payload_essence_builder.add_input(i);
+    }
+
+    for o in outputs {
+        transaction_payload_essence_builder = transaction_payload_essence_builder.add_output(o);
+    }
+
+    let transaction_payload_essence = transaction_payload_essence_builder.finish().unwrap();
+    let transaction_payload_essence_hex = hex::encode(serde_json::to_string(&transaction_payload_essence).unwrap());
+
+    // test, todo: remove
+    // let transaction_payload_essence_deser: TransactionPayloadEssence = serde_json::from_str(str::from_utf8(&hex::decode(transaction_payload_essence_hex).unwrap()).unwrap()).unwrap();
+
+    Ok(ConstructionPayloadsResponse {
+        unsigned_transaction: transaction_payload_essence_hex,
+        payloads: signing_payloads
+    })
 }
 
 async fn construction_hash_request(
