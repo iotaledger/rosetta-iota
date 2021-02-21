@@ -47,6 +47,8 @@ pub enum ApiError {
     UnavailableOffline,
     #[error("output has already been spent")]
     UnableToSpend,
+    #[error("unknown operation type")]
+    UnknownOperationType,
 }
 
 impl ApiError {
@@ -72,6 +74,7 @@ impl ApiError {
             ApiError::IotaClientError(_) => 180,
             ApiError::UnavailableOffline => 190,
             ApiError::UnableToSpend => 200,
+            ApiError::UnknownOperationType => 210,
         }
     }
 
@@ -97,6 +100,7 @@ impl ApiError {
             ApiError::IotaClientError(_) => false,
             ApiError::UnavailableOffline => false,
             ApiError::UnableToSpend => false,
+            ApiError::UnknownOperationType => false,
         }
     }
 
@@ -122,6 +126,7 @@ impl ApiError {
             ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
             ApiError::UnavailableOffline => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::UnableToSpend => StatusCode::BAD_REQUEST,
+            ApiError::UnknownOperationType => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -255,6 +260,12 @@ impl ApiError {
             types::Error {
                 message: "Already Spent".to_string(),
                 code: 200,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Unknown Operation Type".to_string(),
+                code: 210,
                 retriable: false,
                 details: None,
             },

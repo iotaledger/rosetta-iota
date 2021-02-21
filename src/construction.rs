@@ -150,7 +150,7 @@ async fn construction_payloads_request(
                 let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
                 outputs.push(output);
             },
-            _ => ()
+            _ => return Err(ApiError::UnknownOperationType)
         }
     }
 
