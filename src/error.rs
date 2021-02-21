@@ -218,6 +218,30 @@ impl ApiError {
                 details: None,
             },
             types::Error {
+                message: "Unsupported Curve".to_string(),
+                code: 150,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "HEX decoding failed".to_string(),
+                code: 160,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "Bee Message Error".to_string(),
+                code: 170,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
+                message: "IOTA Client Error".to_string(),
+                code: 180,
+                retriable: false,
+                details: None,
+            },
+            types::Error {
                 message: "Unavailable Offline".to_string(),
                 code: 190,
                 retriable: false,

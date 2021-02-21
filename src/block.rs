@@ -110,6 +110,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     let mut transaction_hashset = HashSet::new();
     let mut output_hashmap: HashMap<String, (Vec<OutputResponse>, bool)> = HashMap::new();
 
+    // loop over all_outputs
     for output_id_str in all_outputs {
         let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
 
@@ -121,6 +122,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let transaction_id = output.clone().transaction_id;
         transaction_hashset.insert(transaction_id.clone());
 
+        // populate output_hashmap
         match output_hashmap.get(&transaction_id[..]) {
             None => {
                 //                                                                todo: refactor
@@ -171,10 +173,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
                     // todo: refactor
-                    match consumed {
-                        true => operations.push(consumed_utxo_operation(is_spent, bech32_address, amount, output.output_index, operation_counter)),
-                        false => operations.push(created_utxo_operation(is_spent, bech32_address, amount, output.output_index, operation_counter)),
-                    }
+                    operations.push(utxo_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, output_vec.len() as u32, consumed, is_spent));
                     operation_counter = operation_counter + 1;
                 }
             },

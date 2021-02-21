@@ -22,7 +22,7 @@ Here we describe how concepts from the IOTA protocol were adapted for the Rosett
 
 ### Genesis Milestone
 
-The genesis milestone is not available on Fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
+The genesis milestone is not available on Fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a Fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
 ```
 "genesis_block_identifier": {
   "index": 1,
@@ -38,64 +38,147 @@ Syncing `rosetta-cli` is also affected by this. Syncing from genesis is only pos
 
 ### Transactions and Operations
 The `/block` endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
+That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA Fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
 
 Each UTXO Output contains a `output_id`, a `transaction_id` and a `output_index`, where `output_id = transaction_id + output_index`.
 
 In terms of Rosetta Models, the `TransactionIdentifier` of a `Transaction` Object is defined by an IOTA `transaction_id`.
 
-Each `Transaction` Object has an array of `Operations`, each one representing a UTXO Output. The `index` of the `OperationIdentifier` is incremented from 0 and its `network_index` is defined by `output_index`.
+Each [Transaction](https://www.rosetta-api.org/docs/models/Transaction.html) Object has an array of [Operations](https://www.rosetta-api.org/docs/models/Operation.html), each one representing a UTXO Output.
 
-UTXO Operation types are defined as:
-- `UTXO_CONSUMED`
-- `UTXO_CREATED`
+The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https://www.rosetta-api.org/docs/models/OperationIdentifier.html) type) is defined as:
+* `index`: incremented from `0` for each `Operation` Object in the `Transaction`
+* `network_index`: `output_index`
 
-UTXO Operation statuses are defined as:
-- `UTXO_SPENT`
-- `UTXO_UNSPENT`
+The `UTXO Operation` `related_operations` field is defined as an array with the `index` of all `UTXO Operation` Objects contained in the same `Transaction` Object.
 
-Here's an example of a Transaction Object:
+The `UTXO Operation` `type` field is always `"UTXO"`.
+
+The `UTXO Operation` `status` field is defined as either:
+* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent (possibly by another Transaction).
+* `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
+
+The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
+
+The `UTXO Operation` `coin_change` Object ([CoinChange](https://www.rosetta-api.org/docs/models/CoinChange.html) type) is defined as:
+* `coin_identifier`: `output_id`
+* `coin_action`: either
+    - `"coin_spent"`, where coins are coming from into the Transaction
+    - `"coin_created"`, where coins are going out from the Transaction
+
+**Note:** Rosetta's definition of [CoinAction](https://www.rosetta-api.org/docs/models/CoinAction.html) is an `enum` valued with `"coin_spent"` and `"coin_created"`. These terms are analogous to IOTA's `"UTXO_CONSUMED"` and `"UTXO_CREATED"`, and **must not be confused** with IOTA's `"UTXO_SPENT"` and `"UTXO_UNSPENT"`.
+
+Here's an example of two Transaction Objects in the same Milestone:
 ```
 {
-   "transaction_identifier":{
-      "hash":"61ac6191f8821ee0685b9f402e7a73a93914b54ff1454492bf94fe9fbc6f59b2"
-   },
-   "operations":[
+   "transactions":[
       {
-         "operation_identifier":{
-            "index":0,
-            "network_index":0
+         "transaction_identifier":{
+            "hash":"9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da8"
          },
-         "type":"UTXO_CONSUMED",
-         "status":"UTXO_SPENT",
-         "account":{
-            "address":"atoi1qx0s7p6z46eupqp5njqv0hhm8q5hgejtr67mexmtgzvn57rjd8k8jd43kz8"
-         },
-         "amount":{
-            "value":"9000000",
-            "currency":{
-               "symbol":"IOTA",
-               "decimals":0
+         "operations":[
+            {
+               "operation_identifier":{
+                  "index":0,
+                  "network_index":0
+               },
+               "related_operations":[
+                  
+               ],
+               "type":"UTXO_OUTPUT",
+               "status":"SUCCESS",
+               "account":{
+                  "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
+               },
+               "amount":{
+                  "value":"999880000000",
+                  "currency":{
+                     "symbol":"IOTA",
+                     "decimals":0
+                  }
+               },
+               "coin_change":{
+                  "coin_identifier":{
+                     "identifier":"9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
+                  },
+                  "coin_action":"coin_created"
+               },
+               "metadata":{
+                  "is_spent":"UTXO_SPENT"
+               }
             }
-         }
+         ]
       },
       {
-         "operation_identifier":{
-            "index":1,
-            "network_index":1
+         "transaction_identifier":{
+            "hash":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636"
          },
-         "type":"UTXO_CREATED",
-         "status":"UTXO_UNSPENT",
-         "account":{
-            "address":"atoi1qxstpvdjjku0g5756ej65sj6xcxgjux0q4k5rpjn8qjy9mn38tdhwdwn505"
-         },
-         "amount":{
-            "value":"1000000",
-            "currency":{
-               "symbol":"IOTA",
-               "decimals":0
+         "operations":[
+            {
+               "operation_identifier":{
+                  "index":0,
+                  "network_index":0
+               },
+               "related_operations":[
+                  {
+                     "index":1
+                  }
+               ],
+               "type":"UTXO_INPUT",
+               "status":"SUCCESS",
+               "account":{
+                  "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
+               },
+               "amount":{
+                  "value":"999870000000",
+                  "currency":{
+                     "symbol":"IOTA",
+                     "decimals":0
+                  }
+               },
+               "coin_change":{
+                  "coin_identifier":{
+                     "identifier":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360000"
+                  },
+                  "coin_action":"coin_spent"
+               },
+               "metadata":{
+                  "is_spent":"UTXO_UNSPENT"
+               }
+            },
+            {
+               "operation_identifier":{
+                  "index":1,
+                  "network_index":1
+               },
+               "related_operations":[
+                  {
+                     "index":0
+                  }
+               ],
+               "type":"UTXO_INPUT",
+               "status":"SUCCESS",
+               "account":{
+                  "address":"atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf"
+               },
+               "amount":{
+                  "value":"10000000",
+                  "currency":{
+                     "symbol":"IOTA",
+                     "decimals":0
+                  }
+               },
+               "coin_change":{
+                  "coin_identifier":{
+                     "identifier":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100"
+                  },
+                  "coin_action":"coin_spent"
+               },
+               "metadata":{
+                  "is_spent":"UTXO_UNSPENT"
+               }
             }
-         }
+         ]
       }
    ]
 }
@@ -116,7 +199,7 @@ Curl commands can also be used for manual inspection of each API endpoint.
 
 1. Kickstart a `rosetta-iota` server:
 ```
-$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network testnet4 --port 3030 --mode online
+$ cargo run -- --iota-endpoint http://0.0.0.0:14265 --network testnet5 --port 3030 --mode online
 ```
 
 2. From a new terminal, you can test each endpoint via `curl`:
@@ -128,30 +211,30 @@ $ curl --request POST 'http://localhost:3030/network/list' \--header 'Accept: ap
 
 - `/network/status`
 ```
-$ curl --request POST 'http://localhost:3030/network/status' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"}}' | jq
+$ curl --request POST 'http://localhost:3030/network/status' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"}}' | jq
 ```
 
 - `/network/options`
 ```
-$ curl --request POST 'http://localhost:3030/network/options' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"}}' | jq
+$ curl --request POST 'http://localhost:3030/network/options' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"}}' | jq
 ```
 
 - `/block`
 ```
-$ curl --request POST 'http://localhost:3030/block' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"},"block_identifier":{"index":2,"hash":""}}' | jq
+$ curl --request POST 'http://localhost:3030/block' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"block_identifier":{"index":2,"hash":""}}' | jq
 ```
 
 - `/account/balance`
 ```
-$ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"},"account_identifier":{"address":"atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld"}}' | jq
+$ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"account_identifier":{"address":"atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld"}}' | jq
 ```
 
 - `/account/coins`
 ```
-$ curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"},"account_identifier":{"address":"atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld"}}' | jq
+$ curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"account_identifier":{"address":"atoi1qx0pteshrd554xtea4v3rklr97kzgc95umcpckn9pl897gnedk7gugyk5ld"}}' | jq
 ```
 
 - `/construction/derive`
 ```
-$ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet4"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}' | jq
+$ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}' | jq
 ```
