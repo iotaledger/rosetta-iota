@@ -100,12 +100,12 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     };
 
     // all_outputs has both created and consumed, but we still keep track of which is which
-    // by checking if output_counter > n_consumed_outputs
+    // by checking if output_counter > n_created_outputs
     // very unelegant! todo: refactor
     let mut output_counter = 0;
-    let n_consumed_outputs = utxo_changes.consumed_outputs.len();
-    let mut all_outputs = utxo_changes.consumed_outputs;
-    all_outputs.extend(utxo_changes.created_outputs);
+    let n_created_outputs = utxo_changes.created_outputs.len();
+    let mut all_outputs = utxo_changes.created_outputs;
+    all_outputs.extend(utxo_changes.consumed_outputs);
 
     let mut transaction_hashset = HashSet::new();
     let mut output_hashmap: HashMap<String, (Vec<OutputResponse>, bool)> = HashMap::new();
@@ -126,7 +126,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         match output_hashmap.get(&transaction_id[..]) {
             None => {
                 //                                                                todo: refactor
-                output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter > n_consumed_outputs));
+                output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter >= n_created_outputs));
                 ()
             },
             Some((output_vec, _)) => {
@@ -135,10 +135,10 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
 
                 // update output_vec_value with output_vec_clone
                 //                                                                                                                           todo: refactor
-                let output_vec_value = output_hashmap.entry(transaction_id).or_insert((vec![output], output_counter > n_consumed_outputs));
+                let output_vec_value = output_hashmap.entry(transaction_id).or_insert((vec![output], output_counter >= n_created_outputs));
 
                 // this is ok                          todo: refactor
-                *output_vec_value = (output_vec_clone, output_counter > n_consumed_outputs);
+                *output_vec_value = (output_vec_clone, output_counter >= n_created_outputs);
             }
         }
 
