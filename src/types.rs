@@ -419,8 +419,8 @@ pub struct PeerMetadata {
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum SignatureType {
-    #[serde(rename = "ed25519")]
-    Ed25519,
+    #[serde(rename = "edwards25519")]
+    Edwards25519,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
