@@ -136,6 +136,7 @@ async fn construction_payloads_request(
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&operation.account.address).unwrap();
                 let amount = operation.amount.value.parse::<u64>().unwrap();
+                // todo: tread Dust allowance
                 let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
                 outputs.push(output);
             },
