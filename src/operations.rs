@@ -44,7 +44,7 @@ pub fn operation_status_skipped() -> OperationStatus {
     }
 }
 
-pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, n_operations: u32, consumed: &bool, is_spent: bool) -> Operation {
+pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
