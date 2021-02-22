@@ -12,8 +12,8 @@ use crate::{
         NetworkStatusResponse, Peer, PeerMetadata, Version,
     },
 };
-use bee_message::prelude::{MessageId, MESSAGE_ID_LENGTH};
-use iota::{self, client::MilestoneResponse};
+use bee_message::prelude::{MESSAGE_ID_LENGTH};
+use iota::{self, client::MilestoneResponse, MessageId};
 use log::debug;
 use warp::Filter;
 
@@ -127,7 +127,7 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
         },
     };
 
-    let latest_milestone_index = node_info.latest_milestone_index as u64;
+    let latest_milestone_index = node_info.latest_milestone_index;
     let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
         Ok(latest_milestone) => latest_milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone(latest_milestone_index)),
@@ -152,12 +152,12 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
     }
 
     let genesis_block_identifier = BlockIdentifier {
-        index: genesis_milestone.index as u64,
+        index: genesis_milestone.index,
         hash: genesis_milestone.message_id.to_string(),
     };
 
     let current_block_identifier = BlockIdentifier {
-        index: latest_milestone.index as u64,
+        index: latest_milestone.index,
         hash: latest_milestone.message_id.to_string(),
     };
 

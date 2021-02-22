@@ -10,9 +10,7 @@ use crate::{
     types::{AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
             Amount, BlockIdentifier, Coin, CoinIdentifier},
 };
-use iota;
-use bee_message::prelude::Bech32Address;
-use bee_rest_api::types::{AddressDto, OutputDto};
+use iota::{Client, Bech32Address, OutputDto, AddressDto};
 use log::debug;
 use warp::Filter;
 
@@ -67,14 +65,14 @@ async fn account_balance(
         Err(_) => return Err(ApiError::UnableToGetNodeInfo),
     };
 
-    let solid_milestone_index = node_info.solid_milestone_index as u64;
+    let solid_milestone_index = node_info.solid_milestone_index;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
-        index: solid_milestone.index as u64,
+        index: solid_milestone.index,
         hash: solid_milestone.message_id.to_string(),
     };
 
@@ -128,14 +126,14 @@ async fn account_coins(
         Err(_) => return Err(ApiError::UnableToGetNodeInfo),
     };
 
-    let solid_milestone_index = node_info.solid_milestone_index as u64;
+    let solid_milestone_index = node_info.solid_milestone_index;
     let solid_milestone = match iota_client.get_milestone(solid_milestone_index).await {
         Ok(solid_milestone) => solid_milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone(solid_milestone_index)),
     };
 
     let block_identifier = BlockIdentifier {
-        index: solid_milestone.index as u64,
+        index: solid_milestone.index,
         hash: solid_milestone.message_id.to_string(),
     };
 
