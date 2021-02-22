@@ -158,13 +158,8 @@ async fn construction_payloads_request(
                 let output_index = u16::from_le_bytes(index.try_into().unwrap());
                 let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
                 let input: Input = Input::UTXO(utxo_input.clone());
-                inputs.push(input);
-
-                signing_payloads.push( SigningPayload {
-                    address: operation.account.address,
-                    hex_bytes: hex::encode(utxo_input.to_string()),
-                    signature_type: Some(SignatureType::Edwards25519)
-                });
+                let address = operation.account.address;
+                inputs.push((input, address));
             },
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&operation.account.address).unwrap();
@@ -182,7 +177,7 @@ async fn construction_payloads_request(
     // todo: Rosetta indexation payload?
     // builder = builder.with_payload(p);
 
-    for i in inputs {
+    for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);
     }
 
@@ -192,6 +187,21 @@ async fn construction_payloads_request(
 
     let transaction_payload_essence = transaction_payload_essence.finish().unwrap();
     let transaction_payload_essence_hex = hex::encode(transaction_payload_essence.pack_new());
+
+    let mut hasher = VarBlake2b::new(32).unwrap();
+    hasher.update(transaction_payload_essence.pack_new());
+    let mut hash = vec![];
+    hasher.finalize_variable(|res| {
+        hash = res.to_vec();
+    });
+
+    for (_, address) in inputs {
+        signing_payloads.push( SigningPayload {
+            address: address,
+            hex_bytes: hex::encode(hash.clone()),
+            signature_type: Some(SignatureType::Edwards25519)
+        });
+    }
 
     Ok(ConstructionPayloadsResponse {
         unsigned_transaction: transaction_payload_essence_hex,
