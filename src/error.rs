@@ -16,7 +16,7 @@ pub enum ApiError {
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
     #[error("unable to get milestone {0}")]
-    UnableToGetMilestone(u64),
+    UnableToGetMilestone(u32),
     #[error("unable to get peers")]
     UnableToGetPeers,
     #[error("bad block/milestone request")]

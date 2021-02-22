@@ -77,7 +77,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     let parent_block_identifier;
     if milestone_index == 1 {
         parent_block_identifier = BlockIdentifier {
-            index: milestone.index as u64,
+            index: milestone.index,
             hash: milestone.message_id.to_string(),
         };
     } else {
@@ -87,7 +87,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         };
 
         parent_block_identifier = BlockIdentifier {
-            index: parent_milestone.index as u64,
+            index: parent_milestone.index,
             hash: parent_milestone.message_id.to_string(),
         };
     }

@@ -137,7 +137,7 @@ pub struct AccountIdentifier {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockIdentifier {
-    pub index: u64,
+    pub index: u32,
     pub hash: String,
 }
 
@@ -164,7 +164,7 @@ pub struct OperationIdentifier {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PartialBlockIdentifier {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub index: Option<u64>,
+    pub index: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hash: Option<String>,
 }
