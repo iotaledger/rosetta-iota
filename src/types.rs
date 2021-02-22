@@ -293,7 +293,10 @@ pub struct ConstructionParseRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseResponse {
     pub operations: Vec<Operation>,
-    pub account_identifier_signers: Vec<AccountIdentifier>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signers: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
