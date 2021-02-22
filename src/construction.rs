@@ -10,7 +10,7 @@ use log::debug;
 use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata};
 use bee_message::prelude::{Ed25519Address, Address, TransactionId, Input, Output, SignatureLockedSingleOutput, UTXOInput, RegularEssenceBuilder};
-use iota::{Client, Payload, TransactionPayload};
+use iota::{Client, Payload, TransactionPayload, RegularEssence};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
@@ -191,10 +191,7 @@ async fn construction_payloads_request(
     }
 
     let transaction_payload_essence = transaction_payload_essence.finish().unwrap();
-    let transaction_payload_essence_hex = hex::encode(serde_json::to_string(&transaction_payload_essence).unwrap());
-
-    // test, todo: remove
-    // let transaction_payload_essence_deser: TransactionPayloadEssence = serde_json::from_str(str::from_utf8(&hex::decode(transaction_payload_essence_hex).unwrap()).unwrap()).unwrap();
+    let transaction_payload_essence_hex = hex::encode(transaction_payload_essence.pack_new());
 
     Ok(ConstructionPayloadsResponse {
         unsigned_transaction: transaction_payload_essence_hex,
