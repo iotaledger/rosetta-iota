@@ -99,7 +99,7 @@ pub struct OperationMetadata {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SigningPayload {
-    pub address: String,
+    pub account_identifier: AccountIdentifier,
     pub hex_bytes: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature_type: Option<SignatureType>,

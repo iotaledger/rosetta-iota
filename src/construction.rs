@@ -197,7 +197,10 @@ async fn construction_payloads_request(
 
     for (_, address) in inputs {
         signing_payloads.push( SigningPayload {
-            address: address,
+            account_identifier: AccountIdentifier {
+                address,
+                sub_account: None
+            },
             hex_bytes: hex::encode(hash.clone()),
             signature_type: Some(SignatureType::Edwards25519)
         });
