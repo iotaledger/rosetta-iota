@@ -278,7 +278,8 @@ pub struct ConstructionMetadataRequest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataResponse {
-    pub metadata: ConstructionMetadata,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<ConstructionMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
