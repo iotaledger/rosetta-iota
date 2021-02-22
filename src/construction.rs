@@ -9,8 +9,8 @@ use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata};
-use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, TransactionPayloadEssence, Input, Output, SignatureLockedSingleOutput, UTXOInput};
-use iota::{Client, Payload};
+use bee_message::prelude::{Ed25519Address, Address, TransactionId, Input, Output, SignatureLockedSingleOutput, UTXOInput, RegularEssenceBuilder};
+use iota::{Client, Payload, TransactionPayload};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
@@ -177,20 +177,20 @@ async fn construction_payloads_request(
         }
     }
 
-    let mut transaction_payload_essence_builder = TransactionPayloadEssence::builder();
+    let mut transaction_payload_essence = RegularEssenceBuilder::new();
 
     // todo: Rosetta indexation payload?
     // builder = builder.with_payload(p);
 
     for i in inputs {
-        transaction_payload_essence_builder = transaction_payload_essence_builder.add_input(i);
+        transaction_payload_essence = transaction_payload_essence.add_input(i);
     }
 
     for o in outputs {
-        transaction_payload_essence_builder = transaction_payload_essence_builder.add_output(o);
+        transaction_payload_essence = transaction_payload_essence.add_output(o);
     }
 
-    let transaction_payload_essence = transaction_payload_essence_builder.finish().unwrap();
+    let transaction_payload_essence = transaction_payload_essence.finish().unwrap();
     let transaction_payload_essence_hex = hex::encode(serde_json::to_string(&transaction_payload_essence).unwrap());
 
     // test, todo: remove
@@ -265,5 +265,5 @@ async fn construction_submit_request(
 
 fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiError> {
     let signed_transaction_hex_bytes = hex::decode(hex_str)?;
-    Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice())?)
+    Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice()).unwrap())
 }
