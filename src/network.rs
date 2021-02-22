@@ -12,8 +12,8 @@ use crate::{
         NetworkStatusResponse, Peer, PeerMetadata, Version,
     },
 };
-use bee_message::prelude::{MessageId, MESSAGE_ID_LENGTH};
-use iota::{self, client::MilestoneResponse};
+use bee_message::prelude::{MESSAGE_ID_LENGTH};
+use iota::{self, client::MilestoneResponse, MessageId};
 use log::debug;
 use warp::Filter;
 

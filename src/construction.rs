@@ -9,8 +9,8 @@ use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata};
-use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, TransactionPayloadEssence, Payload, Input, Output, SignatureLockedSingleOutput, UTXOInput};
-use iota::Client;
+use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, TransactionPayloadEssence, Input, Output, SignatureLockedSingleOutput, UTXOInput};
+use iota::{Client, Payload};
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,

@@ -10,9 +10,7 @@ use crate::{
     types::{AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
             Amount, BlockIdentifier, Coin, CoinIdentifier},
 };
-use iota;
-use bee_message::prelude::Bech32Address;
-use bee_rest_api::types::{AddressDto, OutputDto};
+use iota::{Client, Bech32Address, OutputDto, AddressDto};
 use log::debug;
 use warp::Filter;
 
