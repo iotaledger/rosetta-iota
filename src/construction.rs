@@ -8,7 +8,7 @@ use crate::{consts, operations, error::ApiError, filters::{handle, with_options}
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata};
 use bee_message::prelude::{Ed25519Address, Address, TransactionId, TransactionPayload, TransactionPayloadEssence, Payload, Input, Output, SignatureLockedSingleOutput, UTXOInput};
 use iota::Client;
 use blake2::{
@@ -34,6 +34,12 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
                 .and(warp::body::json())
                 .and(with_options(options.clone()))
                 .and_then(handle(construction_preprocess_request)),
+        )
+        .or(
+            warp::path!("construction" / "metadata")
+                .and(warp::body::json())
+                .and(with_options(options.clone()))
+                .and_then(handle(construction_metadata_request)),
         )
         .or(
             warp::path!("construction" / "payloads")
@@ -107,6 +113,23 @@ async fn construction_preprocess_request(
 
     Ok(ConstructionPreprocessResponse {
         options: None
+    })
+}
+
+async fn construction_metadata_request(
+    construction_metadata_request: ConstructionMetadataRequest,
+    options: Options,
+) -> Result<ConstructionMetadataResponse, ApiError> {
+    debug!("/construction/metadata");
+
+    is_bad_network(&options, &construction_metadata_request.network_identifier)?;
+
+    if options.mode != consts::ONLINE_MODE {
+        return Err(ApiError::UnavailableOffline);
+    }
+
+    Ok(ConstructionMetadataResponse {
+        metadata: None
     })
 }
 
@@ -244,10 +267,3 @@ fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiE
     let signed_transaction_hex_bytes = hex::decode(hex_str)?;
     Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice())?)
 }
-
-// todo: add the following verification to construction_metadata() implementation
-/*
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
- */
