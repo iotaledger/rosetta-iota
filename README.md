@@ -50,8 +50,6 @@ The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https:
 * `index`: incremented from `0` for each `Operation` Object in the `Transaction`
 * `network_index`: `output_index`
 
-The `UTXO Operation` `related_operations` field is defined as an array with the `index` of all `UTXO Operation` Objects contained in the same `Transaction` Object.
-
 The `UTXO Operation` `type` field is always `"UTXO"`.
 
 The `UTXO Operation` `status` field is defined as either:
@@ -82,9 +80,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":0,
                   "network_index":0
                },
-               "related_operations":[
-                  
-               ],
                "type":"UTXO_OUTPUT",
                "status":"SUCCESS",
                "account":{
@@ -119,11 +114,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":0,
                   "network_index":0
                },
-               "related_operations":[
-                  {
-                     "index":1
-                  }
-               ],
                "type":"UTXO_INPUT",
                "status":"SUCCESS",
                "account":{
@@ -151,11 +141,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":1,
                   "network_index":1
                },
-               "related_operations":[
-                  {
-                     "index":0
-                  }
-               ],
                "type":"UTXO_INPUT",
                "status":"SUCCESS",
                "account":{

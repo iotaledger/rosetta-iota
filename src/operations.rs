@@ -54,16 +54,6 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
         currency: iota_currency(),
     };
 
-    let mut related_operations = vec![];
-    for i in 0..n_operations {
-        if i != operation_counter {
-            related_operations.push( OperationIdentifier {
-                index: i as u64,
-                network_index: None
-            });
-        }
-    }
-
     let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
 
     Operation {
@@ -71,7 +61,7 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
             index: operation_counter as u64,
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
-        related_operations: Some(related_operations),
+        related_operations: None,
         type_: match consumed {
             true => UTXO_INPUT.into(),
             false => UTXO_OUTPUT.into(),
