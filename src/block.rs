@@ -9,15 +9,14 @@ use crate::{
     options::Options,
     types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier},
 };
-use bee_message::prelude::{UTXOInput, Ed25519Address};
-use bee_rest_api::types::{AddressDto, OutputDto};
-use iota;
+use bee_message::prelude::{Ed25519Address};
+use bee_rest_api::types::{};
+use iota::{Client, UTXOInput, OutputResponse, AddressDto, OutputDto};
 use log::debug;
 use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
 
 use warp::Filter;
-use bee_rest_api::handlers::output::OutputResponse;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post().and(
@@ -77,7 +76,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
     let parent_block_identifier;
     if milestone_index == 1 {
         parent_block_identifier = BlockIdentifier {
-            index: milestone.index as u64,
+            index: milestone.index,
             hash: milestone.message_id.to_string(),
         };
     } else {
@@ -87,7 +86,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         };
 
         parent_block_identifier = BlockIdentifier {
-            index: parent_milestone.index as u64,
+            index: parent_milestone.index,
             hash: parent_milestone.message_id.to_string(),
         };
     }
