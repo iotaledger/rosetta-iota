@@ -203,7 +203,6 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
 <li><code>network_index</code>: <code>output_index</code></li>
 </ul>
-<p>The <code>UTXO Operation</code> <code>related_operations</code> field is defined as an array with the <code>index</code> of all <code>UTXO Operation</code> Objects contained in the same <code>Transaction</code> Object.</p>
 <p>The <code>UTXO Operation</code> <code>type</code> field is always <code>&quot;UTXO&quot;</code>.</p>
 <p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
 <ul>
@@ -235,9 +234,6 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
                   &quot;index&quot;:0,
                   &quot;network_index&quot;:0
                },
-               &quot;related_operations&quot;:[
-                  
-               ],
                &quot;type&quot;:&quot;UTXO_OUTPUT&quot;,
                &quot;status&quot;:&quot;SUCCESS&quot;,
                &quot;account&quot;:{
@@ -272,11 +268,6 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
                   &quot;index&quot;:0,
                   &quot;network_index&quot;:0
                },
-               &quot;related_operations&quot;:[
-                  {
-                     &quot;index&quot;:1
-                  }
-               ],
                &quot;type&quot;:&quot;UTXO_INPUT&quot;,
                &quot;status&quot;:&quot;SUCCESS&quot;,
                &quot;account&quot;:{
@@ -304,11 +295,6 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
                   &quot;index&quot;:1,
                   &quot;network_index&quot;:1
                },
-               &quot;related_operations&quot;:[
-                  {
-                     &quot;index&quot;:0
-                  }
-               ],
                &quot;type&quot;:&quot;UTXO_INPUT&quot;,
                &quot;status&quot;:&quot;SUCCESS&quot;,
                &quot;account&quot;:{
