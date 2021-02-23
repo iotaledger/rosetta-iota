@@ -27,7 +27,7 @@ request_funds(1){
 
 create_account(1){
   create{
-    network = {"network":"testnet4", "blockchain":"iota"};
+    network = {"network":"testnet5", "blockchain":"iota"};
     key = generate_key({"curve_type": "edwards25519"});
     account = derive({
       "network_identifier": {{network}},

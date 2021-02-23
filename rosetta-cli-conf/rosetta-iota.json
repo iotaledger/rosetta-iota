@@ -1,7 +1,7 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "testnet4"
+    "network": "testnet5"
   },
   "online_url": "http://localhost:3030",
   "data_directory": "",

@@ -86,16 +86,21 @@ pub struct Operation {
     #[serde(rename = "type")]
     pub type_: String,
     pub status: Option<String>,
+    pub account: AccountIdentifier,
+    pub amount: Amount,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub account: Option<AccountIdentifier>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount: Option<Amount>,
-    pub coin_change: CoinChange,
+    pub coin_change: Option<CoinChange>,
+    pub metadata: OperationMetadata,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct OperationMetadata {
+    pub is_spent: String
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SigningPayload {
-    pub address: String,
+    pub account_identifier: AccountIdentifier,
     pub hex_bytes: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature_type: Option<SignatureType>,
@@ -133,7 +138,7 @@ pub struct AccountIdentifier {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockIdentifier {
-    pub index: u64,
+    pub index: u32,
     pub hash: String,
 }
 
@@ -160,7 +165,7 @@ pub struct OperationIdentifier {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PartialBlockIdentifier {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub index: Option<u64>,
+    pub index: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hash: Option<String>,
 }
@@ -269,12 +274,14 @@ pub struct ConstructionHashResponse {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
-    pub options: MetadataOptions,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<MetadataOptions>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataResponse {
-    pub metadata: ConstructionMetadata,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<ConstructionMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -287,7 +294,8 @@ pub struct ConstructionParseRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseResponse {
     pub operations: Vec<Operation>,
-    pub account_identifier_signers: Vec<AccountIdentifier>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -295,6 +303,7 @@ pub struct ConstructionPayloadsRequest {
     pub network_identifier: NetworkIdentifier,
     pub operations: Vec<Operation>,
     pub metadata: ConstructionMetadata,
+    pub public_keys: Vec<PublicKey>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -414,8 +423,8 @@ pub struct PeerMetadata {
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum SignatureType {
-    #[serde(rename = "ed25519")]
-    Ed25519,
+    #[serde(rename = "edwards25519")]
+    Edwards25519,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -439,6 +448,5 @@ pub struct ErrorDetails {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadata {
-    pub chain_id: u8,
-    pub sequence_number: u64,
+
 }
