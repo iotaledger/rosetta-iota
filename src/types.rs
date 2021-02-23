@@ -88,7 +88,8 @@ pub struct Operation {
     pub status: Option<String>,
     pub account: AccountIdentifier,
     pub amount: Amount,
-    pub coin_change: CoinChange,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coin_change: Option<CoinChange>,
     pub metadata: OperationMetadata,
 }
 
