@@ -169,20 +169,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#rosetta-iota" id="rosetta-iota">rosetta-iota</a></h1>
+                        <h1 id="rosetta-iota"><a class="header" href="#rosetta-iota">rosetta-iota</a></h1>
 <p>IOTA Rosetta API Implementation</p>
-<h2><a class="header" href="#iota-protocol" id="iota-protocol">IOTA protocol</a></h2>
+<h2 id="iota-protocol"><a class="header" href="#iota-protocol">IOTA protocol</a></h2>
 <p>The IOTA protocol differs from most DLT technologies in the sense that it is not a Blockchain, but a Directed Acyclic Graph (DAG), popularly known as <a href="https://assets.ctfassets.net/r1dr6vzfxhev/2t4uxvsIqk0EUau6g2sw0g/45eae33637ca92f85dd9f4a3a218e1ec/iota1_4_3.pdf">the Tangle</a>.</p>
 <p>For that reason, a few concepts have been adapted in relation to the Rosetta API.</p>
-<h3><a class="header" href="#messages-and-transactions" id="messages-and-transactions">Messages and Transactions</a></h3>
+<h3 id="messages-and-transactions"><a class="header" href="#messages-and-transactions">Messages and Transactions</a></h3>
 <p>IOTA uses messages as a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a utxo-based model for transfering value.</p>
-<h3><a class="header" href="#blocks-and-milestones" id="blocks-and-milestones">Blocks and Milestones</a></h3>
+<h3 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h3>
 <p>Being a DAG, IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, nodes settle the current ledger state by creating a special message that defines a new Milestone.</p>
 <p>IOTA Fullnodes (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">BEE</a>) don't contain the entire history of the Tangle. They have a parameter called <code>pruningIndex</code> which represents the oldest Milestone available on the node.</p>
 <p>Only Permanodes (such as <a href="https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node">Chronicle</a>) have the ability of holding the entire Tangle history.</p>
-<h2><a class="header" href="#iota-and-rosetta" id="iota-and-rosetta">IOTA and Rosetta</a></h2>
+<h2 id="iota-and-rosetta"><a class="header" href="#iota-and-rosetta">IOTA and Rosetta</a></h2>
 <p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
-<h3><a class="header" href="#genesis-milestone" id="genesis-milestone">Genesis Milestone</a></h3>
+<h3 id="genesis-milestone"><a class="header" href="#genesis-milestone">Genesis Milestone</a></h3>
 <p>The genesis milestone is not available on Fullnodes, but the <code>/network/status</code> endpoint response contains a <code>genesis_block_identifier</code> field. Therefore, whenever a Fullnode is used by the <code>rosetta-iota</code> server, the <code>genesis_block_identifier</code> is populated as such:</p>
 <pre><code>&quot;genesis_block_identifier&quot;: {
   &quot;index&quot;: 1,
@@ -192,7 +192,7 @@
 <p>Technically speaking, that is not 100% accurate, as the genesis milestone identifier is not a series of <code>0</code>s. However, a dummy value is used as a compromise in order not to render the <code>/network/status</code> endpoint unavailable. </p>
 <p>Nevertheless, the correct value is returned when a Permanode with full Tangle history is used.</p>
 <p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
-<h3><a class="header" href="#transactions-and-operations" id="transactions-and-operations">Transactions and Operations</a></h3>
+<h3 id="transactions-and-operations"><a class="header" href="#transactions-and-operations">Transactions and Operations</a></h3>
 <p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
 That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
 <p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
@@ -322,12 +322,12 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
    ]
 }
 </code></pre>
-<h2><a class="header" href="#testing" id="testing">Testing</a></h2>
-<h3><a class="header" href="#rosetta-cli" id="rosetta-cli">rosetta-cli</a></h3>
+<h2 id="testing"><a class="header" href="#testing">Testing</a></h2>
+<h3 id="rosetta-cli"><a class="header" href="#rosetta-cli">rosetta-cli</a></h3>
 <p>The <code>test.sh</code> shell script automates testing via <code>rosetta-cli</code>.</p>
 <p>It will use the shell variables <code>NODE_URL</code> and <code>NETWORK</code> to specify the network parameters to be tested.
 Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
-<h3><a class="header" href="#curl" id="curl">curl</a></h3>
+<h3 id="curl"><a class="header" href="#curl">curl</a></h3>
 <p>Curl commands can also be used for manual inspection of each API endpoint.</p>
 <ol>
 <li>Kickstart a <code>rosetta-iota</code> server:</li>
@@ -386,6 +386,11 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <li><code>/construction/payloads</code></li>
 </ul>
 <pre><code>$ curl --request POST 'http://localhost:3030/construction/payloads' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;operations&quot;:[{&quot;operation_identifier&quot;:{&quot;index&quot;:0,&quot;network_index&quot;:1},&quot;related_operations&quot;:[],&quot;type&quot;:&quot;UTXO_INPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;999820000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b0100&quot;},&quot;coin_action&quot;:&quot;coin_spent&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}},{&quot;operation_identifier&quot;:{&quot;index&quot;:0,&quot;network_index&quot;:1},&quot;related_operations&quot;:[{&quot;index&quot;:1}],&quot;type&quot;:&quot;UTXO_OUTPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qzcts3mukxthlwg90u2e5nrhpqt566fghhxdga83grmy60kt2akx2q0de5u&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;10000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060100&quot;},&quot;coin_action&quot;:&quot;coin_created&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}},{&quot;operation_identifier&quot;:{&quot;index&quot;:1,&quot;network_index&quot;:0},&quot;related_operations&quot;:[{&quot;index&quot;:0}],&quot;type&quot;:&quot;UTXO_OUTPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;999810000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060000&quot;},&quot;coin_action&quot;:&quot;coin_created&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}}],&quot;metadata&quot;:{},&quot;public_keys&quot;:[{&quot;hex_bytes&quot;:&quot;3ada770dca2c802df6837df29bdd8cd6c6d9d72cc4041743c7942cc11e6834bd&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;}]}' | jq
+</code></pre>
+<ul>
+<li><code>/construction/parse</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq
 </code></pre>
 
                     </main>
