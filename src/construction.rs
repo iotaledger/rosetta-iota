@@ -304,6 +304,8 @@ async fn construction_parse_request(
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
 
+    // todo: add logic for pre-signed transactions
+
     let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
     let transaction_essence = RegularEssence::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
 
