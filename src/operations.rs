@@ -70,9 +70,9 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
         account: account,
         amount: amount,
         coin_change: CoinChange {
-            coin_identifier: CoinIdentifier {
+            coin_identifier: Some(CoinIdentifier {
                 identifier: output_id
-            },
+            }),
             coin_action: match consumed {
                 true => UTXO_CONSUMED.into(),
                 false => UTXO_CREATED.into(),

@@ -157,7 +157,10 @@ async fn construction_payloads_request(
                 if operation.metadata.is_spent == UTXO_SPENT {
                     return Err(ApiError::UnableToSpend);
                 }
-                let output_id_str = operation.coin_change.coin_identifier.identifier;
+                let output_id_str = match operation.coin_change.coin_identifier {
+                    Some(coin_identifier) => coin_identifier.identifier,
+                    None => panic!("no coin_identifier on UTXO_INPUT!")
+                };
                 let output_id_bytes = hex::decode(output_id_str).unwrap();
                 let (transaction_id, index) = output_id_bytes.split_at(32);
                 let output_index = u16::from_le_bytes(index.try_into().unwrap());
