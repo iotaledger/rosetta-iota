@@ -88,7 +88,8 @@ pub struct Operation {
     pub status: Option<String>,
     pub account: AccountIdentifier,
     pub amount: Amount,
-    pub coin_change: CoinChange,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coin_change: Option<CoinChange>,
     pub metadata: OperationMetadata,
 }
 
@@ -293,7 +294,8 @@ pub struct ConstructionParseRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseResponse {
     pub operations: Vec<Operation>,
-    pub account_identifier_signers: Vec<AccountIdentifier>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

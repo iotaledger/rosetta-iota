@@ -172,7 +172,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
                     // todo: refactor
-                    operations.push(utxo_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, output_vec.len() as u32, consumed, is_spent));
+                    operations.push(utxo_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, consumed, is_spent));
                     operation_counter = operation_counter + 1;
                 }
             },
