@@ -50,11 +50,15 @@ The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https:
 * `index`: incremented from `0` for each `Operation` Object in the `Transaction`
 * `network_index`: `output_index`
 
-The `UTXO Operation` `type` field is always `"UTXO"`.
+The `UTXO Operation` `type` field can be either:
+ * `"UTXO_INPUT"`, which describes the funds to spend
+ * `"UTXO_OUTPUT"`, which describes where the funds should be transfered to
 
-The `UTXO Operation` `status` field is defined as either:
-* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent (possibly by another Transaction).
-* `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
+The `UTXO Operation` `status` field is defined as:
+* `"SUCCESS"`, meaning that the transaction was included in the ledger.
+* `"SKIPPED"`, meaning that the UTXO Output has not been included in the ledger (e.g. already spent by another Transaction).
+
+Note, that the status field will not get populated when constructing a transaction by the Construction API.
 
 The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
 
