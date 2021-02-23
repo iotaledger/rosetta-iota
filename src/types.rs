@@ -295,8 +295,6 @@ pub struct ConstructionParseRequest {
 pub struct ConstructionParseResponse {
     pub operations: Vec<Operation>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub signers: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 

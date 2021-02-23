@@ -378,7 +378,6 @@ async fn construction_parse_request(
 
     Ok(ConstructionParseResponse {
         operations: operations,
-        signers: None,
         account_identifier_signers: None,
     })
 }
