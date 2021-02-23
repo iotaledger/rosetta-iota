@@ -59,8 +59,7 @@ pub struct Coin {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CoinChange {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coin_identifier: Option<CoinIdentifier>,
+    pub coin_identifier: CoinIdentifier,
     pub coin_action: String
 }
 
