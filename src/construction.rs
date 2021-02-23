@@ -290,7 +290,7 @@ async fn construction_parse_request(
     construction_parse_request: ConstructionParseRequest,
     options: Options,
 ) -> Result<ConstructionParseResponse, ApiError> {
-    debug!("/construction/hash");
+    debug!("/construction/parse");
 
     let iota_client = match iota::Client::builder()
         .with_network(&options.network)
