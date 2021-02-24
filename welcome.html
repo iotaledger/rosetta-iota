@@ -201,12 +201,17 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
 <li><code>network_index</code>: <code>output_index</code></li>
 </ul>
-<p>The <code>UTXO Operation</code> <code>type</code> field is always <code>&quot;UTXO&quot;</code>.</p>
-<p>The <code>UTXO Operation</code> <code>status</code> field is defined as either:</p>
+<p>The <code>UTXO Operation</code> <code>type</code> field can be either:</p>
 <ul>
-<li><code>&quot;UTXO_SPENT&quot;</code>, meaning that the UTXO Output has already been spent (possibly by another Transaction).</li>
-<li><code>&quot;UTXO_UNSPENT&quot;</code>, meaning that the UTXO Output has not yet been spent.</li>
+<li><code>&quot;UTXO_INPUT&quot;</code>, which describes the funds to spend</li>
+<li><code>&quot;UTXO_OUTPUT&quot;</code>, which describes where the funds should be transfered to</li>
 </ul>
+<p>The <code>UTXO Operation</code> <code>status</code> field is defined as:</p>
+<ul>
+<li><code>&quot;SUCCESS&quot;</code>, meaning that the transaction was included in the ledger.</li>
+<li><code>&quot;SKIPPED&quot;</code>, meaning that the UTXO Output has not been included in the ledger (e.g. already spent by another Transaction).</li>
+</ul>
+<p>Note, that the status field will not get populated when constructing a transaction by the Construction API.</p>
 <p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
 <p>The <code>UTXO Operation</code> <code>coin_change</code> Object (<a href="https://www.rosetta-api.org/docs/models/CoinChange.html">CoinChange</a> type) is defined as:</p>
 <ul>
@@ -389,6 +394,11 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <li><code>/construction/parse</code></li>
 </ul>
 <pre><code>$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq
+</code></pre>
+<ul>
+<li><code>/construction/combine</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/combine' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;unsigned_transaction&quot;:&quot;0001000063aa5b2476105ad4ebbb995968216cef0d940791d900afd1180a8df4e527b3460000010000005eec99d6ee4ba21aa536c3364bbf2b587cb98a7f2565b75d948b10083e2143f8050000000000000000000000&quot;,&quot;signatures&quot;:[{&quot;signing_payload&quot;:{&quot;account_identifier&quot;:{&quot;address&quot;:&quot;ae98475c63cfebc918b57193a4183f4374f67974971aff9034699793d331d7de&quot;},&quot;hex_bytes&quot;:&quot;c8be532dd8f351c28b6cdb7903d076b356129189d11ad50c46feb25ca472b984&quot;,&quot;signature_type&quot;:&quot;edwards25519&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;},&quot;signature_type&quot;:&quot;edwards25519&quot;,&quot;hex_bytes&quot;:&quot;59057634a166d84edebb88ab17a33394c0ccf1d46adffc3a0095c0f5e7e9dbe766ab05cb0244486d272e61f1e09db1bdb6e4fbb3a0398013415769e484606a02&quot;}]}' | jq
 </code></pre>
 
                     </main>
