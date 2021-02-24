@@ -395,10 +395,10 @@ async fn construction_combine_request(
                 unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
                 signature_unlock_block_index_by_address.insert(address, signature_unlock_block_index_by_address.len() as u16);
             }
-
+        } else {
+            return Err(ApiError::BadConstructionRequest(format!("no signature for address {} provided", &address)))
+        }
     }
-
-}
 
     let transaction = TransactionPayload::builder()
         .with_essence(essence)
