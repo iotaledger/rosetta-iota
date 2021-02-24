@@ -44,7 +44,7 @@ pub fn operation_status_skipped() -> OperationStatus {
     }
 }
 
-pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, n_operations: u32, consumed: &bool, is_spent: bool) -> Operation {
+pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -54,16 +54,6 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
         currency: iota_currency(),
     };
 
-    let mut related_operations = vec![];
-    for i in 0..n_operations {
-        if i != operation_counter {
-            related_operations.push( OperationIdentifier {
-                index: i as u64,
-                network_index: None
-            });
-        }
-    }
-
     let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
 
     Operation {
@@ -71,15 +61,15 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
             index: operation_counter as u64,
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
-        related_operations: Some(related_operations),
+        related_operations: None,
         type_: match consumed {
             true => UTXO_INPUT.into(),
             false => UTXO_OUTPUT.into(),
         },
         status: Some(SUCCESS.into()),
-        account: Some(account),
-        amount: Some(amount),
-        coin_change: CoinChange {
+        account: account,
+        amount: amount,
+        coin_change: Some(CoinChange {
             coin_identifier: CoinIdentifier {
                 identifier: output_id
             },
@@ -87,12 +77,12 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
                 true => UTXO_CONSUMED.into(),
                 false => UTXO_CREATED.into(),
             },
-        },
-        metadata: Some(OperationMetadata {
+        }),
+        metadata: OperationMetadata {
             is_spent: match is_spent {
                 true => UTXO_SPENT.into(),
                 false => UTXO_UNSPENT.into()
             }
-        })
+        }
     }
 }

@@ -50,13 +50,15 @@ The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https:
 * `index`: incremented from `0` for each `Operation` Object in the `Transaction`
 * `network_index`: `output_index`
 
-The `UTXO Operation` `related_operations` field is defined as an array with the `index` of all `UTXO Operation` Objects contained in the same `Transaction` Object.
+The `UTXO Operation` `type` field can be either:
+ * `"UTXO_INPUT"`, which describes the funds to spend
+ * `"UTXO_OUTPUT"`, which describes where the funds should be transfered to
 
-The `UTXO Operation` `type` field is always `"UTXO"`.
+The `UTXO Operation` `status` field is defined as:
+* `"SUCCESS"`, meaning that the transaction was included in the ledger.
+* `"SKIPPED"`, meaning that the UTXO Output has not been included in the ledger (e.g. already spent by another Transaction).
 
-The `UTXO Operation` `status` field is defined as either:
-* `"UTXO_SPENT"`, meaning that the UTXO Output has already been spent (possibly by another Transaction).
-* `"UTXO_UNSPENT"`, meaning that the UTXO Output has not yet been spent.
+Note, that the status field will not get populated when constructing a transaction by the Construction API.
 
 The `UTXO Operation` `account` field is defined as the `address` value from the UTXO.
 
@@ -82,9 +84,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":0,
                   "network_index":0
                },
-               "related_operations":[
-                  
-               ],
                "type":"UTXO_OUTPUT",
                "status":"SUCCESS",
                "account":{
@@ -119,11 +118,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":0,
                   "network_index":0
                },
-               "related_operations":[
-                  {
-                     "index":1
-                  }
-               ],
                "type":"UTXO_INPUT",
                "status":"SUCCESS",
                "account":{
@@ -151,11 +145,6 @@ Here's an example of two Transaction Objects in the same Milestone:
                   "index":1,
                   "network_index":1
                },
-               "related_operations":[
-                  {
-                     "index":0
-                  }
-               ],
                "type":"UTXO_INPUT",
                "status":"SUCCESS",
                "account":{
@@ -237,4 +226,29 @@ $ curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: a
 - `/construction/derive`
 ```
 $ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}' | jq
+```
+
+- `/construction/metadata`
+```
+$ curl --request POST 'http://localhost:3030/construction/metadata' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"}}' | jq
+```
+
+- `/construction/preprocess`
+```
+curl --request POST 'http://localhost:3030/construction/preprocess' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"operations":[{"operation_identifier":{"index":0,"network_index":1},"related_operations":[],"type":"UTXO_INPUT","status":"SUCCESS","account":{"address":"atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr"},"amount":{"value":"999820000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b0100"},"coin_action":"coin_spent"},"metadata":{"is_spent":"UTXO_UNSPENT"}},{"operation_identifier":{"index":0,"network_index":1},"related_operations":[{"index":1}],"type":"UTXO_OUTPUT","status":"SUCCESS","account":{"address":"atoi1qzcts3mukxthlwg90u2e5nrhpqt566fghhxdga83grmy60kt2akx2q0de5u"},"amount":{"value":"10000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060100"},"coin_action":"coin_created"},"metadata":{"is_spent":"UTXO_UNSPENT"}},{"operation_identifier":{"index":1,"network_index":0},"related_operations":[{"index":0}],"type":"UTXO_OUTPUT","status":"SUCCESS","account":{"address":"atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr"},"amount":{"value":"999810000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060000"},"coin_action":"coin_created"},"metadata":{"is_spent":"UTXO_UNSPENT"}}],"metadata":{},"public_keys":[{"hex_bytes":"3ada770dca2c802df6837df29bdd8cd6c6d9d72cc4041743c7942cc11e6834bd","curve_type":"edwards25519"}]}' | jq
+```
+
+- `/construction/payloads`
+```
+$ curl --request POST 'http://localhost:3030/construction/payloads' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"operations":[{"operation_identifier":{"index":0,"network_index":1},"related_operations":[],"type":"UTXO_INPUT","status":"SUCCESS","account":{"address":"atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr"},"amount":{"value":"999820000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b0100"},"coin_action":"coin_spent"},"metadata":{"is_spent":"UTXO_UNSPENT"}},{"operation_identifier":{"index":0,"network_index":1},"related_operations":[{"index":1}],"type":"UTXO_OUTPUT","status":"SUCCESS","account":{"address":"atoi1qzcts3mukxthlwg90u2e5nrhpqt566fghhxdga83grmy60kt2akx2q0de5u"},"amount":{"value":"10000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060100"},"coin_action":"coin_created"},"metadata":{"is_spent":"UTXO_UNSPENT"}},{"operation_identifier":{"index":1,"network_index":0},"related_operations":[{"index":0}],"type":"UTXO_OUTPUT","status":"SUCCESS","account":{"address":"atoi1qz4u7jdqn6d2qjt5y7tauctckl77nt6qv69reuhm7pdc98weu6cl2qylcgr"},"amount":{"value":"999810000000","currency":{"symbol":"IOTA","decimals":0}},"coin_change":{"coin_identifier":{"identifier":"331bfc6eb2a2e02d7b7b9ce7aede370d8b4f6db3236887c5615ae36c523b2f060000"},"coin_action":"coin_created"},"metadata":{"is_spent":"UTXO_UNSPENT"}}],"metadata":{},"public_keys":[{"hex_bytes":"3ada770dca2c802df6837df29bdd8cd6c6d9d72cc4041743c7942cc11e6834bd","curve_type":"edwards25519"}]}' | jq
+```
+
+- `/construction/parse`
+```
+$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"signed":false,"transaction":"010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000"}' | jq
+```
+
+- `/construction/combine`
+```
+$ curl --request POST 'http://localhost:3030/construction/combine' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"unsigned_transaction":"0001000063aa5b2476105ad4ebbb995968216cef0d940791d900afd1180a8df4e527b3460000010000005eec99d6ee4ba21aa536c3364bbf2b587cb98a7f2565b75d948b10083e2143f8050000000000000000000000","signatures":[{"signing_payload":{"account_identifier":{"address":"ae98475c63cfebc918b57193a4183f4374f67974971aff9034699793d331d7de"},"hex_bytes":"c8be532dd8f351c28b6cdb7903d076b356129189d11ad50c46feb25ca472b984","signature_type":"edwards25519"},"public_key":{"hex_bytes":"b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde","curve_type":"edwards25519"},"signature_type":"edwards25519","hex_bytes":"59057634a166d84edebb88ab17a33394c0ccf1d46adffc3a0095c0f5e7e9dbe766ab05cb0244486d272e61f1e09db1bdb6e4fbb3a0398013415769e484606a02"}]}' | jq
 ```
