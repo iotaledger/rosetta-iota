@@ -8,8 +8,8 @@ use crate::{consts, currency::iota_currency, operations::*, error::ApiError, fil
 use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
-use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, ConstructionParseRequest, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata, ConstructionParseResponse, OperationIdentifier, OperationMetadata, CoinChange, Amount};
-use bee_message::prelude::{Ed25519Address, Address, TransactionId, Input, Output, SignatureLockedSingleOutput, UTXOInput, RegularEssenceBuilder, RegularEssence};
+use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, ConstructionParseRequest, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata, ConstructionParseResponse, OperationIdentifier, OperationMetadata, CoinChange, Amount, ConstructionCombineResponse, ConstructionCombineRequest, Signature};
+use bee_message::prelude::{Ed25519Address, Address, TransactionId, Input, Output, SignatureLockedSingleOutput, UTXOInput, RegularEssenceBuilder, RegularEssence, Ed25519Signature};
 use iota::{Client, Payload, TransactionPayload, OutputDto, AddressDto};
 use blake2::{
     digest::{Update, VariableOutput},
@@ -20,6 +20,8 @@ use std::convert::TryInto;
 use std::str::FromStr;
 use crate::operations::UTXO_SPENT;
 use serde::Serialize;
+use bee_message::payload::transaction::{Essence, UnlockBlock, ReferenceUnlock, SignatureUnlock};
+use std::collections::HashMap;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
@@ -47,6 +49,16 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
                 .and(with_options(options.clone()))
                 .and_then(handle(construction_payloads_request)),
         )
+        .or(warp::path!("construction" / "parse")
+            .and(warp::body::json())
+            .and(with_options(options.clone()))
+            .and_then(handle(construction_parse_request)))
+        .or(
+            warp::path!("construction" / "combine")
+                .and(warp::body::json())
+                .and(with_options(options.clone()))
+                .and_then(handle(construction_combine_request)),
+        )
         .or(
             warp::path!("construction" / "hash")
                 .and(warp::body::json())
@@ -58,10 +70,6 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
             .and(with_options(options.clone()))
             .and_then(handle(construction_submit_request)),
         )
-        .or(warp::path!("construction" / "parse")
-            .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_parse_request)))
 }
 
 async fn construction_derive_request(
@@ -220,6 +228,189 @@ async fn construction_payloads_request(
     })
 }
 
+async fn construction_parse_request(
+    construction_parse_request: ConstructionParseRequest,
+    options: Options,
+) -> Result<ConstructionParseResponse, ApiError> {
+    debug!("/construction/parse");
+
+    let iota_client = match iota::Client::builder()
+        .with_network(&options.network)
+        .with_node(&options.iota_endpoint)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await
+    {
+        Ok(iota_client) => iota_client,
+        Err(_) => return Err(ApiError::UnableToBuildClient),
+    };
+
+    // todo: add logic for pre-signed transactions
+
+    let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
+    let transaction_essence = RegularEssence::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
+
+    let mut operations = vec![];
+    let mut operation_counter = 0;
+
+    for input in transaction_essence.inputs() {
+        if let Input::UTXO(i) = input {
+            let input_metadata = iota_client.get_output(&i).await.unwrap();
+            let transaction_id = input_metadata.transaction_id;
+            let output_index = input_metadata.output_index;
+            let is_spent = input_metadata.is_spent;
+
+            let (amount, ed25519_address) = match input_metadata.output {
+                OutputDto::Treasury(_) => panic!("Can't be used as input"),
+                OutputDto::SignatureLockedSingle(x) => match x.address {
+                    AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address)
+                },
+                OutputDto::SignatureLockedDustAllowance(x) => panic!("not implemented!"),
+            };
+
+            let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+            let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
+
+            operations.push(utxo_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent));
+        }
+        operation_counter = operation_counter + 1;
+    }
+
+    let mut output_index = 0;
+    for output in transaction_essence.outputs() {
+        let (amount, ed25519_address) = match output {
+            Output::SignatureLockedSingle(x) => match x.address() {
+                Address::Ed25519(ed25519) => (x.amount(), ed25519.clone().to_string()),
+                _ => panic!("not implemented!")
+            },
+            _ => panic!("not implemented!")
+        };
+
+        let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
+
+        operations.push(Operation {
+            operation_identifier: OperationIdentifier {
+                index: operation_counter as u64,
+                network_index: Some(output_index as u64),
+            },
+            related_operations: None,
+            type_: UTXO_OUTPUT.into(),
+            status: None,
+            account: AccountIdentifier {
+                address: bech32_address,
+                sub_account: None
+            },
+            amount: Amount {
+                value: amount.to_string(),
+                currency: iota_currency(),
+            },
+            coin_change: None,
+            metadata: OperationMetadata {
+                is_spent: UTXO_UNSPENT.into()
+            }
+        });
+        output_index = output_index + 1;
+        operation_counter = operation_counter + 1;
+    }
+
+    Ok(ConstructionParseResponse {
+        operations: operations,
+        account_identifier_signers: None,
+    })
+}
+
+async fn construction_combine_request(
+    construction_combine_request: ConstructionCombineRequest,
+    options: Options,
+) -> Result<ConstructionCombineResponse, ApiError> {
+    debug!("/construction/combine");
+
+    is_bad_network(&options, &construction_combine_request.network_identifier)?;
+
+    let iota_client = match iota::Client::builder()
+        .with_network(&options.network)
+        .with_node(&options.iota_endpoint)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await
+    {
+        Ok(iota_client) => iota_client,
+        Err(_) => return Err(ApiError::UnableToBuildClient),
+    };
+
+    let essence = essence_from_hex_string(&construction_combine_request.unsigned_transaction)?;
+
+    let regular_essence = match &essence {
+        Essence::Regular(r) => r,
+        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
+    };
+
+    let signature_by_address_map = {
+        let mut ret = HashMap::new();
+        for s in &construction_combine_request.signatures {
+            ret.insert(s.signing_payload.account_identifier.address.clone(), s.clone());
+        }
+        ret
+    };
+
+    let mut signature_unlock_block_index_by_address = HashMap::new();
+    let mut unlock_blocks = Vec::new();
+
+    for input in regular_essence.inputs() {
+
+        let input = match input {
+            Input::UTXO(i) => i,
+            _ => return Err(ApiError::BadConstructionRequest("input type not supported".to_string()))
+        };
+
+        let input_metadata = iota_client.get_output(&input).await.unwrap(); // TODO: handle unwrap
+        let address = match input_metadata.output {
+            OutputDto::SignatureLockedSingle(s) => {
+                match s.address {
+                    AddressDto::Ed25519(e) => e.address,
+                    _ => return Err(ApiError::BadConstructionRequest("address type of output not supported".to_string()))
+                }
+            },
+            OutputDto::SignatureLockedDustAllowance(s) => unimplemented!(),
+            _ => return Err(ApiError::BadConstructionRequest("output type not supported".to_string()))
+        };
+
+        // check if there exists a signature by the address of the input
+        if let Some(signature) = signature_by_address_map.get(&address) {
+
+            // check if a signature unlock block was already added for the address
+            if let Some(index) = signature_unlock_block_index_by_address.get(&address) {
+                // add a reference unlock block which references the index of the signature unlock block
+                unlock_blocks.push(UnlockBlock::Reference(ReferenceUnlock::new(*index).unwrap())); // TODO: handle unwrap
+            } else {
+                let mut public_key = [0u8; 32];
+                hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key)?;
+                let signature = Ed25519Signature::new(
+                    public_key,
+                    hex::decode(signature.hex_bytes.clone())?.into_boxed_slice()
+                );
+                unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
+                signature_unlock_block_index_by_address.insert(address, signature_unlock_block_index_by_address.len() as u16);
+            }
+        } else {
+            return Err(ApiError::BadConstructionRequest(format!("no signature for address {} provided", &address)))
+        }
+    }
+
+    let transaction = TransactionPayload::builder()
+        .with_essence(essence)
+        .with_unlock_blocks(unlock_blocks)
+        .finish()?;
+
+    Ok(ConstructionCombineResponse {
+        signed_transaction: hex::encode(transaction.pack_new())
+    })
+
+}
+
 async fn construction_hash_request(
     construction_hash_request: ConstructionHashRequest,
     options: Options,
@@ -286,95 +477,7 @@ fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiE
     Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice()).unwrap())
 }
 
-async fn construction_parse_request(
-    construction_parse_request: ConstructionParseRequest,
-    options: Options,
-) -> Result<ConstructionParseResponse, ApiError> {
-    debug!("/construction/parse");
-
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
-
-    // todo: add logic for pre-signed transactions
-
-    let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
-    let transaction_essence = RegularEssence::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
-
-    let mut operations = vec![];
-    let mut operation_counter = 0;
-
-    for input in transaction_essence.inputs() {
-        if let Input::UTXO(i) = input {
-            let input_metadata = iota_client.get_output(&i).await.unwrap();
-            let transaction_id = input_metadata.transaction_id;
-            let output_index = input_metadata.output_index;
-            let is_spent = input_metadata.is_spent;
-
-            let (amount, ed25519_address) = match input_metadata.output {
-                OutputDto::Treasury(_) => panic!("Can't be used as input"),
-                OutputDto::SignatureLockedSingle(x) => match x.address {
-                        AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address)
-                },
-                OutputDto::SignatureLockedDustAllowance(x) => panic!("not implemented!"),
-            };
-
-            let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
-            let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
-
-            operations.push(utxo_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent));
-        }
-        operation_counter = operation_counter + 1;
-    }
-
-    let mut output_index = 0;
-    for output in transaction_essence.outputs() {
-        let (amount, ed25519_address) = match output {
-            Output::SignatureLockedSingle(x) => match x.address() {
-                Address::Ed25519(ed25519) => (x.amount(), ed25519.clone().to_string()),
-                _ => panic!("not implemented!")
-            },
-            _ => panic!("not implemented!")
-        };
-
-        let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
-        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
-
-        operations.push(Operation {
-            operation_identifier: OperationIdentifier {
-                index: operation_counter as u64,
-                network_index: Some(output_index as u64),
-            },
-            related_operations: None,
-            type_: UTXO_OUTPUT.into(),
-            status: None,
-            account: AccountIdentifier {
-                address: bech32_address,
-                sub_account: None
-            },
-            amount: Amount {
-                value: amount.to_string(),
-                currency: iota_currency(),
-            },
-            coin_change: None,
-            metadata: OperationMetadata {
-                is_spent: UTXO_UNSPENT.into()
-            }
-        });
-        output_index = output_index + 1;
-        operation_counter = operation_counter + 1;
-    }
-
-    Ok(ConstructionParseResponse {
-        operations: operations,
-        account_identifier_signers: None,
-    })
+fn essence_from_hex_string(hex_str: &str) -> Result<Essence, ApiError> {
+    let essence_bytes = hex::decode(hex_str)?;
+    Ok(Essence::unpack(&mut essence_bytes.as_slice()).unwrap())
 }
