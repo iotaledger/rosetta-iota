@@ -142,7 +142,7 @@ async fn construction_metadata_request(
     }
 
     Ok(ConstructionMetadataResponse {
-        metadata: None
+        metadata: ConstructionMetadata {}
     })
 }
 
@@ -246,15 +246,84 @@ async fn construction_parse_request(
         Err(_) => return Err(ApiError::UnableToBuildClient),
     };
 
-    // todo: add logic for pre-signed transactions
+    if construction_parse_request.signed {
+        parse_signed_transaction(construction_parse_request, options, iota_client).await
+    } else {
+        parse_unsigned_transaction(construction_parse_request, options, iota_client).await
+    }
 
+}
+
+async fn parse_unsigned_transaction(
+    construction_parse_request: ConstructionParseRequest,
+    options: Options,
+    client: Client
+) -> Result<ConstructionParseResponse, ApiError> {
     let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
-    let transaction_essence = RegularEssence::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
+    let transaction = TransactionPayload::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
+
+    let regular_essence = match transaction.essence() {
+        Essence::Regular(r) => r,
+        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
+    };
+
+    let operations = regular_essence_to_operations(&regular_essence, client).await?;
+
+    Ok(ConstructionParseResponse {
+        operations,
+        account_identifier_signers: None,
+    })
+}
+
+async fn parse_signed_transaction(
+    construction_parse_request: ConstructionParseRequest,
+    options: Options,
+    client: Client
+) -> Result<ConstructionParseResponse, ApiError> {
+    let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
+    let transaction: TransactionPayload = TransactionPayload::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
+
+    let regular_essence = match transaction.essence() {
+        Essence::Regular(r) => r,
+        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
+    };
+
+    let bech32_hrp = client.get_bech32_hrp().await.unwrap();
+
+    let operations = regular_essence_to_operations(&regular_essence, client).await?;
+
+    let account_identifier_signers = {
+        let mut accounts_identifiers = Vec::new();
+        for unlock_block in transaction.unlock_blocks() {
+            if let UnlockBlock::Signature(s) = unlock_block {
+                let signature = match s {
+                    SignatureUnlock::Ed25519(s) => s,
+                    _ => return Err(ApiError::BadConstructionRequest("signature type not supported".to_string()))
+                };
+                let bech32_addr = address_from_public_key(&hex::encode(signature.public_key()))?.to_bech32(&bech32_hrp);
+                accounts_identifiers.push(AccountIdentifier {
+                    address: bech32_addr,
+                    sub_account: None
+                });
+            }
+        }
+        accounts_identifiers
+    };
+
+    Ok(ConstructionParseResponse {
+        operations,
+        account_identifier_signers: Some(account_identifier_signers),
+    })
+
+
+}
+
+async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_client: Client) -> Result<Vec<Operation>, ApiError>{
 
     let mut operations = vec![];
     let mut operation_counter = 0;
 
-    for input in transaction_essence.inputs() {
+    for input in regular_essence.inputs() {
         if let Input::UTXO(i) = input {
             let input_metadata = iota_client.get_output(&i).await.unwrap();
             let transaction_id = input_metadata.transaction_id;
@@ -278,7 +347,7 @@ async fn construction_parse_request(
     }
 
     let mut output_index = 0;
-    for output in transaction_essence.outputs() {
+    for output in regular_essence.outputs() {
         let (amount, ed25519_address) = match output {
             Output::SignatureLockedSingle(x) => match x.address() {
                 Address::Ed25519(ed25519) => (x.amount(), ed25519.clone().to_string()),
@@ -315,10 +384,8 @@ async fn construction_parse_request(
         operation_counter = operation_counter + 1;
     }
 
-    Ok(ConstructionParseResponse {
-        operations: operations,
-        account_identifier_signers: None,
-    })
+    Ok(operations)
+
 }
 
 async fn construction_combine_request(
@@ -480,4 +547,21 @@ fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiE
 fn essence_from_hex_string(hex_str: &str) -> Result<Essence, ApiError> {
     let essence_bytes = hex::decode(hex_str)?;
     Ok(Essence::unpack(&mut essence_bytes.as_slice()).unwrap())
+}
+
+fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
+    let public_key_bytes = hex::decode(hex_string)?;
+
+    // Hash the public key to get the address as in https://github.com/iotaledger/wallet.rs/blob/develop/src/stronghold.rs#L531
+    let mut hasher = VarBlake2b::new(32).unwrap();
+    hasher.update(public_key_bytes);
+    let mut result = vec![];
+    hasher.finalize_variable(|res| {
+        result = res.to_vec();
+    });
+
+    let ed25519_address = Ed25519Address::new(result.try_into().unwrap());
+    let address = Address::Ed25519(ed25519_address);
+
+    Ok(address)
 }
