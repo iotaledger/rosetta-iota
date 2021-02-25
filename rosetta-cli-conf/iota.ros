@@ -53,9 +53,13 @@ transfer(1){
       }
     });
 
+    // list inputs from faucet deposits
+    inputA = "10000000";
+    inputB = "10000000";
+
     // Set the transaction_amount as some value <= sender.balance - dust_allowance
     dust_allowance = "10000000";
-    available_amount = {{sender.balance.value}};
+    available_amount = {{inputA}} + {{inputB}};
     transaction_amount = random_number({"minimum": {{dust_allowance}}, "maximum": {{available_amount}}});
     print_message({"transaction_amount":{{transaction_amount}}});
 
@@ -86,6 +90,30 @@ transfer(1){
         "amount":{
           "value":{{available_amount}},
           "currency":{{currency}}
+        },
+        "coin_change": {
+          "coin_identifier": {
+            "identifier": "935c665dc073e0f7e03e3ee0607007991bfaca098dbf7c88aa68bfa74b498d320000"
+          },
+          "coin_action": "coin_created"
+        },
+        "metadata": {
+          "is_spent": "UTXO_UNSPENT"
+        }
+      },
+      {
+        "operation_identifier":{"index":0},
+        "type":"UTXO_INPUT",
+        "account":{{sender.account_identifier}},
+        "amount":{
+          "value":{{available_amount}},
+          "currency":{{currency}}
+        },
+        "coin_change": {
+          "coin_identifier": {
+            "identifier": "5d7c71233c9eb392f753c4621888a16004c09013114f6f25cfd4316d73a3afdb0000"
+          },
+          "coin_action": "coin_created"
         },
         "metadata": {
           "is_spent": "UTXO_UNSPENT"
