@@ -41,3 +41,80 @@ create_account(1){
     });
   }
 }
+
+transfer(1){
+  transfer{
+    transfer.network = {"network":"testnet5", "blockchain":"iota"};
+    currency = {"symbol":"IOTA", "decimals":0};
+    sender = find_balance({
+      "minimum_balance":{
+        "value": "20000000",
+        "currency": {{currency}}
+      }
+    });
+
+    // Set the transaction_amount as some value <= sender.balance - dust_allowance
+    dust_allowance = "10000000";
+    available_amount = {{sender.balance.value}};
+    transaction_amount = random_number({"minimum": {{dust_allowance}}, "maximum": {{available_amount}}});
+    print_message({"transaction_amount":{{transaction_amount}}});
+
+    // Set the change_amount as available_amount - transaction_amount
+    change_amount = {{available_amount}} - {{transaction_amount}}
+    print_message({"change_amount":{{change_amount}}});
+
+    // Find recipient and construct operations
+    recipient = find_balance({
+      "not_account_identifier":[{{sender.account_identifier}}],
+      "minimum_balance":{
+        "value": "0",
+        "currency": {{currency}}
+      },
+      "create_limit": 100,
+      "create_probability": 50
+    });
+
+    print_message({"sending from":{{sender}}});
+    print_message({"sending to":{{recipient}}});
+
+    transfer.confirmation_depth = "1";
+    transfer.operations = [
+      {
+        "operation_identifier":{"index":0},
+        "type":"UTXO_INPUT",
+        "account":{{sender.account_identifier}},
+        "amount":{
+          "value":{{available_amount}},
+          "currency":{{currency}}
+        },
+        "metadata": {
+          "is_spent": "UTXO_UNSPENT"
+        }
+      },
+      {
+        "operation_identifier":{"index":1},
+        "type":"UTXO_OUTPUT",
+        "account":{{recipient.account_identifier}},
+        "amount":{
+          "value":{{transaction_amount}},
+          "currency":{{currency}}
+        },
+        "metadata": {
+          "is_spent": "UTXO_UNSPENT"
+        }
+      },
+      {
+          "operation_identifier":{"index":1},
+          "type":"UTXO_OUTPUT",
+          "account":{{sender.account_identifier}},
+          "amount":{
+            "value":{{change_amount}},
+            "currency":{{currency}}
+          },
+          "metadata": {
+            "is_spent": "UTXO_UNSPENT"
+          }
+        }
+    ];
+  }
+}
