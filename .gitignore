@@ -13,3 +13,6 @@ target/
 # IDE
 .idea
 book
+
+# Rosetta CLI
+.rosetta-cli
