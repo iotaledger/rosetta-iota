@@ -15,7 +15,7 @@ pub enum ApiError {
     UnableToBuildClient,
     #[error("unable to get node info")]
     UnableToGetNodeInfo,
-    #[error("unable to get milestone {0}")]
+    #[error("Unable to get Milestone")]
     UnableToGetMilestone(u32),
     #[error("unable to get peers")]
     UnableToGetPeers,
@@ -88,7 +88,7 @@ impl ApiError {
             ApiError::UnableToGetPeers => false,
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => true,
-            ApiError::UnableToGetOutput => false,
+            ApiError::UnableToGetOutput => true,
             ApiError::UnableToGetGenesisMilestone => false,
             ApiError::HistoricalBalancesUnsupported => false,
             ApiError::BadConstructionRequest(_) => false,
@@ -170,7 +170,7 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Milestone".to_string(),
                 code: 50,
-                retriable: false,
+                retriable: true,
                 details: None,
             },
             types::Error {
