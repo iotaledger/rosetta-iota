@@ -168,6 +168,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
                         },
                     };
 
+                    // todo: treat timeout on this unrwap
                     let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 

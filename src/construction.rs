@@ -109,6 +109,7 @@ async fn construction_derive_request(
     let ed25519_address = Ed25519Address::new(result.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);
 
+    // todo: treat timeout on this unrwap
     let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
 
     Ok(ConstructionDeriveResponse {
@@ -288,6 +289,7 @@ async fn parse_signed_transaction(
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
 
+    // todo: treat timeout on this unrwap
     let bech32_hrp = client.get_bech32_hrp().await.unwrap();
 
     let operations = regular_essence_to_operations(&regular_essence, client).await?;
@@ -338,6 +340,7 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
                 OutputDto::SignatureLockedDustAllowance(x) => panic!("not implemented!"),
             };
 
+            // todo: treat timeout on this unrwap
             let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
             let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
@@ -356,6 +359,7 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
             _ => panic!("not implemented!")
         };
 
+        // todo: treat timeout on this unrwap
         let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
