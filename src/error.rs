@@ -21,7 +21,7 @@ pub enum ApiError {
     UnableToGetPeers,
     #[error("bad block/milestone request")]
     BadMilestoneRequest,
-    #[error("unable to get milestone utxo changes")]
+    #[error("Unable to get Milestone UTXO Changes")]
     UnableToGetMilestoneUTXOChanges,
     #[error("unable to get transaction outputs")]
     UnableToGetOutput,
@@ -188,7 +188,7 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Milestone UTXO Changes".to_string(),
                 code: 80,
-                retriable: false,
+                retriable: true,
                 details: None,
             },
             types::Error {
