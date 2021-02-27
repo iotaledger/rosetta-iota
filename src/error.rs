@@ -13,7 +13,7 @@ pub enum ApiError {
     NotImplemented,
     #[error("unable to build iota client")]
     UnableToBuildClient,
-    #[error("unable to get node info")]
+    #[error("Unable to get Node Info")]
     UnableToGetNodeInfo,
     #[error("Unable to get Milestone")]
     UnableToGetMilestone(u32),
@@ -164,7 +164,7 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Node Info".to_string(),
                 code: 40,
-                retriable: false,
+                retriable: true,
                 details: None,
             },
             types::Error {
