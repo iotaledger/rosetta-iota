@@ -30,11 +30,20 @@
     }
   },
   "data": {
-    "start_index": 9990,
+    "start_index": 13458,
     "historical_balance_enabled": false,
     "inactive_discrepency_search_disabled": true,
+    "log_transactions": true,
+    "log_balance_changes": true,
+    "log_reconciliations": true,
+    "reconciliation_disabled": false,
+    "pruning_disabled": false,
     "end_conditions": {
-      "tip": true
+      "tip": true,
+      "reconciliation_coverage": {
+        "coverage": 0.95,
+        "from_tip": true
+      }
     }
   }
 }
