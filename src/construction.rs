@@ -9,7 +9,7 @@ use bee_common::packable::Packable;
 use log::debug;
 use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, ConstructionParseRequest, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata, ConstructionParseResponse, OperationIdentifier, OperationMetadata, CoinChange, Amount, ConstructionCombineResponse, ConstructionCombineRequest, Signature};
-use bee_message::prelude::{Ed25519Address, Address, TransactionId, Input, Output, SignatureLockedSingleOutput, UTXOInput, RegularEssenceBuilder, RegularEssence, Ed25519Signature};
+use bee_message::prelude::*;
 use iota::{Client, Payload, TransactionPayload, OutputDto, AddressDto};
 use blake2::{
     digest::{Update, VariableOutput},
@@ -20,7 +20,7 @@ use std::convert::TryInto;
 use std::str::FromStr;
 use crate::operations::UTXO_SPENT;
 use serde::Serialize;
-use bee_message::payload::transaction::{Essence, UnlockBlock};
+use bee_message::payload::transaction::Essence;
 use std::collections::HashMap;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

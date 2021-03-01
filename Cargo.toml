@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
-bee-rest-api = { git = "https://github.com/iotaledger/bee.git", branch = "chrysalis-pt-2" }
+bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "8b61a12bc4539b740a93b9adf346a3b526d8759a" }
 bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "8b61a12bc4539b740a93b9adf346a3b526d8759a" }
 blake2 = "0.9"
 digest = "0.9"
