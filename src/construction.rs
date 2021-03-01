@@ -20,7 +20,7 @@ use std::convert::TryInto;
 use std::str::FromStr;
 use crate::operations::UTXO_SPENT;
 use serde::Serialize;
-use bee_message::payload::transaction::{Essence, UnlockBlock, ReferenceUnlock, SignatureUnlock};
+use bee_message::payload::transaction::{Essence, UnlockBlock};
 use std::collections::HashMap;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
