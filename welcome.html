@@ -393,7 +393,7 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <ul>
 <li><code>/construction/parse</code></li>
 </ul>
-<pre><code>$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet5&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;00010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq
 </code></pre>
 <ul>
 <li><code>/construction/combine</code></li>
