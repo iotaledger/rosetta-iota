@@ -245,7 +245,7 @@ $ curl --request POST 'http://localhost:3030/construction/payloads' \--header 'A
 
 - `/construction/parse`
 ```
-$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"signed":false,"transaction":"010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000"}' | jq
+$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet5"},"signed":false,"transaction":"00010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000"}' | jq
 ```
 
 - `/construction/combine`

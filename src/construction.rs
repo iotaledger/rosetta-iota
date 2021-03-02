@@ -192,10 +192,8 @@ async fn construction_payloads_request(
         transaction_payload_essence = transaction_payload_essence.add_output(o);
     }
 
-    let transaction_payload_essence = transaction_payload_essence.finish().unwrap();
+    let transaction_payload_essence = Essence::Regular(transaction_payload_essence.finish().unwrap());
     let transaction_payload_essence_hex = hex::encode(transaction_payload_essence.pack_new());
-
-    let hash = Blake2b256::digest(&transaction_payload_essence.pack_new());
 
     for (_, address) in inputs {
         signing_payloads.push( SigningPayload {
@@ -203,7 +201,7 @@ async fn construction_payloads_request(
                 address,
                 sub_account: None
             },
-            hex_bytes: hex::encode(hash.clone()),
+            hex_bytes: hex::encode(transaction_payload_essence.hash()),
             signature_type: Some(SignatureType::Edwards25519)
         });
     }
@@ -245,10 +243,10 @@ async fn parse_unsigned_transaction(
     options: Options,
     client: Client
 ) -> Result<ConstructionParseResponse, ApiError> {
-    let mut transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
-    let transaction = TransactionPayload::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
+    let mut essence_hex_bytes = hex::decode(construction_parse_request.transaction)?;
+    let essence = Essence::unpack(&mut essence_hex_bytes.as_slice()).unwrap();
 
-    let regular_essence = match transaction.essence() {
+    let regular_essence = match essence {
         Essence::Regular(r) => r,
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
