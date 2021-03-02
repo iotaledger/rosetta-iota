@@ -10,7 +10,7 @@ use crate::{
     types::{AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
             Amount, BlockIdentifier, Coin, CoinIdentifier},
 };
-use iota::{Client, Bech32Address, OutputDto, AddressDto};
+use iota::{Bech32Address, OutputDto, AddressDto};
 use log::debug;
 use warp::Filter;
 

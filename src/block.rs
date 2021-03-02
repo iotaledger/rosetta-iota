@@ -10,8 +10,7 @@ use crate::{
     types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier},
 };
 use bee_message::prelude::{Ed25519Address};
-use bee_rest_api::types::{};
-use iota::{Client, UTXOInput, OutputResponse, AddressDto, OutputDto};
+use iota::{UTXOInput, OutputResponse, AddressDto, OutputDto};
 use log::debug;
 use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
