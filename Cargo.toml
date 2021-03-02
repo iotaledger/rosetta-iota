@@ -11,7 +11,7 @@ iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
 bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "8b61a12bc4539b740a93b9adf346a3b526d8759a" }
 bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "8b61a12bc4539b740a93b9adf346a3b526d8759a" }
-blake2 = "0.9"
+iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "8aa41999e88f41c4607451a6f8283bbc69c31d41", features = ["blake2b"] }
 digest = "0.9"
 log = "0.4"
 warp = "0.3"

@@ -1450,6 +1450,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "iota-crypto"
+version = "0.2.0"
+source = "git+https://github.com/iotaledger/crypto.rs?rev=8aa41999e88f41c4607451a6f8283bbc69c31d41#8aa41999e88f41c4607451a6f8283bbc69c31d41"
+dependencies = [
+ "blake2",
+ "digest 0.9.0",
+]
+
+[[package]]
 name = "ipnet"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2450,12 +2459,12 @@ dependencies = [
  "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
  "bee-message",
  "bee-rest-api",
- "blake2",
  "digest 0.9.0",
  "env_logger",
  "futures",
  "hex",
  "iota-core",
+ "iota-crypto 0.2.0 (git+https://github.com/iotaledger/crypto.rs?rev=8aa41999e88f41c4607451a6f8283bbc69c31d41)",
  "log",
  "serde",
  "serde_json",

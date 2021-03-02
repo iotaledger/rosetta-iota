@@ -11,10 +11,7 @@ use warp::Filter;
 use crate::types::{ConstructionDeriveRequest, ConstructionDeriveResponse, ConstructionParseRequest, AccountIdentifier, CurveType, ConstructionSubmitResponseMetadata, ConstructionPreprocessRequest, ConstructionPreprocessResponse, ConstructionPayloadsRequest, ConstructionPayloadsResponse, Operation, SigningPayload, SignatureType, ConstructionMetadataRequest, ConstructionMetadataResponse, ConstructionMetadata, ConstructionParseResponse, OperationIdentifier, OperationMetadata, CoinChange, Amount, ConstructionCombineResponse, ConstructionCombineRequest, Signature};
 use bee_message::prelude::*;
 use iota::{Client, Payload, TransactionPayload, OutputDto, AddressDto};
-use blake2::{
-    digest::{Update, VariableOutput},
-    VarBlake2b,
-};
+use crypto::hashes::{blake2b::Blake2b256, Digest};
 
 use std::convert::TryInto;
 use std::str::FromStr;
@@ -97,16 +94,9 @@ async fn construction_derive_request(
     };
 
     let public_key_bytes = hex::decode(construction_derive_request.public_key.hex_bytes)?;
+    let hash = Blake2b256::digest(&public_key_bytes);
 
-    // Hash the public key to get the address as in https://github.com/iotaledger/wallet.rs/blob/develop/src/stronghold.rs#L531
-    let mut hasher = VarBlake2b::new(32).unwrap();
-    hasher.update(public_key_bytes);
-    let mut result = vec![];
-    hasher.finalize_variable(|res| {
-        result = res.to_vec();
-    });
-
-    let ed25519_address = Ed25519Address::new(result.try_into().unwrap());
+    let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);
 
     // todo: treat timeout on this unrwap
@@ -205,12 +195,7 @@ async fn construction_payloads_request(
     let transaction_payload_essence = transaction_payload_essence.finish().unwrap();
     let transaction_payload_essence_hex = hex::encode(transaction_payload_essence.pack_new());
 
-    let mut hasher = VarBlake2b::new(32).unwrap();
-    hasher.update(transaction_payload_essence.pack_new());
-    let mut hash = vec![];
-    hasher.finalize_variable(|res| {
-        hash = res.to_vec();
-    });
+    let hash = Blake2b256::digest(&transaction_payload_essence.pack_new());
 
     for (_, address) in inputs {
         signing_payloads.push( SigningPayload {
@@ -555,16 +540,8 @@ fn essence_from_hex_string(hex_str: &str) -> Result<Essence, ApiError> {
 
 fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
     let public_key_bytes = hex::decode(hex_string)?;
-
-    // Hash the public key to get the address as in https://github.com/iotaledger/wallet.rs/blob/develop/src/stronghold.rs#L531
-    let mut hasher = VarBlake2b::new(32).unwrap();
-    hasher.update(public_key_bytes);
-    let mut result = vec![];
-    hasher.finalize_variable(|res| {
-        result = res.to_vec();
-    });
-
-    let ed25519_address = Ed25519Address::new(result.try_into().unwrap());
+    let hash = Blake2b256::digest(&public_key_bytes);
+    let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);
 
     Ok(address)
