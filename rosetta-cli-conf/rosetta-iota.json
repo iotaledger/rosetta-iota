@@ -1,7 +1,7 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "testnet5"
+    "network": "testnet6"
   },
   "online_url": "http://localhost:3030",
   "data_directory": ".rosetta-cli",
@@ -30,7 +30,7 @@
     }
   },
   "data": {
-    "start_index": 13458,
+    "start_index": 1,
     "historical_balance_enabled": false,
     "inactive_discrepency_search_disabled": true,
     "log_transactions": true,

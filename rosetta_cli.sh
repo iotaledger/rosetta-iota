@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NODE_URL="http://honeycombos.iota.cafe:14265"
-NETWORK="testnet5"
+NETWORK="testnet6"
 
 PRUNE=$false
 
