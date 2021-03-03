@@ -20,10 +20,12 @@ if [ $PRUNE ]; then
   START_MS=`expr $PRUNE_MS + 2`
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.pruning_disabled |= false' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
 
 else
 
   cat <<< $(jq 'del(.data.start_index)' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.pruning_disabled |= true' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
 
 fi
 
