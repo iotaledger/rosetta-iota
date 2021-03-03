@@ -85,7 +85,7 @@ impl ApiError {
             ApiError::UnableToBuildClient => false,
             ApiError::UnableToGetNodeInfo => true,
             ApiError::UnableToGetMilestone(_) => true,
-            ApiError::UnableToGetPeers => false,
+            ApiError::UnableToGetPeers => true,
             ApiError::BadMilestoneRequest => false,
             ApiError::UnableToGetMilestoneUTXOChanges => true,
             ApiError::UnableToGetOutput => true,
@@ -176,7 +176,7 @@ impl ApiError {
             types::Error {
                 message: "Unable to get Peers".to_string(),
                 code: 60,
-                retriable: false,
+                retriable: true,
                 details: None,
             },
             types::Error {
