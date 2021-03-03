@@ -5,6 +5,7 @@ NETWORK="testnet6"
 
 # 1 to enable, comment out to disable
 PRUNE=1
+#RECONCILE=1
 
 # start server
 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
@@ -26,6 +27,19 @@ else
 
   cat <<< $(jq 'del(.data.start_index)' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= true' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+
+fi
+
+if [ $RECONCILE ]; then
+
+  cat <<< $(jq '.data.reconciliation_disabled |= false' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+
+else
+
+  cat <<< $(jq '.data.reconciliation_disabled |= true' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
 
 fi
 
