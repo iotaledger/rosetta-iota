@@ -26,14 +26,14 @@ use crypto::hashes::Digest;
 use std::convert::TryInto;
 use iota::Client;
 
-mod combine;
-mod derive;
-mod hash;
-mod metadata;
-mod parse;
-mod payloads;
-mod preprocess;
-mod submit;
+pub mod combine;
+pub mod derive;
+pub mod hash;
+pub mod metadata;
+pub mod parse;
+pub mod payloads;
+pub mod preprocess;
+pub mod submit;
 
 pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()

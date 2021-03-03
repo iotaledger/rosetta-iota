@@ -11,7 +11,7 @@ use crate::types::NetworkIdentifier;
 
 mod account;
 mod block;
-mod construction;
+pub mod construction;
 pub mod consts;
 mod currency;
 mod error;
@@ -19,7 +19,7 @@ mod filters;
 mod network;
 mod operations;
 mod options;
-mod types;
+pub mod types;
 
 pub async fn run_server(
     binding_addr: SocketAddr,

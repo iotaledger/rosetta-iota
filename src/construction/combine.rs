@@ -93,7 +93,7 @@ pub(crate) async fn construction_combine_request(
 
     let transaction = TransactionPayload::builder()
         .with_essence(essence)
-        .with_unlock_blocks(unlock_blocks)
+        .with_unlock_blocks(UnlockBlocks::new(unlock_blocks).unwrap())
         .finish()?;
 
     Ok(ConstructionCombineResponse {

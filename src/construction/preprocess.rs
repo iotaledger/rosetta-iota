@@ -7,7 +7,7 @@ use crate::error::ApiError;
 
 use log::debug;
 
-pub(crate) async fn construction_preprocess_request(
+pub async fn construction_preprocess_request(
     construction_preprocess_request: ConstructionPreprocessRequest,
     options: Options,
 ) -> Result<ConstructionPreprocessResponse, ApiError> {

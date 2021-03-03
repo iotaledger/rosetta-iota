@@ -12,7 +12,7 @@ use log::debug;
 
 use std::convert::TryInto;
 
-pub(crate) async fn construction_derive_request(
+pub async fn construction_derive_request(
     construction_derive_request: ConstructionDeriveRequest,
     options: Options,
 ) -> Result<ConstructionDeriveResponse, ApiError> {

@@ -77,7 +77,7 @@ async fn parse_signed_transaction(
 
     let account_identifier_signers = {
         let mut accounts_identifiers = Vec::new();
-        for unlock_block in transaction.unlock_blocks() {
+        for unlock_block in transaction.unlock_blocks().into_iter() {
             if let UnlockBlock::Signature(s) = unlock_block {
                 let signature = match s {
                     SignatureUnlock::Ed25519(s) => s,
