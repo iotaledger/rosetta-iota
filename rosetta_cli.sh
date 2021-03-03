@@ -3,7 +3,8 @@
 NODE_URL="http://honeycombos.iota.cafe:14265"
 NETWORK="testnet6"
 
-PRUNE=$false
+# 1 to enable, comment out to disable
+PRUNE=1
 
 # start server
 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
