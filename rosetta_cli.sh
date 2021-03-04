@@ -50,6 +50,7 @@ else
 fi
 
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
+cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' rosetta-cli-conf/rosetta-iota.json) > rosetta-cli-conf/rosetta-iota.json
 
 # test Data API
 ~/bin/rosetta-cli check:data --configuration-file rosetta-cli-conf/rosetta-iota.json
