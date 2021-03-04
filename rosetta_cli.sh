@@ -2,10 +2,12 @@
 
 NODE_URL="http://honeycombos.iota.cafe:14265"
 NETWORK="testnet6"
+DATA_DIR=".rosetta-cli"
 
 # 1 to enable, comment out to disable
 PRUNE=1
 #RECONCILE=1
+CLEAN=1
 
 # start server
 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
@@ -13,6 +15,10 @@ PID=$!
 
 # wait for server to completely start
 sleep 1
+
+if [ $CLEAN ]; then
+  rm -rf $DATA_DIR
+fi
 
 if [ $PRUNE ]; then
 
@@ -49,6 +55,6 @@ cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' rosetta-cli
 ~/bin/rosetta-cli check:data --configuration-file rosetta-cli-conf/rosetta-iota.json
 
 # test Construction API
-# ~/bin/rosetta-cli check:construction --configuration-file rosetta-cli-conf/rosetta-iota.json
+~/bin/rosetta-cli check:construction --configuration-file rosetta-cli-conf/rosetta-iota.json
 
 kill $PID
