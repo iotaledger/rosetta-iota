@@ -78,8 +78,20 @@ transfer(1){
       "create_probability": 50
     });
 
+    // Find change (not necessarily sharing key with recipient) and construct operations
+    change = find_balance({
+      "not_account_identifier":[{{sender.account_identifier}}, {{recipient.account_identifier}}],
+      "minimum_balance":{
+        "value": "0",
+        "currency": {{currency}}
+      },
+      "create_limit": 100,
+      "create_probability": 50
+    });
+
     print_message({"sending from":{{sender}}});
     print_message({"sending to":{{recipient}}});
+    print_message({"sending to":{{change}}});
 
     transfer.confirmation_depth = "1";
     transfer.operations = [
@@ -93,7 +105,7 @@ transfer(1){
         },
         "coin_change": {
           "coin_identifier": {
-            "identifier": "935c665dc073e0f7e03e3ee0607007991bfaca098dbf7c88aa68bfa74b498d320000"
+            "identifier": "2868d1bf8988e2f19d24a5416ff2b064cfa3485745fddb686985ba156d58dfa90000"
           },
           "coin_action": "coin_spent"
         },
@@ -111,7 +123,7 @@ transfer(1){
         },
         "coin_change": {
           "coin_identifier": {
-            "identifier": "5d7c71233c9eb392f753c4621888a16004c09013114f6f25cfd4316d73a3afdb0000"
+            "identifier": "ed72c7f3b4b56e7662acc706a3a371024d6c5023473ed83817d651f5990939eb0000"
           },
           "coin_action": "coin_spent"
         },
@@ -134,7 +146,7 @@ transfer(1){
       {
           "operation_identifier":{"index":1},
           "type":"UTXO_OUTPUT",
-          "account":{{sender.account_identifier}},
+          "account":{{change.account_identifier}},
           "amount":{
             "value":{{change_amount}},
             "currency":{{currency}}
