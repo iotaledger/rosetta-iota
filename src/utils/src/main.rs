@@ -14,6 +14,8 @@ use crypto::{
     hashes::{blake2b::Blake2b256, Digest}
 };
 
+use std::convert::TryInto;
+
 /// In this example we create addresses from a seed defined in .env
 #[tokio::main]
 async fn main() {
@@ -31,14 +33,12 @@ async fn main() {
     let pk_bytes = pk.to_compressed_bytes().to_vec();
     let hash = Blake2b256::digest(&pk_bytes);
 
-    // todo
-    // let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
-    // let bech32_address = Ed25519Address::new(hash.try_into().unwrap());
+    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
+    let bech32_address = Ed25519Address::new(hash.try_into().unwrap());
 
     println!("sk: {}", hex::encode(sk.to_le_bytes()));
     println!("pk: {}", hex::encode(pk.to_compressed_bytes()));
     println!("hash: {}", hex::encode(hash));
 
-    // todo
-    // println!("bech32{}", bech32_address);
+    println!("bech32: {}", bech32_address);
 }
