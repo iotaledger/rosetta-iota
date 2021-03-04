@@ -8,6 +8,11 @@ use dotenv::dotenv;
 use std::env;
 use bee_message::prelude::Ed25519Address;
 use std::str::FromStr;
+use rand::thread_rng;
+use crypto::{
+    ed25519::{SecretKey, PublicKey},
+    hashes::{blake2b::Blake2b256, Digest}
+};
 
 /// In this example we create addresses from a seed defined in .env
 #[tokio::main]
@@ -19,8 +24,15 @@ async fn main() {
         .await
         .unwrap();
 
-    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
-    let bech32_address = Ed25519Address::from_str("035450cca8a4ecf6545f2b524e3aa752dbe6338acb3d84ae00f3db8827ec728c").unwrap().to_bech32(&bech32_hrp[..]);
+    // Generate a signing key
+    let sk = SecretKey::generate().expect("error: could not generate SecretKey!");
+    let pk = sk.public_key();
 
-    println!("{}", bech32_address);
+    let pk_bytes = pk.to_compressed_bytes().to_vec();
+    let hash = Blake2b256::digest(&pk_bytes);
+
+    // let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
+    // let bech32_address = Ed25519Address::new(hash.try_into().unwrap());
+
+    // println!("{}", bech32_address);
 }

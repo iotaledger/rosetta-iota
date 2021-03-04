@@ -7,8 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rand = "0.7"
 tokio = { version = "1.1", features = ["full"] }
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 hex = "0.4.2"
 dotenv = "0.15.0"
+iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "8aa41999e88f41c4607451a6f8283bbc69c31d41", features = ["blake2b", "ed25519", "random"] }
 bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04" }

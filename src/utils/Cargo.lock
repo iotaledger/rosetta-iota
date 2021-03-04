@@ -1410,6 +1410,17 @@ dependencies = [
 
 [[package]]
 name = "iota-crypto"
+version = "0.2.0"
+source = "git+https://github.com/iotaledger/crypto.rs?rev=8aa41999e88f41c4607451a6f8283bbc69c31d41#8aa41999e88f41c4607451a6f8283bbc69c31d41"
+dependencies = [
+ "blake2",
+ "digest 0.9.0",
+ "ed25519-zebra",
+ "getrandom 0.2.2",
+]
+
+[[package]]
+name = "iota-crypto"
 version = "0.3.0"
 source = "git+https://github.com/iotaledger/crypto.rs?rev=c3bf565eba62d0b81144174c2ff917bfde282e49#c3bf565eba62d0b81144174c2ff917bfde282e49"
 dependencies = [
@@ -3071,6 +3082,8 @@ dependencies = [
  "dotenv",
  "hex",
  "iota-core",
+ "iota-crypto 0.2.0 (git+https://github.com/iotaledger/crypto.rs?rev=8aa41999e88f41c4607451a6f8283bbc69c31d41)",
+ "rand 0.7.3",
  "tokio",
 ]
 
