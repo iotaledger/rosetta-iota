@@ -22,6 +22,8 @@ use crypto::{
 };
 use serde::Deserialize;
 
+use std::time::Duration;
+use tokio::time::sleep;
 use std::convert::TryInto;
 
 #[derive(Deserialize)]
@@ -62,7 +64,9 @@ async fn main() {
     println!("bech32: {}", bech32_address);
 
     println!("asking for funds on faucet, please wait...");
-    get_funds(&bech32_address).await.expect("error: could not ask for funds!");
+    let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
+
+    reattach_promote_until_confirmed(&message_id, &iota).await;
 
     let balance_response = iota.get_address().balance(&bech32_address.into()).await.unwrap();
     println!("balance: {}", balance_response.balance);
@@ -82,8 +86,16 @@ async fn get_funds(address: &String) -> Result<MessageId> {
         .unwrap();
     let faucet_message_id = MessageId::from_str(&response.data.id).expect("error: cannot talk to faucet!");
 
-    println!("Got funds from faucet, message id: {:?}", faucet_message_id);
-
     Ok(faucet_message_id)
 }
 
+async fn reattach_promote_until_confirmed(message_id: &MessageId, iota: &Client) {
+    while let Ok(metadata) = iota.get_message().metadata(&message_id).await {
+        if metadata.referenced_by_milestone_index.is_some() {
+            break;
+        } else if let Ok(msg_id) = iota.reattach(&message_id).await {
+            println!("Reattached or promoted {}", msg_id.0);
+        }
+        sleep(Duration::from_secs(2)).await;
+    }
+}
