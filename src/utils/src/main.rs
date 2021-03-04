@@ -31,8 +31,14 @@ async fn main() {
     let pk_bytes = pk.to_compressed_bytes().to_vec();
     let hash = Blake2b256::digest(&pk_bytes);
 
+    // todo
     // let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
     // let bech32_address = Ed25519Address::new(hash.try_into().unwrap());
 
-    // println!("{}", bech32_address);
+    println!("sk: {}", hex::encode(sk.to_le_bytes()));
+    println!("pk: {}", hex::encode(pk.to_compressed_bytes()));
+    println!("hash: {}", hex::encode(hash));
+
+    // todo
+    // println!("bech32{}", bech32_address);
 }
