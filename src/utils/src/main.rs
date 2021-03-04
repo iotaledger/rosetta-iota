@@ -60,7 +60,7 @@ async fn main() {
 
     println!("sk: {}", hex::encode(sk.to_le_bytes()));
     println!("pk: {}", hex::encode(pk.to_compressed_bytes()));
-    println!("hash: {}", hex::encode(hash));
+    println!("pk hash: {}", hex::encode(hash));
     println!("bech32: {}", bech32_address);
 
     println!("asking for funds on faucet, please wait...");
