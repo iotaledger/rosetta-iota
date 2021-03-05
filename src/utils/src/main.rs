@@ -19,7 +19,8 @@ use crypto::{
     ed25519::{SecretKey, PublicKey},
     hashes::{blake2b::Blake2b256, Digest}
 };
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
+use serde_json;
 
 use std::time::Duration;
 use tokio::time::sleep;
@@ -33,6 +34,15 @@ struct FaucetMessageResponse {
 #[derive(Deserialize)]
 struct FaucetResponse {
     data: FaucetMessageResponse,
+}
+
+#[derive(Serialize)]
+struct PrefundedAccount {
+    sk: String,
+    pk: String,
+    pk_hash: String,
+    bech32_addr: String,
+    balance: u64
 }
 
 /// In this example we create addresses from a seed defined in .env
@@ -57,19 +67,23 @@ async fn main() {
     let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
     let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
 
-    println!("sk: {}", hex::encode(sk.to_le_bytes()));
-    println!("pk: {}", hex::encode(pk.to_compressed_bytes()));
-    println!("pk hash: {}", hex::encode(hash));
-    println!("bech32: {}", bech32_address);
-
-    println!("asking for funds on faucet, please wait...");
     let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
 
     reattach_promote_until_confirmed(&message_id, &iota).await;
 
-    let balance_response = iota.get_address().balance(&bech32_address.into()).await.unwrap();
-    println!("balance: {}", balance_response.balance);
+    let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
 
+    let prefunded_account = PrefundedAccount {
+        sk: hex::encode(sk.to_le_bytes()),
+        pk: hex::encode(pk.to_compressed_bytes()),
+        pk_hash: hex::encode(hash),
+        bech32_addr: bech32_address,
+        balance: balance_response.balance,
+    };
+
+    let prefunded_account_pretty = serde_json::to_string_pretty(&prefunded_account).expect("error: could not pretty-print prefunded_account");
+
+    println!("{}", prefunded_account_pretty);
 }
 
 async fn get_funds(address: &String) -> Result<MessageId> {
