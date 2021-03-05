@@ -1,22 +1,12 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use iota::{api::GetAddressesBuilder, Client, Seed, MessageId};
-use iota_wallet::{
-    account_manager::{AccountManager, ManagerStorage},
-    address::Address,
-    client::ClientOptionsBuilder,
-    signing::SignerType,
-    Result,
-};
-extern crate dotenv;
-use dotenv::dotenv;
-use std::env;
+use iota::{Client, MessageId};
+use iota_wallet::Result;
 use bee_message::prelude::Ed25519Address;
 use std::str::FromStr;
-use rand::thread_rng;
 use crypto::{
-    ed25519::{SecretKey, PublicKey},
+    ed25519::SecretKey,
     hashes::{blake2b::Blake2b256, Digest}
 };
 use serde::{Serialize, Deserialize};
