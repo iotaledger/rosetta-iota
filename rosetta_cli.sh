@@ -25,6 +25,7 @@ fi
 
 if [ $PREFUNDED_ACCOUNT ]; then
 
+  echo "--------------------------------------------------------------------------------"
   echo "asking for faucet funds to load up prefunded_accounts..."
 
   cd src/utils
@@ -73,9 +74,13 @@ cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $ROOT/roset
 cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 
 # test Data API
+echo "--------------------------------------------------------------------------------"
+echo "running rosetta-cli check:data"
 ~/bin/rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 
 # test Construction API
+echo "--------------------------------------------------------------------------------"
+echo "running rosetta-cli check:construction"
 ~/bin/rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 
 kill $PID
