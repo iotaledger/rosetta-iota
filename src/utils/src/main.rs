@@ -1,7 +1,6 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-//! cargo run --example address --release
 use iota::{api::GetAddressesBuilder, Client, Seed, MessageId};
 use iota_wallet::{
     account_manager::{AccountManager, ManagerStorage},
