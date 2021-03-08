@@ -39,6 +39,13 @@ if [ $PREFUNDED_ACCOUNT ]; then
 
   cd $ROOT
 
+  OUTPUT_IDS=$(curl -X GET "$NODE_URL/api/v1/addresses/$ADDR/outputs" -H  "accept: application/json" | jq '.data.outputIds')
+  OUTPUT_ID_A=$(echo $OUTPUT_IDS | jq '.[0]')
+  OUTPUT_ID_B=$(echo $OUTPUT_IDS | jq '.[1]')
+
+  sed -i 's/idA/'$OUTPUT_ID_A'/g' $ROOT/rosetta-cli-conf/iota.ros
+  sed -i 's/idB/'$OUTPUT_ID_B'/g' $ROOT/rosetta-cli-conf/iota.ros
+
 fi
 
 if [ $PRUNE ]; then
