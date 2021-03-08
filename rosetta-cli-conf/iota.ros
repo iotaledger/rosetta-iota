@@ -105,7 +105,7 @@ transfer(1){
         },
         "coin_change": {
           "coin_identifier": {
-            "identifier": "2868d1bf8988e2f19d24a5416ff2b064cfa3485745fddb686985ba156d58dfa90000"
+            "identifier": idA
           },
           "coin_action": "coin_spent"
         },
@@ -123,7 +123,7 @@ transfer(1){
         },
         "coin_change": {
           "coin_identifier": {
-            "identifier": "ed72c7f3b4b56e7662acc706a3a371024d6c5023473ed83817d651f5990939eb0000"
+            "identifier": idB
           },
           "coin_action": "coin_spent"
         },
