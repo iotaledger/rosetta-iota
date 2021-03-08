@@ -226,103 +226,96 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 <p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to IOTA's <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with IOTA's <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
 <p>Here's an example of two Transaction Objects in the same Milestone:</p>
 <pre><code>{
-   &quot;transactions&quot;:[
-      {
-         &quot;transaction_identifier&quot;:{
-            &quot;hash&quot;:&quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da8&quot;
-         },
-         &quot;operations&quot;:[
-            {
-               &quot;operation_identifier&quot;:{
-                  &quot;index&quot;:0,
-                  &quot;network_index&quot;:0
-               },
-               &quot;type&quot;:&quot;UTXO_OUTPUT&quot;,
-               &quot;status&quot;:&quot;SUCCESS&quot;,
-               &quot;account&quot;:{
-                  &quot;address&quot;:&quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-               },
-               &quot;amount&quot;:{
-                  &quot;value&quot;:&quot;999880000000&quot;,
-                  &quot;currency&quot;:{
-                     &quot;symbol&quot;:&quot;IOTA&quot;,
-                     &quot;decimals&quot;:0
-                  }
-               },
-               &quot;coin_change&quot;:{
-                  &quot;coin_identifier&quot;:{
-                     &quot;identifier&quot;:&quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-                  },
-                  &quot;coin_action&quot;:&quot;coin_created&quot;
-               },
-               &quot;metadata&quot;:{
-                  &quot;is_spent&quot;:&quot;UTXO_SPENT&quot;
-               }
-            }
-         ]
+  &quot;transactions&quot;: [
+    {
+      &quot;transaction_identifier&quot;: {
+        &quot;hash&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636&quot;
       },
-      {
-         &quot;transaction_identifier&quot;:{
-            &quot;hash&quot;:&quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636&quot;
-         },
-         &quot;operations&quot;:[
-            {
-               &quot;operation_identifier&quot;:{
-                  &quot;index&quot;:0,
-                  &quot;network_index&quot;:0
-               },
-               &quot;type&quot;:&quot;UTXO_INPUT&quot;,
-               &quot;status&quot;:&quot;SUCCESS&quot;,
-               &quot;account&quot;:{
-                  &quot;address&quot;:&quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-               },
-               &quot;amount&quot;:{
-                  &quot;value&quot;:&quot;999870000000&quot;,
-                  &quot;currency&quot;:{
-                     &quot;symbol&quot;:&quot;IOTA&quot;,
-                     &quot;decimals&quot;:0
-                  }
-               },
-               &quot;coin_change&quot;:{
-                  &quot;coin_identifier&quot;:{
-                     &quot;identifier&quot;:&quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360000&quot;
-                  },
-                  &quot;coin_action&quot;:&quot;coin_spent&quot;
-               },
-               &quot;metadata&quot;:{
-                  &quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;
-               }
-            },
-            {
-               &quot;operation_identifier&quot;:{
-                  &quot;index&quot;:1,
-                  &quot;network_index&quot;:1
-               },
-               &quot;type&quot;:&quot;UTXO_INPUT&quot;,
-               &quot;status&quot;:&quot;SUCCESS&quot;,
-               &quot;account&quot;:{
-                  &quot;address&quot;:&quot;atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf&quot;
-               },
-               &quot;amount&quot;:{
-                  &quot;value&quot;:&quot;10000000&quot;,
-                  &quot;currency&quot;:{
-                     &quot;symbol&quot;:&quot;IOTA&quot;,
-                     &quot;decimals&quot;:0
-                  }
-               },
-               &quot;coin_change&quot;:{
-                  &quot;coin_identifier&quot;:{
-                     &quot;identifier&quot;:&quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100&quot;
-                  },
-                  &quot;coin_action&quot;:&quot;coin_spent&quot;
-               },
-               &quot;metadata&quot;:{
-                  &quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;
-               }
+      &quot;operations&quot;: [
+        {
+          &quot;operation_identifier&quot;: {
+            &quot;index&quot;: 0,
+            &quot;network_index&quot;: 2
+          },
+          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
+          &quot;status&quot;: &quot;SUCCESS&quot;,
+          &quot;account&quot;: {
+            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
+          },
+          &quot;amount&quot;: {
+            &quot;value&quot;: &quot;-20000000&quot;,
+            &quot;currency&quot;: {
+              &quot;symbol&quot;: &quot;IOTA&quot;,
+              &quot;decimals&quot;: 0
             }
-         ]
-      }
-   ]
+          },
+          &quot;coin_change&quot;: {
+            &quot;coin_identifier&quot;: {
+              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
+            },
+            &quot;coin_action&quot;: &quot;coin_spent&quot;
+          },
+          &quot;metadata&quot;: {
+            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
+          }
+        },
+        {
+          &quot;operation_identifier&quot;: {
+            &quot;index&quot;: 1,
+            &quot;network_index&quot;: 0
+          },
+          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
+          &quot;status&quot;: &quot;SUCCESS&quot;,
+          &quot;account&quot;: {
+            &quot;address&quot;: &quot;atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf&quot;
+          },
+          &quot;amount&quot;: {
+            &quot;value&quot;: &quot;-10000000&quot;,
+            &quot;currency&quot;: {
+              &quot;symbol&quot;: &quot;IOTA&quot;,
+              &quot;decimals&quot;: 0
+            }
+          },
+          &quot;coin_change&quot;: {
+            &quot;coin_identifier&quot;: {
+              &quot;identifier&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100&quot;
+            },
+            &quot;coin_action&quot;: &quot;coin_spent&quot;
+          },
+          &quot;metadata&quot;: {
+            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
+          }
+        },
+        {
+          &quot;operation_identifier&quot;: {
+            &quot;index&quot;: 2,
+            &quot;network_index&quot;: 0
+          },
+          &quot;type&quot;: &quot;UTXO_OUTPUT&quot;,
+          &quot;status&quot;: &quot;SUCCESS&quot;,
+          &quot;account&quot;: {
+            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
+          },
+          &quot;amount&quot;: {
+            &quot;value&quot;: &quot;30000000&quot;,
+            &quot;currency&quot;: {
+              &quot;symbol&quot;: &quot;IOTA&quot;,
+              &quot;decimals&quot;: 0
+            }
+          },
+          &quot;coin_change&quot;: {
+            &quot;coin_identifier&quot;: {
+              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
+            },
+            &quot;coin_action&quot;: &quot;coin_created&quot;
+          },
+          &quot;metadata&quot;: {
+            &quot;is_spent&quot;: &quot;UTXO_SPENT&quot;
+          }
+        }
+      ]
+    }
+  ]
 }
 </code></pre>
 <h2 id="testing"><a class="header" href="#testing">Testing</a></h2>
@@ -389,15 +382,17 @@ Bear in mind that syncing will start from the pruned Milestone, not Genesis.</p>
 <li><code>/construction/payloads</code></li>
 </ul>
 <pre><code>$ curl --request POST 'http://localhost:3030/construction/payloads' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;operations&quot;:[{&quot;operation_identifier&quot;:{&quot;index&quot;:0,&quot;network_index&quot;:1},&quot;related_operations&quot;:[],&quot;type&quot;:&quot;UTXO_INPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qp6y92dh0dffg3wr0zezew2esjwyppwnds0dqu8faf4xwhkxuk9vwgjke8g&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;10000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;68482bb32e005f3e2bd31b868fe49cf156908aa9b720c414b369b3dc86fe020b0000&quot;},&quot;coin_action&quot;:&quot;coin_spent&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}},{&quot;operation_identifier&quot;:{&quot;index&quot;:0,&quot;network_index&quot;:1},&quot;related_operations&quot;:[],&quot;type&quot;:&quot;UTXO_INPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qp6y92dh0dffg3wr0zezew2esjwyppwnds0dqu8faf4xwhkxuk9vwgjke8g&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;10000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;d9980a2e01b4beb590a3440bcec3b681dfd3c6e7e9a27eb5b962e9f8305a7b840000&quot;},&quot;coin_action&quot;:&quot;coin_spent&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}},{&quot;operation_identifier&quot;:{&quot;index&quot;:0,&quot;network_index&quot;:1},&quot;related_operations&quot;:[{&quot;index&quot;:1}],&quot;type&quot;:&quot;UTXO_OUTPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qpececkyqjld0wysauk65uhhhrqumf66g0p7f6te43djcw026u97uf7wsq9&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;10000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;e4bea334f713a29e204db717ec958b598640a1ac9ce557ca2bd671e710c723a50000&quot;},&quot;coin_action&quot;:&quot;coin_created&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}},{&quot;operation_identifier&quot;:{&quot;index&quot;:1,&quot;network_index&quot;:0},&quot;related_operations&quot;:[{&quot;index&quot;:0}],&quot;type&quot;:&quot;UTXO_OUTPUT&quot;,&quot;status&quot;:&quot;SUCCESS&quot;,&quot;account&quot;:{&quot;address&quot;:&quot;atoi1qzfzwft6nw2d6q5x6f8ran9g3260mdu846tgvapc4ww9e75vrhfugx962a8&quot;},&quot;amount&quot;:{&quot;value&quot;:&quot;10000000&quot;,&quot;currency&quot;:{&quot;symbol&quot;:&quot;IOTA&quot;,&quot;decimals&quot;:0}},&quot;coin_change&quot;:{&quot;coin_identifier&quot;:{&quot;identifier&quot;:&quot;e4bea334f713a29e204db717ec958b598640a1ac9ce557ca2bd671e710c723a50100&quot;},&quot;coin_action&quot;:&quot;coin_created&quot;},&quot;metadata&quot;:{&quot;is_spent&quot;:&quot;UTXO_UNSPENT&quot;}}]}' | jq```
-
-- `/construction/parse`
 </code></pre>
-<p>$ curl --request POST 'http://localhost:3030/construction/parse' --header 'Accept: application/json' --header 'Content-Type: application/json' --data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;00010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq</p>
-<pre><code>
-- `/construction/combine`
+<ul>
+<li><code>/construction/parse</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/parse' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;signed&quot;:false,&quot;transaction&quot;:&quot;00010000837f9646c7cc5e748099d3abb946302e44927c96c648bcc3dd0f693258a61e1b010002000000abcf49a09e9aa049742797de6178b7fde9af40668a3cf2fbf05b829dd9e6b1f580e451c9e80000000000b0b8477cb1977fb9057f159a4c7708174d6928bdccd474f140f64d3ecb576c65809698000000000000000000&quot;}' | jq
 </code></pre>
-<p>$ curl --request POST 'http://localhost:3030/construction/combine' --header 'Accept: application/json' --header 'Content-Type: application/json' --data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;unsigned_transaction&quot;:&quot;0001000063aa5b2476105ad4ebbb995968216cef0d940791d900afd1180a8df4e527b3460000010000005eec99d6ee4ba21aa536c3364bbf2b587cb98a7f2565b75d948b10083e2143f8050000000000000000000000&quot;,&quot;signatures&quot;:[{&quot;signing_payload&quot;:{&quot;account_identifier&quot;:{&quot;address&quot;:&quot;ae98475c63cfebc918b57193a4183f4374f67974971aff9034699793d331d7de&quot;},&quot;hex_bytes&quot;:&quot;c8be532dd8f351c28b6cdb7903d076b356129189d11ad50c46feb25ca472b984&quot;,&quot;signature_type&quot;:&quot;edwards25519&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;},&quot;signature_type&quot;:&quot;edwards25519&quot;,&quot;hex_bytes&quot;:&quot;59057634a166d84edebb88ab17a33394c0ccf1d46adffc3a0095c0f5e7e9dbe766ab05cb0244486d272e61f1e09db1bdb6e4fbb3a0398013415769e484606a02&quot;}]}' | jq</p>
-<pre><code></code></pre>
+<ul>
+<li><code>/construction/combine</code></li>
+</ul>
+<pre><code>$ curl --request POST 'http://localhost:3030/construction/combine' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;unsigned_transaction&quot;:&quot;0001000063aa5b2476105ad4ebbb995968216cef0d940791d900afd1180a8df4e527b3460000010000005eec99d6ee4ba21aa536c3364bbf2b587cb98a7f2565b75d948b10083e2143f8050000000000000000000000&quot;,&quot;signatures&quot;:[{&quot;signing_payload&quot;:{&quot;account_identifier&quot;:{&quot;address&quot;:&quot;ae98475c63cfebc918b57193a4183f4374f67974971aff9034699793d331d7de&quot;},&quot;hex_bytes&quot;:&quot;c8be532dd8f351c28b6cdb7903d076b356129189d11ad50c46feb25ca472b984&quot;,&quot;signature_type&quot;:&quot;edwards25519&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;},&quot;signature_type&quot;:&quot;edwards25519&quot;,&quot;hex_bytes&quot;:&quot;59057634a166d84edebb88ab17a33394c0ccf1d46adffc3a0095c0f5e7e9dbe766ab05cb0244486d272e61f1e09db1bdb6e4fbb3a0398013415769e484606a02&quot;}]}' | jq
+</code></pre>
 
                     </main>
 
