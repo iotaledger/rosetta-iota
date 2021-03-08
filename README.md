@@ -73,103 +73,96 @@ The `UTXO Operation` `coin_change` Object ([CoinChange](https://www.rosetta-api.
 Here's an example of two Transaction Objects in the same Milestone:
 ```
 {
-   "transactions":[
-      {
-         "transaction_identifier":{
-            "hash":"9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da8"
-         },
-         "operations":[
-            {
-               "operation_identifier":{
-                  "index":0,
-                  "network_index":0
-               },
-               "type":"UTXO_OUTPUT",
-               "status":"SUCCESS",
-               "account":{
-                  "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
-               },
-               "amount":{
-                  "value":"999880000000",
-                  "currency":{
-                     "symbol":"IOTA",
-                     "decimals":0
-                  }
-               },
-               "coin_change":{
-                  "coin_identifier":{
-                     "identifier":"9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
-                  },
-                  "coin_action":"coin_created"
-               },
-               "metadata":{
-                  "is_spent":"UTXO_SPENT"
-               }
-            }
-         ]
+  "transactions": [
+    {
+      "transaction_identifier": {
+        "hash": "586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636"
       },
-      {
-         "transaction_identifier":{
-            "hash":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636"
-         },
-         "operations":[
-            {
-               "operation_identifier":{
-                  "index":0,
-                  "network_index":0
-               },
-               "type":"UTXO_INPUT",
-               "status":"SUCCESS",
-               "account":{
-                  "address":"atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
-               },
-               "amount":{
-                  "value":"999870000000",
-                  "currency":{
-                     "symbol":"IOTA",
-                     "decimals":0
-                  }
-               },
-               "coin_change":{
-                  "coin_identifier":{
-                     "identifier":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360000"
-                  },
-                  "coin_action":"coin_spent"
-               },
-               "metadata":{
-                  "is_spent":"UTXO_UNSPENT"
-               }
-            },
-            {
-               "operation_identifier":{
-                  "index":1,
-                  "network_index":1
-               },
-               "type":"UTXO_INPUT",
-               "status":"SUCCESS",
-               "account":{
-                  "address":"atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf"
-               },
-               "amount":{
-                  "value":"10000000",
-                  "currency":{
-                     "symbol":"IOTA",
-                     "decimals":0
-                  }
-               },
-               "coin_change":{
-                  "coin_identifier":{
-                     "identifier":"586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100"
-                  },
-                  "coin_action":"coin_spent"
-               },
-               "metadata":{
-                  "is_spent":"UTXO_UNSPENT"
-               }
+      "operations": [
+        {
+          "operation_identifier": {
+            "index": 0,
+            "network_index": 2
+          },
+          "type": "UTXO_INPUT",
+          "status": "SUCCESS",
+          "account": {
+            "address": "atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
+          },
+          "amount": {
+            "value": "-20000000",
+            "currency": {
+              "symbol": "IOTA",
+              "decimals": 0
             }
-         ]
-      }
-   ]
+          },
+          "coin_change": {
+            "coin_identifier": {
+              "identifier": "9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
+            },
+            "coin_action": "coin_spent"
+          },
+          "metadata": {
+            "is_spent": "UTXO_UNSPENT"
+          }
+        },
+        {
+          "operation_identifier": {
+            "index": 1,
+            "network_index": 0
+          },
+          "type": "UTXO_INPUT",
+          "status": "SUCCESS",
+          "account": {
+            "address": "atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf"
+          },
+          "amount": {
+            "value": "-10000000",
+            "currency": {
+              "symbol": "IOTA",
+              "decimals": 0
+            }
+          },
+          "coin_change": {
+            "coin_identifier": {
+              "identifier": "586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100"
+            },
+            "coin_action": "coin_spent"
+          },
+          "metadata": {
+            "is_spent": "UTXO_UNSPENT"
+          }
+        },
+        {
+          "operation_identifier": {
+            "index": 2,
+            "network_index": 0
+          },
+          "type": "UTXO_OUTPUT",
+          "status": "SUCCESS",
+          "account": {
+            "address": "atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
+          },
+          "amount": {
+            "value": "30000000",
+            "currency": {
+              "symbol": "IOTA",
+              "decimals": 0
+            }
+          },
+          "coin_change": {
+            "coin_identifier": {
+              "identifier": "9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
+            },
+            "coin_action": "coin_created"
+          },
+          "metadata": {
+            "is_spent": "UTXO_SPENT"
+          }
+        }
+      ]
+    }
+  ]
 }
 ```
 
