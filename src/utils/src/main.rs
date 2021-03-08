@@ -57,8 +57,10 @@ async fn main() {
     let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
     let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
 
+    // ask for funds twice
     let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
-
+    reattach_promote_until_confirmed(&message_id, &iota).await;
+    let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
     reattach_promote_until_confirmed(&message_id, &iota).await;
 
     let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
