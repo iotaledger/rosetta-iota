@@ -1,5 +1,8 @@
 #!/bin/bash
 
+git checkout rosetta-cli-conf/rosetta-iota.json
+git checkout rosetta-cli-conf/iota.ros
+
 NODE_URL="http://honeycombos.iota.cafe:14265"
 NETWORK="testnet6"
 DATA_DIR=".rosetta-cli"
