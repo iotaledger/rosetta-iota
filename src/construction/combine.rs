@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network};
+use crate::{Options, is_bad_network, build_iota_client, require_offline_mode};
 use crate::error::ApiError;
 
 use log::debug;
@@ -19,19 +19,11 @@ pub(crate) async fn construction_combine_request(
 ) -> Result<ConstructionCombineResponse, ApiError> {
     debug!("/construction/combine");
 
+    let _ = require_offline_mode(&options)?;
+
     is_bad_network(&options, &construction_combine_request.network_identifier)?;
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let iota_client = build_iota_client(&options, false).await?;
 
     let essence = essence_from_hex_string(&construction_combine_request.unsigned_transaction)?;
 

@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network};
+use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
 
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
 use log::debug;
 
-use std::convert::TryInto;
 use crate::operations::UTXO_SPENT;
 
 pub(crate) async fn construction_payloads_request(
@@ -17,6 +16,8 @@ pub(crate) async fn construction_payloads_request(
     options: Options,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
+
+    let _ = require_offline_mode(&options)?;
 
     is_bad_network(&options, &construction_payloads_request.network_identifier)?;
 

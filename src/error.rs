@@ -45,6 +45,8 @@ pub enum ApiError {
     IotaClientError(#[from] iota::client::Error),
     #[error("unsupported offline")]
     UnavailableOffline,
+    #[error("unsupported online")]
+    UnavailableOnline,
     #[error("output has already been spent")]
     UnableToSpend,
     #[error("unknown operation type")]
@@ -73,8 +75,9 @@ impl ApiError {
             ApiError::BeeMessageError(_) => 170,
             ApiError::IotaClientError(_) => 180,
             ApiError::UnavailableOffline => 190,
-            ApiError::UnableToSpend => 200,
-            ApiError::UnknownOperationType => 210,
+            ApiError::UnavailableOnline => 200,
+            ApiError::UnableToSpend => 210,
+            ApiError::UnknownOperationType => 220,
         }
     }
 
@@ -99,6 +102,7 @@ impl ApiError {
             ApiError::BeeMessageError(_) => false,
             ApiError::IotaClientError(_) => false,
             ApiError::UnavailableOffline => false,
+            ApiError::UnavailableOnline => false,
             ApiError::UnableToSpend => false,
             ApiError::UnknownOperationType => false,
         }
@@ -124,7 +128,8 @@ impl ApiError {
             ApiError::HexDecodingFailed(_) => StatusCode::BAD_REQUEST,
             ApiError::BeeMessageError(_) => StatusCode::BAD_REQUEST,
             ApiError::IotaClientError(_) => StatusCode::BAD_REQUEST,
-            ApiError::UnavailableOffline => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::UnavailableOffline => StatusCode::BAD_REQUEST,
+            ApiError::UnavailableOnline => StatusCode::BAD_REQUEST,
             ApiError::UnableToSpend => StatusCode::BAD_REQUEST,
             ApiError::UnknownOperationType => StatusCode::BAD_REQUEST,
         }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network, consts};
+use crate::{Options, is_bad_network, build_iota_client, require_online_mode};
 use crate::error::ApiError;
 use crate::construction::transaction_from_hex_string;
 
@@ -16,24 +16,11 @@ pub(crate) async fn construction_submit_request(
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    let _ = require_online_mode(&options)?;
 
     is_bad_network(&options, &construction_submit_request.network_identifier)?;
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
-
+    let iota_client = build_iota_client(&options, true).await?;
 
     let transaction = transaction_from_hex_string(&construction_submit_request.signed_transaction)?;
     let transaction_id = transaction.id();

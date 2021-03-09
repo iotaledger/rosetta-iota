@@ -1,17 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    consts,
-    error::ApiError,
-    filters::{handle, with_empty_request, with_options, EmptyRequest},
-    operations::*,
-    options::Options,
-    types::{
-        Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkRequest,
-        NetworkStatusResponse, Peer, PeerMetadata, Version,
-    },
-};
+use crate::{consts, error::ApiError, filters::{handle, with_empty_request, with_options, EmptyRequest}, operations::*, options::Options, types::{
+    Allow, BlockIdentifier, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkRequest,
+    NetworkStatusResponse, Peer, PeerMetadata, Version,
+}, build_iota_client, require_online_mode, require_offline_mode};
 use bee_message::prelude::{MESSAGE_ID_LENGTH};
 use iota::{self, client::MilestoneResponse, MessageId};
 use log::debug;
@@ -37,6 +30,9 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
 
 async fn network_list(_empty: EmptyRequest, options: Options) -> Result<NetworkListResponse, ApiError> {
     debug!("/network/list");
+
+    let _ = require_offline_mode(&options)?;
+
     let response = NetworkListResponse {
         network_identifiers: vec![NetworkIdentifier {
             blockchain: consts::BLOCKCHAIN.to_string(),
@@ -53,6 +49,9 @@ async fn network_options(
     options: Options,
 ) -> Result<NetworkOptionsResponse, ApiError> {
     debug!("/network/options");
+
+    let _ = require_offline_mode(&options)?;
+
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
     {
@@ -91,9 +90,7 @@ async fn network_options(
 async fn network_status(network_request: NetworkRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    let _ = require_online_mode(&options)?;
 
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
@@ -101,17 +98,7 @@ async fn network_status(network_request: NetworkRequest, options: Options) -> Re
         return Err(ApiError::BadNetwork);
     }
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let iota_client = build_iota_client(&options, true).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,

@@ -8,17 +8,18 @@ pub use options::Options;
 use std::{convert::Infallible, net::SocketAddr};
 use warp::{http::StatusCode, Filter};
 use crate::types::NetworkIdentifier;
+use iota::Client;
 
-mod account;
-mod block;
+pub mod account;
+pub mod block;
 pub mod construction;
 pub mod consts;
-mod currency;
-mod error;
-mod filters;
-mod network;
-mod operations;
-mod options;
+pub mod currency;
+pub mod error;
+pub mod filters;
+pub mod network;
+pub mod operations;
+pub mod options;
 pub mod types;
 
 pub async fn run_server(
@@ -88,6 +89,22 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     Ok(warp::reply::with_status(json, status))
 }
 
+pub async fn build_iota_client(
+    options: &Options,
+    is_node_sync_required: bool,
+) -> Result<Client, ApiError> {
+    let mut builder = iota::Client::builder()
+        .with_network(&options.network)
+        .with_node(&options.iota_endpoint)
+        .map_err(|_| ApiError::UnableToBuildClient)?;
+    if is_node_sync_required {
+        builder = builder.with_node_sync_disabled();
+    }
+    Ok(builder.finish()
+        .await
+        .map_err(|_| ApiError::UnableToBuildClient)?)
+}
+
 pub fn is_bad_network(
     options: &Options,
     network_identifier: &NetworkIdentifier,
@@ -98,4 +115,24 @@ pub fn is_bad_network(
         return Err(ApiError::BadNetwork);
     }
     Ok(())
+}
+
+pub fn require_online_mode(
+    options: &Options
+) -> Result<(), ApiError> {
+    if options.mode == consts::ONLINE_MODE {
+        Ok(())
+    } else {
+        return Err(ApiError::UnavailableOffline);
+    }
+}
+
+pub fn require_offline_mode(
+    options: &Options
+) -> Result<(), ApiError> {
+    if options.mode == consts::OFFLINE_MODE {
+        Ok(())
+    } else {
+        return Err(ApiError::UnavailableOnline);
+    }
 }

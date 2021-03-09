@@ -1,14 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    consts,
-    error::ApiError,
-    filters::{handle, with_options},
-    operations::*,
-    options::Options,
-    types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier},
-};
+use crate::{consts, error::ApiError, filters::{handle, with_options}, operations::*, options::Options, types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode};
 use bee_message::prelude::{Ed25519Address};
 use iota::{UTXOInput, OutputResponse, AddressDto, OutputDto};
 use log::debug;
@@ -29,26 +22,14 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
 async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    let _ = require_online_mode(&options)?;
 
     let network_identifier = block_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let iota_client = build_iota_client(&options, true).await?;
 
     let milestone_index = block_request
         .block_identifier
