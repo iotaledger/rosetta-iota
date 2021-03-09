@@ -3,6 +3,7 @@ use bee_message::prelude::*;
 use bee_common::packable::Packable;
 use bee_rest_api::types::OutputDto;
 use iota::Client;
+use iota::{ AddressOutputsOptions, OutputType};
 
 use rosetta_iota::operations::*;
 use rosetta_iota::Options;
@@ -97,38 +98,6 @@ async fn unspent_outputs_of_address(bech32_addr: String) -> Vec<OutputResponse> 
         .finish()
         .await
         .unwrap();
-    let output_ids = iota_client.get_address().outputs(&Bech32Address(bech32_addr)).await.unwrap();
+    let output_ids = iota_client.get_address().outputs(&Bech32Address(bech32_addr), AddressOutputsOptions { include_spent: false, output_type: Some(OutputType::SignatureLockedSingle) }).await.unwrap();
     iota_client.find_outputs(&output_ids, &[]).await.unwrap()
-}
-
-async fn create_input_operations(unspent_outputs: Vec<OutputResponse>) -> Vec<Operation> {
-    let mut input_operations = Vec::new();
-
-    let mut operation_index = 0;
-    for output_res in unspent_outputs {
-
-        let output_res: OutputResponse = output_res;
-        let output_inner = match output_res.output {
-            OutputDto::SignatureLockedSingle(s) => s,
-            _ => panic!("output type not supported")
-        };
-
-        let input_operation = Operation {
-            operation_identifier: OperationIdentifier { index: operation_index, network_index: Some(output_res.output_index as u64) },
-            related_operations: None,
-            kind: UTXO_INPUT.to_string(),
-            status: None,
-            account: AccountIdentifier { address: Ed25519Address::from_str(&output_inner.address).unwrap().to_bech32(&bech32_hrp[..]), sub_account: None },
-            amount: Amount { value: output_inner.amount.to_string(), currency: Currency { symbol: "iota".to_string(), decimals: 0 } },
-            coin_change: Some(CoinChange {
-                coin_identifier: CoinIdentifier { identifier: format!("{}{}", output_res.transaction_id, hex::encode(output_res.output_index.to_le_bytes()))},
-                coin_action: UTXO_CONSUMED.into()
-            }),
-            metadata: OperationMetadata { is_spent: true.to_string() }
-        };
-
-        operation_index += 1;
-    }
-
-    input_operations
 }
