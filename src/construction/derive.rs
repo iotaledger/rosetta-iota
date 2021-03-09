@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network, build_iota_client, require_offline_mode};
+use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
 
 use bee_message::prelude::{Address, Ed25519Address};
@@ -17,9 +17,6 @@ pub async fn construction_derive_request(
     debug!("/construction/derive");
 
     let _ = require_offline_mode(&options)?;
-
-    let iota_client = build_iota_client(&options, false).await?;
-
     is_bad_network(&options, &construction_derive_request.network_identifier)?;
 
     if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
@@ -30,10 +27,9 @@ pub async fn construction_derive_request(
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
     let address = Address::Ed25519(Ed25519Address::new(public_key_hash.into()));
-    let bech32_hrp = iota_client.get_bech32_hrp().await.map_err(|_| ApiError::UnableToGetBech32HRP)?;
 
     Ok(ConstructionDeriveResponse {
-        account_identifier: AccountIdentifier { address: address.to_bech32(&bech32_hrp), sub_account: None }
+        account_identifier: AccountIdentifier { address: address.to_bech32(&options.bech32_hrp), sub_account: None }
     })
 }
 
@@ -59,6 +55,7 @@ mod tests {
         let server_options = Options {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
+            bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
             port: 3030
         };
@@ -84,6 +81,7 @@ mod tests {
         let server_options = Options {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
+            bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
             port: 3030
         };
