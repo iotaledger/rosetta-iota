@@ -9,7 +9,7 @@ use std::process;
 async fn main() {
     let options = Options::from_args();
 
-    if (options.mode != consts::ONLINE_MODE) && (options.mode != consts::ONLINE_MODE) {
+    if (options.mode != consts::ONLINE_MODE) && (options.mode != consts::OFFLINE_MODE) {
         println!("mode needs to be either online or offline!");
         process::exit(0);
     }
