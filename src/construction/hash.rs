@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network};
+use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
 use crate::construction::transaction_from_hex_string;
 
@@ -14,6 +14,8 @@ pub(crate) async fn construction_hash_request(
     options: Options,
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
+
+    let _ = require_offline_mode(&options)?;
 
     is_bad_network(&options, &construction_hash_request.network_identifier)?;
 

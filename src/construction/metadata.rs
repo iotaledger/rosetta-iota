@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network, consts};
+use crate::{Options, is_bad_network, require_online_mode};
 use crate::error::ApiError;
 
 use log::debug;
@@ -13,11 +13,9 @@ pub(crate) async fn construction_metadata_request(
 ) -> Result<ConstructionMetadataResponse, ApiError> {
     debug!("/construction/metadata");
 
-    is_bad_network(&options, &construction_metadata_request.network_identifier)?;
+    let _ = require_online_mode(&options)?;
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    is_bad_network(&options, &construction_metadata_request.network_identifier)?;
 
     Ok(ConstructionMetadataResponse {
         metadata: ConstructionMetadata {}

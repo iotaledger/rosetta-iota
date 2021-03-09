@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options};
+use crate::{Options, build_iota_client, require_offline_mode};
 use crate::error::ApiError;
 
 use bee_common::packable::Packable;
@@ -18,17 +18,9 @@ pub(crate) async fn construction_parse_request(
 ) -> Result<ConstructionParseResponse, ApiError> {
     debug!("/construction/parse");
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let _ = require_offline_mode(&options)?;
+
+    let iota_client = build_iota_client(&options, false).await?;
 
     if construction_parse_request.signed {
         parse_signed_transaction(construction_parse_request, iota_client).await

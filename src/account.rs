@@ -1,15 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    currency::iota_currency,
-    consts,
-    error::ApiError,
-    filters::{handle, with_options},
-    options::Options,
-    types::{AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
-            Amount, BlockIdentifier, Coin, CoinIdentifier},
-};
+use crate::{currency::iota_currency, consts, error::ApiError, filters::{handle, with_options}, options::Options, types::{AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
+                                                                                                                         Amount, BlockIdentifier, Coin, CoinIdentifier}, build_iota_client, require_online_mode};
 use iota::{Bech32Address, OutputDto, AddressDto};
 use log::debug;
 use warp::Filter;
@@ -34,9 +27,7 @@ async fn account_balance(
 ) -> Result<AccountBalanceResponse, ApiError> {
     debug!("/account/balance");
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    let _ = require_online_mode(&options)?;
 
     let network_identifier = account_balance_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
@@ -48,17 +39,7 @@ async fn account_balance(
         return Err(ApiError::HistoricalBalancesUnsupported);
     }
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let iota_client = build_iota_client(&options, true).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,
@@ -100,26 +81,14 @@ async fn account_coins(
 ) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
-    if options.mode != consts::ONLINE_MODE {
-        return Err(ApiError::UnavailableOffline);
-    }
+    let _ = require_online_mode(&options)?;
 
     let network_identifier = account_coins_request.network_identifier;
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let iota_client = build_iota_client(&options, true).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,

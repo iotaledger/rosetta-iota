@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network};
+use crate::{Options, is_bad_network, build_iota_client, require_offline_mode};
 use crate::error::ApiError;
 
 use bee_message::prelude::{Address, Ed25519Address};
@@ -10,25 +10,15 @@ use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
 use log::debug;
 
-use std::convert::TryInto;
-
 pub async fn construction_derive_request(
     construction_derive_request: ConstructionDeriveRequest,
     options: Options,
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
-    let iota_client = match iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
-        .unwrap()
-        .with_node_sync_disabled()
-        .finish()
-        .await
-    {
-        Ok(iota_client) => iota_client,
-        Err(_) => return Err(ApiError::UnableToBuildClient),
-    };
+    let _ = require_offline_mode(&options)?;
+
+    let iota_client = build_iota_client(&options, false).await?;
 
     is_bad_network(&options, &construction_derive_request.network_identifier)?;
 
