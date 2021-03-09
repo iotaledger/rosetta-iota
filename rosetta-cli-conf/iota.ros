@@ -57,15 +57,15 @@ transfer(1){
     inputA = "10000000";
     inputB = "10000000";
 
-    // Set the transaction_amount as some value <= sender.balance - dust_allowance
+    // Set the amountA as some value <= sender.balance - dust_allowance
     dust_allowance = "10000000";
     available_amount = {{inputA}} + {{inputB}};
-    transaction_amount = random_number({"minimum": {{dust_allowance}}, "maximum": {{available_amount}}});
-    print_message({"transaction_amount":{{transaction_amount}}});
+    amountA = random_number({"minimum": {{dust_allowance}}, "maximum": {{available_amount}}});
+    print_message({"amountA":{{amountA}}});
 
-    // Set the change_amount as available_amount - transaction_amount
-    change_amount = {{available_amount}} - {{transaction_amount}}
-    print_message({"change_amount":{{change_amount}}});
+    // Set the amountB as available_amount - amountA
+    amountB = {{available_amount}} - {{amountA}}
+    print_message({"amountB":{{amountB}}});
 
     // Find recipient and construct operations
     recipient = find_balance({
@@ -136,7 +136,7 @@ transfer(1){
         "type":"UTXO_OUTPUT",
         "account":{{recipient.account_identifier}},
         "amount":{
-          "value":{{transaction_amount}},
+          "value":{{amountA}},
           "currency":{{currency}}
         },
         "metadata": {
@@ -148,7 +148,7 @@ transfer(1){
           "type":"UTXO_OUTPUT",
           "account":{{change.account_identifier}},
           "amount":{
-            "value":{{change_amount}},
+            "value":{{amountB}},
             "currency":{{currency}}
           },
           "metadata": {
