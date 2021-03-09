@@ -51,6 +51,8 @@ pub enum ApiError {
     UnableToSpend,
     #[error("unknown operation type")]
     UnknownOperationType,
+    #[error("unable to get bech32 HRP")]
+    UnableToGetBech32HRP,
 }
 
 impl ApiError {
@@ -78,6 +80,7 @@ impl ApiError {
             ApiError::UnavailableOnline => 200,
             ApiError::UnableToSpend => 210,
             ApiError::UnknownOperationType => 220,
+            ApiError::UnableToGetBech32HRP => 230,
         }
     }
 
@@ -105,6 +108,7 @@ impl ApiError {
             ApiError::UnavailableOnline => false,
             ApiError::UnableToSpend => false,
             ApiError::UnknownOperationType => false,
+            ApiError::UnableToGetBech32HRP => true,
         }
     }
 
@@ -132,6 +136,7 @@ impl ApiError {
             ApiError::UnavailableOnline => StatusCode::BAD_REQUEST,
             ApiError::UnableToSpend => StatusCode::BAD_REQUEST,
             ApiError::UnknownOperationType => StatusCode::BAD_REQUEST,
+            ApiError::UnableToGetBech32HRP => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
