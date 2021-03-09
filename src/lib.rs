@@ -123,7 +123,7 @@ pub fn require_online_mode(
     if options.mode == consts::ONLINE_MODE {
         Ok(())
     } else {
-        return Err(ApiError::UnavailableOnline);
+        return Err(ApiError::UnavailableOffline);
     }
 }
 
