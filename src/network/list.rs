@@ -13,7 +13,8 @@ use log::debug;
 pub async fn network_list(_empty: EmptyRequest, options: Options) -> Result<NetworkListResponse, ApiError> {
     debug!("/network/list");
 
-    let _ = require_offline_mode(&options)?;
+    // todo: double check if this is really necessary
+    // let _ = require_offline_mode(&options)?;
 
     let response = NetworkListResponse {
         network_identifiers: vec![NetworkIdentifier {

@@ -14,7 +14,8 @@ pub async fn network_options(
 ) -> Result<NetworkOptionsResponse, ApiError> {
     debug!("/network/options");
 
-    let _ = require_offline_mode(&options)?;
+    // todo: double check if this is really necessary
+    // let _ = require_offline_mode(&options)?;
 
     if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
         || network_request.network_identifier.network != options.network
