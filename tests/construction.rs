@@ -1,21 +1,37 @@
 
 use bee_message::prelude::*;
 use bee_common::packable::Packable;
+use bee_rest_api::types::OutputDto;
 use iota::Client;
 
+use rosetta_iota::operations::*;
 use rosetta_iota::Options;
 use rosetta_iota::consts::OFFLINE_MODE;
 use rosetta_iota::types::*;
 use rosetta_iota::construction::derive::construction_derive_request;
+use rosetta_iota::types::Operation;
+use rosetta_iota::operations::UTXO_INPUT;
+use bee_rest_api::endpoints::api::v1::balance_ed25519::BalanceForAddressResponse;
+use bee_rest_api::endpoints::api::v1::output::OutputResponse;
 
 const DEFAULT_NODE_URL: &str = "https://api.lb-0.testnet.chrysalis2.com";
 
 #[tokio::test]
 async fn test_transfer_funds() {
 
-    /// USE FOLLOWING KEYS ONLY FOR TESTING PURPOSES
-    let secret_key = "7e828a3c369f1d963685aae2354ab7f3509bed9e6244a7d4c370daccb37ca606";
+    /// This function creates a transfer of funds from Alice (the sender) to Bob (the receiver).
+
+    /// Describes how much should be transferred from Alice to Bob.
+    let amount_to_transfer = 5;
+
+    /// The public key and secret key of Alice. These keys serve for TESTING PURPOSES ONLY AND CAN BE REPLACED.
+    /// The secret key will be used to legitimate/sign the transfer of funds.
+
     let public_key = "82eeba00688da228b83bbe32d6c2e2d548550ab3c6e30752d9fe2617e89f554d";
+    let secret_key = "7e828a3c369f1d963685aae2354ab7f3509bed9e6244a7d4c370daccb37ca606";
+
+    println!("Public key of Alice: {}", public_key);
+    println!("Secret key of Alice: {}", secret_key);
 
     /// 1) Derive the address from the public key
     let derive_response: ConstructionDeriveResponse = {
@@ -30,17 +46,89 @@ async fn test_transfer_funds() {
         let rosetta_options = Options {
             iota_endpoint: DEFAULT_NODE_URL.to_string(),
             network: "testnet6".to_string(),
+            bech32_hrp: "atoi".to_string(),
             mode: OFFLINE_MODE.into(),
             port: 3030
         };
         construction_derive_request(request, rosetta_options).await.expect("derive request failed")
     };
 
-    // 2) Build the operations that specify inputs and outputs of the transaction
-    let operations = {
+    let bech32_address = derive_response.account_identifier.address;
+    println!("Address of Alice: {}", bech32_address);
 
-        // ...
+    // 2) Check if the address of Alice has enough funds to transfer
+    let balance = balance_of_address(bech32_address.clone()).await;
+    println!("Balance of Alice's address: {}", balance);
+    if balance < amount_to_transfer {
+        panic!("Not enough funds on Alice's address: expected {} iota but found {} iota on the address. Please fund Alice's address.", amount_to_transfer, balance);
+    }
 
-    };
+    // 3) get all unspent outputs from the Alice's address.
+    let unspent_outputs = unspent_outputs_of_address(bech32_address).await;
 
+    // 4) create operations that consume the unspent outputs
+
+
+
+
+
+
+
+
+
+}
+
+async fn balance_of_address(bech32_addr: String) -> u64 {
+    let iota_client = iota::Client::builder()
+        .with_node(DEFAULT_NODE_URL)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await
+        .unwrap();
+    iota_client.get_address().balance(&Bech32Address(bech32_addr)).await.unwrap().balance
+}
+
+async fn unspent_outputs_of_address(bech32_addr: String) -> Vec<OutputResponse> {
+    let iota_client = iota::Client::builder()
+        .with_node(DEFAULT_NODE_URL)
+        .unwrap()
+        .with_node_sync_disabled()
+        .finish()
+        .await
+        .unwrap();
+    let output_ids = iota_client.get_address().outputs(&Bech32Address(bech32_addr)).await.unwrap();
+    iota_client.find_outputs(&output_ids, &[]).await.unwrap()
+}
+
+async fn create_input_operations(unspent_outputs: Vec<OutputResponse>) -> Vec<Operation> {
+    let mut input_operations = Vec::new();
+
+    let mut operation_index = 0;
+    for output_res in unspent_outputs {
+
+        let output_res: OutputResponse = output_res;
+        let output_inner = match output_res.output {
+            OutputDto::SignatureLockedSingle(s) => s,
+            _ => panic!("output type not supported")
+        };
+
+        let input_operation = Operation {
+            operation_identifier: OperationIdentifier { index: operation_index, network_index: Some(output_res.output_index as u64) },
+            related_operations: None,
+            kind: UTXO_INPUT.to_string(),
+            status: None,
+            account: AccountIdentifier { address: Ed25519Address::from_str(&output_inner.address).unwrap().to_bech32(&bech32_hrp[..]), sub_account: None },
+            amount: Amount { value: output_inner.amount.to_string(), currency: Currency { symbol: "iota".to_string(), decimals: 0 } },
+            coin_change: Some(CoinChange {
+                coin_identifier: CoinIdentifier { identifier: format!("{}{}", output_res.transaction_id, hex::encode(output_res.output_index.to_le_bytes()))},
+                coin_action: UTXO_CONSUMED.into()
+            }),
+            metadata: OperationMetadata { is_spent: true.to_string() }
+        };
+
+        operation_index += 1;
+    }
+
+    input_operations
 }
