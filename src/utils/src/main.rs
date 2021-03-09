@@ -59,8 +59,14 @@ async fn main() {
 
     // ask for funds twice
     let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
+
+    sleep(Duration::from_secs(5)).await;
     reattach_promote_until_confirmed(&message_id, &iota).await;
+
+    sleep(Duration::from_secs(5)).await;
     let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
+
+    sleep(Duration::from_secs(5)).await;
     reattach_promote_until_confirmed(&message_id, &iota).await;
 
     let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
