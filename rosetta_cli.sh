@@ -43,8 +43,8 @@ if [ $PREFUNDED_ACCOUNT ]; then
   cat <<< $(jq --argjson ADDR "$ADDR" '.construction.prefunded_accounts[0].account_identifier.address |= $ADDR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq --argjson SK "$SK" '.construction.prefunded_accounts[0].privkey |= $SK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 
-  echo 'sk: ${SK}'
-  echo 'bech32_addr: ${ADDR}'
+  echo "sk: ${SK}"
+  echo "bech32_addr: ${ADDR}"
 
   cd $ROOT
 
@@ -52,8 +52,8 @@ if [ $PREFUNDED_ACCOUNT ]; then
   OUTPUT_ID_A=$(echo $OUTPUT_IDS | jq '.[0]')
   OUTPUT_ID_B=$(echo $OUTPUT_IDS | jq '.[1]')
 
-  echo 'output_id_A: ${OUTPUT_ID_A}'
-  echo 'output_id_B: ${OUTPUT_ID_B'
+  echo "output_id_A: ${OUTPUT_ID_A}"
+  echo "output_id_B: ${OUTPUT_ID_B}"
 
   sed -i 's/idA/'$OUTPUT_ID_A'/g' $ROOT/rosetta-cli-conf/iota.ros
   sed -i 's/idB/'$OUTPUT_ID_B'/g' $ROOT/rosetta-cli-conf/iota.ros
