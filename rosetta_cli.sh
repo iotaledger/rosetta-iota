@@ -16,7 +16,7 @@ CLEAN=1
 PREFUNDED_ACCOUNT=1
 
 # start server
-RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
 PID=$!
 
 # wait for server to completely start
@@ -32,7 +32,7 @@ if [ $PREFUNDED_ACCOUNT ]; then
   echo "asking for faucet funds to load up prefunded_accounts..."
 
   cd src/utils
-  PREFUNDED_ACCOUNT=$(cargo run)
+  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run)
 
   SK=$(echo $PREFUNDED_ACCOUNT | jq '.sk')
   ADDR=$(echo $PREFUNDED_ACCOUNT | jq '.bech32_addr')
