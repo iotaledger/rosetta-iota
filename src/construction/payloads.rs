@@ -35,13 +35,13 @@ pub(crate) async fn construction_payloads_request(
                     Some(coin_change) => coin_change.coin_identifier.identifier,
                     None => panic!("no coin_change on UTXO_INPUT!")
                 };
-                let output_id_bytes = hex::decode(output_id_str).unwrap();
-                let (transaction_id, index) = output_id_bytes.split_at(32);
-                let output_index = u16::from_le_bytes(index.try_into().unwrap());
-                let utxo_input = UTXOInput::new(TransactionId::new(From::<[u8; 32]>::from(transaction_id.try_into().unwrap())), output_index).unwrap();
-                let input: Input = Input::UTXO(utxo_input.clone());
-                let address = operation.account.address;
-                inputs.push((input, address));
+                if output_id_str.is_empty() {
+                    return Err(ApiError::BadConstructionRequest("coin_change.coin_identifier.identifier is empty".to_string()));
+                }
+                let output_id = output_id_str.parse::<OutputId>().map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
+                let input = Input::UTXO(output_id.into());
+                
+                inputs.push((input, operation.account.address));
             },
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&operation.account.address).unwrap();
