@@ -38,6 +38,8 @@ struct PrefundedAccount {
 /// In this example we create addresses from a seed defined in .env
 #[tokio::main]
 async fn main() {
+
+    // Create iota client
     let iota = Client::builder() // Crate a client instance builder
         .with_node("http://honeycombos.iota.cafe:14265") // Insert the node here
         .unwrap()
@@ -45,15 +47,17 @@ async fn main() {
         .await
         .unwrap();
 
-    // Generate a signing key
+    // Generate a keypair
     let sk = SecretKey::generate().expect("error: could not generate SecretKey!");
     let pk = sk.public_key();
 
+    // Generate address
     let pk_bytes = pk.to_compressed_bytes().to_vec();
     let hash = Blake2b256::digest(&pk_bytes);
 
     let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
 
+    // Get bech32 representation
     let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
     let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
 
@@ -71,6 +75,7 @@ async fn main() {
 
     let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
 
+    // Construct JSON
     let prefunded_account = PrefundedAccount {
         sk: hex::encode(sk.to_le_bytes()),
         pk: hex::encode(pk.to_compressed_bytes()),
