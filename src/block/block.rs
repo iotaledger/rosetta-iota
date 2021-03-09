@@ -1,25 +1,14 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, filters::{handle, with_options}, operations::*, options::Options, types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode};
+use crate::{consts, error::ApiError,  operations::*, options::Options, types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode};
 use bee_message::prelude::{Ed25519Address};
 use iota::{UTXOInput, OutputResponse, AddressDto, OutputDto};
 use log::debug;
 use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
 
-use warp::Filter;
-
-pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::post().and(
-        warp::path!("block")
-            .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(block)),
-    )
-}
-
-async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
+pub async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
     let _ = require_online_mode(&options)?;
@@ -130,7 +119,7 @@ async fn block(block_request: BlockRequest, options: Options) -> Result<BlockRes
         let transaction_identifier = TransactionIdentifier { hash: transaction.clone() };
 
         let mut operations = vec![];
-        
+
         match output_hashmap.get(&transaction[..]) {
             Some((output_vec, consumed)) => {
                 let mut operation_counter = 0;
