@@ -30,9 +30,7 @@ pub async fn construction_derive_request(
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
     let address = Address::Ed25519(Ed25519Address::new(public_key_hash.into()));
-
-    // todo: treat timeout on this unrwap
-    let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
+    let bech32_hrp = iota_client.get_bech32_hrp().await.map_err(|e| ApiError::IotaClientError(e))?;
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier { address: address.to_bech32(&bech32_hrp), sub_account: None }
