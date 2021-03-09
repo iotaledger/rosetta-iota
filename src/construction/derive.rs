@@ -56,7 +56,7 @@ mod tests {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "online".to_string(),
+            mode: "offline".to_string(),
             port: 3030
         };
 
@@ -82,12 +82,17 @@ mod tests {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "online".to_string(),
+            mode: "offline".to_string(),
             port: 3030
         };
 
-        if let Ok(_) = construction_derive_request(request, server_options).await {
-            panic!("expected bad network error")
+        if let Err(e) = construction_derive_request(request, server_options).await {
+            match e {
+                ApiError::BadNetwork => (),
+                _=> panic!("expected bad network error")
+            }
+        } else {
+            panic!("expected an error")
         }
     }
 }
