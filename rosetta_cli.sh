@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# kill any zombie process using ports 3030 + 3031
+fuser -k 3030/tcp
+fuser -k 3031/tcp
+
+# clean up any previous modifications to config files
 git checkout rosetta-cli-conf/rosetta-iota.json
 git checkout rosetta-cli-conf/iota.ros
 
+# define a few vars
 NODE_URL="http://honeycombos.iota.cafe:14265"
 NETWORK="testnet6"
 DATA_DIR=".rosetta-cli"
