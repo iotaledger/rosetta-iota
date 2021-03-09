@@ -15,9 +15,12 @@ PRUNE=1
 CLEAN=1
 PREFUNDED_ACCOUNT=1
 
-# start server
+# start servers (online and offline)
 RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3030 --mode online &
-PID=$!
+PID_ONLINE=$!
+
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --port 3031 --mode offline &
+PID_OFFLINE=$!
 
 # wait for server to completely start
 sleep 1
@@ -99,4 +102,5 @@ echo "--------------------------------------------------------------------------
 echo "running rosetta-cli check:construction"
 ~/bin/rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 
-kill $PID
+kill $PID_ONLINE
+kill $PID_OFFLINE
