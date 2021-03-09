@@ -62,16 +62,18 @@ async fn main() {
     let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
 
     // ask for funds twice
-    let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
-
-    sleep(Duration::from_secs(5)).await;
-    reattach_promote_until_confirmed(&message_id, &iota).await;
-
-    sleep(Duration::from_secs(5)).await;
-    let message_id = get_funds(&bech32_address).await.expect("error: could not ask for funds!");
-
-    sleep(Duration::from_secs(5)).await;
-    reattach_promote_until_confirmed(&message_id, &iota).await;
+    loop {
+        if let Ok(id) = get_funds(&bech32_address).await {
+            reattach_promote_until_confirmed(&id, &iota).await;
+            break id;
+        }
+    };
+    loop {
+        if let Ok(id) = get_funds(&bech32_address).await {
+            reattach_promote_until_confirmed(&id, &iota).await;
+            break id;
+        }
+    };
 
     let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
 
@@ -99,8 +101,11 @@ async fn get_funds(address: &String) -> Result<MessageId> {
         .unwrap()
         .json::<FaucetResponse>()
         .await
-        .unwrap();
-    let faucet_message_id = MessageId::from_str(&response.data.id).expect("error: cannot talk to faucet!");
+        .map_err(|_| iota_wallet::Error::InsufficientFunds)?;
+
+    // todo: undo this?
+    // let faucet_message_id = MessageId::from_str(&response.data.id).expect("error: cannot talk to faucet!");
+    let faucet_message_id = MessageId::from_str(&response.data.id).map_err(|_| iota_wallet::Error::InsufficientFunds)?;
 
     Ok(faucet_message_id)
 }
