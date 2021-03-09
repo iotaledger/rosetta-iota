@@ -9,7 +9,7 @@
   "http_timeout": 300,
   "max_retries": 20,
   "construction": {
-    "offline_url": "http://localhost:3030",
+    "offline_url": "http://localhost:3031",
     "constructor_dsl_file": "iota.ros",
     "prefunded_accounts": [
       {
