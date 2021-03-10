@@ -136,18 +136,19 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
             related_operations: None,
             type_: UTXO_OUTPUT.into(),
             status: None,
-            account: AccountIdentifier {
+            account: Some(AccountIdentifier {
                 address: bech32_address,
                 sub_account: None
-            },
-            amount: Amount {
+            }),
+            amount: Some(Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
-            },
+                metadata: None
+            }),
             coin_change: None,
-            metadata: OperationMetadata {
+            metadata: Some(OperationMetadata {
                 is_spent: UTXO_UNSPENT.into()
-            }
+            })
         });
         output_index = output_index + 1;
         operation_counter = operation_counter + 1;

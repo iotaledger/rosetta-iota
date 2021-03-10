@@ -163,6 +163,7 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
         transactions.push(Transaction {
             transaction_identifier: transaction_identifier,
             operations: operations,
+            metadata: None
         });
     }
 
@@ -171,6 +172,7 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
         parent_block_identifier: parent_block_identifier,
         timestamp: timestamp,
         transactions: transactions,
+        metadata: None
     };
 
     let response = BlockResponse { block };

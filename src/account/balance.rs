@@ -65,7 +65,8 @@ pub async fn account_balance(
         block_identifier,
         balances: vec![Amount {
             value: balance.balance.to_string(),
-            currency: iota_currency()
+            currency: iota_currency(),
+            metadata: None
         }]
     };
 

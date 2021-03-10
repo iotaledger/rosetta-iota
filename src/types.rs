@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Reference: https://www.rosetta-api.org/docs/Reference.html#models
+/// Full reference: https://www.rosetta-api.org/docs/Reference.html#models
 
 /// Objects
 
@@ -17,13 +17,19 @@ pub struct Allow {
     pub timestamp_start_index: Option<u64>,
     pub call_methods: Vec<String>,
     pub balance_exemptions: Vec<BalanceExemption>,
+    pub mempool_coins: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Amount {
     pub value: String,
     pub currency: Currency,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<AmountMetadata>
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AmountMetadata;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BalanceExemption {
@@ -41,7 +47,12 @@ pub struct Block {
     pub parent_block_identifier: BlockIdentifier,
     pub timestamp: u64,
     pub transactions: Vec<Transaction>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<BlockMetadata>
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BlockMetadata;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Coin {
@@ -67,12 +78,23 @@ pub struct CoinChange {
 pub struct Currency {
     pub symbol: String,
     pub decimals: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<CurrencyMetadata>
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct CurrencyMetadata;
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum CurveType {
+    #[serde(rename = "secp256k1")]
+    Secp256K1,
+    #[serde(rename = "secp256r1")]
+    Secp256R1,
     #[serde(rename = "edwards25519")]
     Edwards25519,
+    #[serde(rename = "tweedle")]
+    Tweedle,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -92,12 +114,16 @@ pub struct Operation {
     pub related_operations: Option<Vec<OperationIdentifier>>,
     #[serde(rename = "type")]
     pub type_: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
-    pub account: AccountIdentifier,
-    pub amount: Amount,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account: Option<AccountIdentifier>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount: Option<Amount>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coin_change: Option<CoinChange>,
-    pub metadata: OperationMetadata,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<OperationMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -121,13 +147,22 @@ pub struct Signature {
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum SignatureType {
+    #[serde(rename = "ecdsa")]
+    Ecdsa,
+    #[serde(rename = "ecdsa_recovery")]
+    EcdsaRecovery,
     #[serde(rename = "ed25519")]
     Edwards25519,
+    #[serde(rename = "schnorr_1")]
+    Schnorr1,
+    #[serde(rename = "schnorr_poseidon")]
+    SchnorrPoseidon,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SigningPayload {
-    pub account_identifier: AccountIdentifier,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account_identifier: Option<AccountIdentifier>,
     pub hex_bytes: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature_type: Option<SignatureType>,
@@ -137,8 +172,13 @@ pub struct SigningPayload {
 pub struct Transaction {
     pub transaction_identifier: TransactionIdentifier,
     pub operations: Vec<Operation>,
-    // pub related_transactions // todo
+    //pub related_transactions: Option<RelatedTransaction>, TODO
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<TransactionMetadata>
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct TransactionMetadata;
 
 // Identifiers
 
@@ -210,6 +250,12 @@ pub struct Error {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ErrorDetails {
+    /// The detailed error
+    pub error: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct OperationStatus {
     pub status: String,
     pub successful: bool,
@@ -235,31 +281,13 @@ pub struct Version {
     pub middleware_version: String,
 }
 
-
-
-
+/// Self-defined objects
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MetadataOptions {
-    /// The account that will construct the transaction
-    pub sender_address: String,
-}
+pub struct ConstructionPreprocessResponseOptions;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ErrorDetails {
-    /// The detailed error
-    pub error: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPreprocessResponseOptions {
-
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadataResponseMetadata {
-
-}
+pub struct ConstructionMetadataResponseMetadata;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitResponseMetadata {

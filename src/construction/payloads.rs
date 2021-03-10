@@ -40,9 +40,15 @@ pub(crate) async fn construction_payloads_request(
     let mut signing_payloads = vec![];
 
     for operation in construction_payloads_request.operations {
+
+        let account = operation.account.ok_or(ApiError::BadConstructionRequest("account not populated".to_string()))?;
+
         match &operation.type_[..] {
             "UTXO_INPUT" => {
-                if operation.metadata.is_spent == UTXO_SPENT {
+
+                let operation_metadata = operation.metadata.ok_or(ApiError::BadConstructionRequest("metadata not populated".to_string()))?;
+
+                if operation_metadata.is_spent == UTXO_SPENT {
                     return Err(ApiError::UnableToSpend);
                 }
                 let output_id_str = match operation.coin_change {
@@ -55,11 +61,11 @@ pub(crate) async fn construction_payloads_request(
                 let output_id = output_id_str.parse::<OutputId>().map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
                 let input = Input::UTXO(output_id.into());
                 
-                inputs.push((input, operation.account.address));
+                inputs.push((input, account.address));
             },
             "UTXO_OUTPUT" => {
-                let address = Address::try_from_bech32(&operation.account.address).unwrap();
-                let amount = operation.amount.value.parse::<u64>().unwrap();
+                let address = Address::try_from_bech32(&account.address).unwrap();
+                let amount = operation.amount.ok_or(ApiError::BadConstructionRequest("amount not populated".to_string()))?.value.parse::<u64>().unwrap();
                 // todo: tread Dust allowance
                 let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
                 outputs.push(output);
@@ -85,11 +91,11 @@ pub(crate) async fn construction_payloads_request(
     let transaction_payload_essence_hex = hex::encode(transaction_payload_essence.pack_new());
 
     for (_, address) in inputs {
-        signing_payloads.push( SigningPayload {
-            account_identifier: AccountIdentifier {
+        signing_payloads.push(SigningPayload {
+            account_identifier: Some(AccountIdentifier {
                 address,
                 sub_account: None
-            },
+            }),
             hex_bytes: hex::encode(transaction_payload_essence.hash()),
             signature_type: Some(SignatureType::Edwards25519)
         });

@@ -59,6 +59,7 @@ pub async fn network_options(
         timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
+        mempool_coins: false
     };
 
     let response = NetworkOptionsResponse { version, allow };
