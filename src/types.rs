@@ -287,7 +287,9 @@ pub struct Version {
 pub struct ConstructionPreprocessResponseOptions;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadataResponseMetadata;
+pub struct ConstructionMetadataResponseMetadata {
+
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitResponseMetadata {
