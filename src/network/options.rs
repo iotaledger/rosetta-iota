@@ -1,15 +1,26 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, operations::*, options::Options, types::{
-    Allow, NetworkOptionsResponse, NetworkRequest,
-    Version,
-}, is_bad_network};
+use crate::{consts, error::ApiError, types::*, operations::*, options::Options,
+ is_bad_network};
+use serde::{Deserialize, Serialize};
 
 use log::debug;
+use crate::types::{NetworkIdentifier};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NetworkOptionsRequest {
+    pub network_identifier: NetworkIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NetworkOptionsResponse {
+    pub version: Version,
+    pub allow: Allow,
+}
 
 pub async fn network_options(
-    network_request: NetworkRequest,
+    network_request: NetworkOptionsRequest,
     options: Options,
 ) -> Result<NetworkOptionsResponse, ApiError> {
     debug!("/network/options");
@@ -25,9 +36,16 @@ pub async fn network_options(
         middleware_version: consts::MIDDLEWARE_VERSION.to_string(),
     };
 
-    let mut operation_statuses = Vec::new();
-    operation_statuses.push(operation_status_success());
-    operation_statuses.push(operation_status_skipped());
+    let operation_statuses = vec![
+        OperationStatus {
+            status: operation_status_success(),
+            successful: true
+        },
+        OperationStatus {
+            status: operation_status_skipped(),
+            successful: false
+        }
+    ];
 
     let operation_types = operation_type_list();
 

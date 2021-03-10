@@ -7,7 +7,18 @@ use crate::error::ApiError;
 use crate::construction::transaction_from_hex_string;
 
 use log::debug;
+use serde::{Deserialize, Serialize};
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionHashRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub signed_transaction: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionHashResponse {
+    pub transaction_identifier: TransactionIdentifier,
+}
 
 pub(crate) async fn construction_hash_request(
     construction_hash_request: ConstructionHashRequest,

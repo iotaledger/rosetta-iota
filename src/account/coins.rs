@@ -1,10 +1,23 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, options::Options, types::{AccountCoinsRequest, AccountCoinsResponse,
-                                                                                        Amount, BlockIdentifier, Coin, CoinIdentifier}, build_iota_client, require_online_mode, is_bad_network};
+use crate::{currency::iota_currency, error::ApiError, options::Options, types::*, build_iota_client, require_online_mode, is_bad_network};
 use iota::{Bech32Address, OutputDto, AddressDto};
 use log::debug;
+use crate::types::{NetworkIdentifier, AccountIdentifier};
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountCoinsRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub account_identifier: AccountIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountCoinsResponse {
+    pub block_identifier: BlockIdentifier,
+    pub coins: Vec<Coin>,
+}
 
 pub async fn account_coins(
     account_coins_request: AccountCoinsRequest,

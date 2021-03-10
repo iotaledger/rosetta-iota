@@ -9,6 +9,18 @@ use bee_message::prelude::{Address, Ed25519Address};
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
 use log::debug;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionDeriveRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub public_key: PublicKey,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionDeriveResponse {
+    pub account_identifier: AccountIdentifier,
+}
 
 pub async fn construction_derive_request(
     construction_derive_request: ConstructionDeriveRequest,

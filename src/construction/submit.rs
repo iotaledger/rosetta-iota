@@ -9,6 +9,19 @@ use crate::construction::transaction_from_hex_string;
 use bee_message::prelude::*;
 
 use log::debug;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionSubmitRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub signed_transaction: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionSubmitResponse {
+    pub transaction_identifier: TransactionIdentifier,
+    pub metadata: ConstructionSubmitResponseMetadata,
+}
 
 pub(crate) async fn construction_submit_request(
     construction_submit_request: ConstructionSubmitRequest,

@@ -1,12 +1,26 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, operations::*, options::Options, types::{Block, BlockIdentifier, BlockRequest, BlockResponse, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode, is_bad_network};
+use crate::{error::ApiError, operations::*, options::Options, types::{Block, BlockIdentifier, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode, is_bad_network};
 use bee_message::prelude::{Ed25519Address};
 use iota::{UTXOInput, OutputResponse, AddressDto, OutputDto};
 use log::debug;
 use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
+use crate::types::{NetworkIdentifier, PartialBlockIdentifier};
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BlockRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub block_identifier: PartialBlockIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BlockResponse {
+    pub block: Block,
+    // pub other_transactions: Vec<TransactionIdentifier>
+}
 
 pub async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");

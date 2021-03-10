@@ -1,9 +1,25 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, options::Options, types::{AccountBalanceRequest, AccountBalanceResponse,
+use crate::{currency::iota_currency, error::ApiError, options::Options, types::{
                                                                                         Amount, BlockIdentifier}, build_iota_client, require_online_mode, is_bad_network};
 use log::debug;
+use crate::types::{NetworkIdentifier, AccountIdentifier, PartialBlockIdentifier};
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountBalanceRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub account_identifier: AccountIdentifier,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub block_identifier: Option<PartialBlockIdentifier>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AccountBalanceResponse {
+    pub block_identifier: BlockIdentifier,
+    pub balances: Vec<Amount>,
+}
 
 pub async fn account_balance(
     account_balance_request: AccountBalanceRequest,

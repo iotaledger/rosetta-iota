@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{consts, error::ApiError, filters::{ EmptyRequest}, options::Options, types::{
-    NetworkIdentifier, NetworkListResponse,
+    NetworkIdentifier,
 
 }};
-
+use serde::{Deserialize, Serialize};
 use log::debug;
 
-
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NetworkListResponse {
+    pub network_identifiers: Vec<NetworkIdentifier>,
+}
 
 pub async fn network_list(_empty: EmptyRequest, options: Options) -> Result<NetworkListResponse, ApiError> {
     debug!("/network/list");
