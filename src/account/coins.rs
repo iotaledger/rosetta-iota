@@ -72,6 +72,7 @@ pub async fn account_coins(
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
+                metadata: None
             }
         });
     }

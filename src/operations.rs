@@ -46,6 +46,7 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
     let amount = Amount {
         value: amnt.to_string(),
         currency: iota_currency(),
+        metadata: None
     };
 
     let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
@@ -58,8 +59,8 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
         related_operations: None,
         type_: UTXO_INPUT.into(),
         status: Some(SUCCESS.into()),
-        account,
-        amount,
+        account: Some(account),
+        amount: Some(amount),
         coin_change: Some(CoinChange {
             coin_identifier: CoinIdentifier {
                 identifier: output_id
@@ -69,12 +70,12 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
                 false => CoinAction::CoinCreated
             },
         }),
-        metadata: OperationMetadata {
+        metadata: Some(OperationMetadata {
             is_spent: match is_spent {
                 true => UTXO_SPENT.into(),
                 false => UTXO_UNSPENT.into()
             }
-        }
+        } )
     }
 }
 
@@ -86,6 +87,7 @@ pub fn utxo_output_operation(address: String, amnt: u64, output_index: u16, oper
     let amount = Amount {
         value: amnt.to_string(),
         currency: iota_currency(),
+        metadata: None,
     };
 
     Operation {
@@ -96,11 +98,11 @@ pub fn utxo_output_operation(address: String, amnt: u64, output_index: u16, oper
         related_operations: None,
         type_: UTXO_OUTPUT.into(),
         status: None,
-        account,
-        amount,
+        account: Some(account),
+        amount: Some(amount),
         coin_change: None,
-        metadata: OperationMetadata {
+        metadata: Some(OperationMetadata {
             is_spent: UTXO_UNSPENT.into()
-        }
+        })
     }
 }

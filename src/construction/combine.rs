@@ -48,7 +48,8 @@ pub(crate) async fn construction_combine_request(
     let signature_by_address_map = {
         let mut ret = HashMap::new();
         for s in &construction_combine_request.signatures {
-            ret.insert(s.signing_payload.account_identifier.address.clone(), s.clone());
+            let address = &s.signing_payload.account_identifier.as_ref().ok_or(ApiError::BadConstructionRequest("account_identifier not populated".to_string()))?.address;
+            ret.insert(address, s.clone());
         }
         ret
     };
