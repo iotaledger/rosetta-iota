@@ -38,7 +38,7 @@ pub fn operation_status_skipped() -> String {
     SKIPPED.into()
 }
 
-pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool) -> Operation {
+pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -56,10 +56,7 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
         related_operations: None,
-        type_: match consumed {
-            true => UTXO_INPUT.into(),
-            false => UTXO_OUTPUT.into(),
-        },
+        type_: UTXO_INPUT.into(),
         status: Some(SUCCESS.into()),
         account,
         amount,
