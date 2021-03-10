@@ -5,7 +5,7 @@ use crate::{
     currency::iota_currency,
     types::{AccountIdentifier, Amount, Operation, OperationIdentifier},
 };
-use crate::types::{CoinChange, CoinIdentifier, OperationMetadata};
+use crate::types::{CoinChange, CoinIdentifier, OperationMetadata, CoinAction};
 
 // operation types
 pub const UTXO_INPUT: &str = "UTXO_INPUT";
@@ -68,8 +68,8 @@ pub fn utxo_operation(transaction_id: String, address: String, amnt: u64, output
                 identifier: output_id
             },
             coin_action: match consumed {
-                true => UTXO_CONSUMED.into(),
-                false => UTXO_CREATED.into(),
+                true => CoinAction::CoinSpent,
+                false => CoinAction::CoinCreated
             },
         }),
         metadata: OperationMetadata {

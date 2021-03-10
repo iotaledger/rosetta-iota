@@ -3,7 +3,9 @@
 
 use serde::{Deserialize, Serialize};
 
-// Objects
+/// Reference: https://www.rosetta-api.org/docs/Reference.html#models
+
+/// Objects
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Allow {
@@ -18,9 +20,9 @@ pub struct Allow {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct OperationStatus {
-    pub status: String,
-    pub successful: bool,
+pub struct Amount {
+    pub value: String,
+    pub currency: Currency,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -31,16 +33,6 @@ pub struct BalanceExemption {
     pub currency: Option<Currency>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exemption_type: Option<ExemptionType>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum ExemptionType {
-    #[serde(rename = "greater_or_equal")]
-    GreaterOrEqual,
-    #[serde(rename = "less_or_equal")]
-    LessOrEqual,
-    #[serde(rename = "dynamic")]
-    Dynanic,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -58,9 +50,17 @@ pub struct Coin {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Amount {
-    pub value: String,
-    pub currency: Currency,
+pub enum CoinAction {
+    #[serde(rename = "coin_created")]
+    CoinCreated,
+    #[serde(rename = "coin_spent")]
+    CoinSpent
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CoinChange {
+    pub coin_identifier: CoinIdentifier,
+    pub coin_action: CoinAction
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -69,19 +69,20 @@ pub struct Currency {
     pub decimals: u64,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CoinChange {
-    pub coin_identifier: CoinIdentifier,
-    pub coin_action: String
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub enum CurveType {
+    #[serde(rename = "edwards25519")]
+    Edwards25519,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Error {
-    pub code: u64,
-    pub message: String,
-    pub retriable: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub details: Option<ErrorDetails>,
+pub enum ExemptionType {
+    #[serde(rename = "greater_or_equal")]
+    GreaterOrEqual,
+    #[serde(rename = "less_or_equal")]
+    LessOrEqual,
+    #[serde(rename = "dynamic")]
+    Dynamic,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -101,15 +102,7 @@ pub struct Operation {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct OperationMetadata {
-    pub is_spent: String
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SigningPayload {
-    pub account_identifier: AccountIdentifier,
-    pub hex_bytes: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub signature_type: Option<SignatureType>,
+    pub is_spent: String, // TODO: bool
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -124,6 +117,20 @@ pub struct Signature {
     pub public_key: PublicKey,
     pub signature_type: SignatureType,
     pub hex_bytes: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub enum SignatureType {
+    #[serde(rename = "ed25519")]
+    Edwards25519,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SigningPayload {
+    pub account_identifier: AccountIdentifier,
+    pub hex_bytes: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature_type: Option<SignatureType>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -191,15 +198,22 @@ pub struct TransactionIdentifier {
     pub hash: String,
 }
 
-// Miscellaneous
+/// Miscellaneous
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum CurveType {
-    #[serde(rename = "edwards25519")]
-    Edwards25519,
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Error {
+    pub code: u64,
+    pub message: String,
+    pub retriable: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub details: Option<ErrorDetails>,
 }
 
-
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct OperationStatus {
+    pub status: String,
+    pub successful: bool,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Peer {
@@ -214,18 +228,16 @@ pub struct PeerMetadata {
     pub connected: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum SignatureType {
-    #[serde(rename = "ed25519")]
-    Edwards25519,
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Version {
     pub rosetta_version: String,
     pub node_version: String,
     pub middleware_version: String,
 }
+
+
+
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MetadataOptions {
@@ -253,3 +265,9 @@ pub struct ConstructionMetadataResponseMetadata {
 pub struct ConstructionSubmitResponseMetadata {
     pub message_id: String,
 }
+
+
+
+
+
+
