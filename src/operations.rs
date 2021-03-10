@@ -77,3 +77,30 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
         }
     }
 }
+
+pub fn utxo_output_operation(address: String, amnt: u64, output_index: u16, operation_counter: u32) -> Operation {
+    let account = AccountIdentifier {
+        address,
+        sub_account: None,
+    };
+    let amount = Amount {
+        value: amnt.to_string(),
+        currency: iota_currency(),
+    };
+
+    Operation {
+        operation_identifier: OperationIdentifier {
+            index: operation_counter as u64,
+            network_index: Some(output_index as u64), // no sharding in IOTA yet :(
+        },
+        related_operations: None,
+        type_: UTXO_OUTPUT.into(),
+        status: None,
+        account,
+        amount,
+        coin_change: None,
+        metadata: OperationMetadata {
+            is_spent: UTXO_UNSPENT.into()
+        }
+    }
+}

@@ -19,7 +19,7 @@ use crate::types::*;
 use bee_common::packable::Packable;
 use std::str::FromStr;
 use bee_rest_api::types::{OutputDto, AddressDto};
-use crate::operations::{utxo_input_operation, UTXO_UNSPENT, UTXO_OUTPUT};
+use crate::operations::{utxo_input_operation, utxo_output_operation, UTXO_UNSPENT, UTXO_OUTPUT};
 use crate::currency::iota_currency;
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
@@ -131,27 +131,7 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
         let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
-        operations.push(Operation {
-            operation_identifier: OperationIdentifier {
-                index: operation_counter as u64,
-                network_index: Some(output_index as u64),
-            },
-            related_operations: None,
-            type_: UTXO_OUTPUT.into(),
-            status: None,
-            account: AccountIdentifier {
-                address: bech32_address,
-                sub_account: None
-            },
-            amount: Amount {
-                value: amount.to_string(),
-                currency: iota_currency(),
-            },
-            coin_change: None,
-            metadata: OperationMetadata {
-                is_spent: UTXO_UNSPENT.into()
-            }
-        });
+        operations.push(utxo_output_operation(bech32_address, amount, output_index, operation_counter));
         output_index = output_index + 1;
         operation_counter = operation_counter + 1;
     }
