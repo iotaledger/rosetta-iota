@@ -9,6 +9,7 @@ use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
 use crate::types::{NetworkIdentifier, PartialBlockIdentifier};
 use serde::{Deserialize, Serialize};
+use crate::consts::ONLINE_MODE;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -153,7 +154,8 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
                     // todo: refactor
-                    operations.push(utxo_input_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, consumed, is_spent));
+                    let online = options.mode == ONLINE_MODE;
+                    operations.push(utxo_input_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, consumed, is_spent, online));
                     operation_counter = operation_counter + 1;
                 }
             },

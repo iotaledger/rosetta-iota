@@ -84,7 +84,7 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
 }
 
 
-async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_client: Client) -> Result<Vec<Operation>, ApiError>{
+async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_client: Client, online: bool) -> Result<Vec<Operation>, ApiError>{
 
     let mut operations = vec![];
     let mut operation_counter = 0;
@@ -111,7 +111,7 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
             let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
             let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
-            operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent));
+            operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent, online));
         }
         operation_counter = operation_counter + 1;
     }

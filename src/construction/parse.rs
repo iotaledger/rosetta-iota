@@ -4,6 +4,7 @@
 use crate::types::*;
 use crate::{Options, build_iota_client, require_offline_mode};
 use crate::error::ApiError;
+use crate::consts::ONLINE_MODE;
 
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
@@ -37,17 +38,19 @@ pub(crate) async fn construction_parse_request(
 
     let iota_client = build_iota_client(&options, false).await?;
 
+    let online = options.mode == ONLINE_MODE;
     if construction_parse_request.signed {
-        parse_signed_transaction(construction_parse_request, iota_client).await
+        parse_signed_transaction(construction_parse_request, iota_client, online).await
     } else {
-        parse_unsigned_transaction(construction_parse_request, iota_client).await
+        parse_unsigned_transaction(construction_parse_request, iota_client, online).await
     }
 
 }
 
 async fn parse_unsigned_transaction(
     construction_parse_request: ConstructionParseRequest,
-    client: Client
+    client: Client,
+    online: bool
 ) -> Result<ConstructionParseResponse, ApiError> {
     let essence_hex_bytes = hex::decode(construction_parse_request.transaction)?;
     let essence = Essence::unpack(&mut essence_hex_bytes.as_slice()).unwrap();
@@ -57,7 +60,7 @@ async fn parse_unsigned_transaction(
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
 
-    let operations = regular_essence_to_operations(&regular_essence, client).await?;
+    let operations = regular_essence_to_operations(&regular_essence, client, online).await?;
 
     Ok(ConstructionParseResponse {
         operations,
@@ -67,7 +70,8 @@ async fn parse_unsigned_transaction(
 
 async fn parse_signed_transaction(
     construction_parse_request: ConstructionParseRequest,
-    client: Client
+    client: Client,
+    online: bool
 ) -> Result<ConstructionParseResponse, ApiError> {
     let transaction_hex_bytes = hex::decode(construction_parse_request.transaction)?;
     let transaction: TransactionPayload = TransactionPayload::unpack(&mut transaction_hex_bytes.as_slice()).unwrap();
@@ -80,7 +84,7 @@ async fn parse_signed_transaction(
     // todo: treat timeout on this unrwap
     let bech32_hrp = client.get_bech32_hrp().await.unwrap();
 
-    let operations = regular_essence_to_operations(&regular_essence, client).await?;
+    let operations = regular_essence_to_operations(&regular_essence, client, online).await?;
 
     let account_identifier_signers = {
         let mut accounts_identifiers = Vec::new();

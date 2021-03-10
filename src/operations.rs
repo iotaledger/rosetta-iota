@@ -12,8 +12,8 @@ pub const UTXO_INPUT: &str = "UTXO_INPUT";
 pub const UTXO_OUTPUT: &str = "UTXO_OUTPUT";
 
 // operation status
-pub const SUCCESS: &str = "SUCCESS";
-pub const SKIPPED: &str = "SKIPPED";
+pub const SUCCESS: &str = "Success";
+pub const SKIPPED: &str = "Skipped";
 
 // operation coin actions
 pub const UTXO_CONSUMED: &str = "coin_spent"; // UTXO Input, where coins are coming from into the Transaction
@@ -38,7 +38,7 @@ pub fn operation_status_skipped() -> String {
     SKIPPED.into()
 }
 
-pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool) -> Operation {
+pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: &bool, is_spent: bool, online: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -58,7 +58,10 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
         },
         related_operations: None,
         type_: UTXO_INPUT.into(),
-        status: Some(SUCCESS.into()),
+        status: match online {
+            true => Some(SUCCESS.into()),
+            false => None,
+        },
         account: Some(account),
         amount: Some(amount),
         coin_change: Some(CoinChange {
