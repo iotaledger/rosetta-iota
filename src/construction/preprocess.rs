@@ -6,6 +6,19 @@ use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
 
 use log::debug;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionPreprocessRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub operations: Vec<Operation>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionPreprocessResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<ConstructionPreprocessResponseOptions>,
+}
 
 pub async fn construction_preprocess_request(
     construction_preprocess_request: ConstructionPreprocessRequest,

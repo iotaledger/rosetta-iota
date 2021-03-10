@@ -11,6 +11,21 @@ use bee_message::prelude::*;
 use log::debug;
 use crate::construction::{address_from_public_key, regular_essence_to_operations};
 use iota::Client;
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionParseRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub signed: bool,
+    pub transaction: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionParseResponse {
+    pub operations: Vec<Operation>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
+}
 
 pub(crate) async fn construction_parse_request(
     construction_parse_request: ConstructionParseRequest,

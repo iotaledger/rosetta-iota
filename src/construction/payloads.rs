@@ -8,8 +8,21 @@ use crate::error::ApiError;
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
 use log::debug;
+use serde::{Deserialize, Serialize};
 
 use crate::operations::UTXO_SPENT;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionPayloadsRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub operations: Vec<Operation>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionPayloadsResponse {
+    pub unsigned_transaction: String,
+    pub payloads: Vec<SigningPayload>,
+}
 
 pub(crate) async fn construction_payloads_request(
     construction_payloads_request: ConstructionPayloadsRequest,

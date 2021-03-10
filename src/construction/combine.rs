@@ -12,6 +12,19 @@ use bee_common::packable::Packable;
 use std::collections::HashMap;
 use crate::construction::essence_from_hex_string;
 use bee_rest_api::types::{OutputDto, AddressDto};
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionCombineRequest {
+    pub network_identifier: NetworkIdentifier,
+    pub unsigned_transaction: String,
+    pub signatures: Vec<Signature>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionCombineResponse {
+    pub signed_transaction: String,
+}
 
 pub(crate) async fn construction_combine_request(
     construction_combine_request: ConstructionCombineRequest,

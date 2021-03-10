@@ -1,15 +1,27 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, options::Options, types::{
-    BlockIdentifier, NetworkRequest,
-    NetworkStatusResponse, Peer, PeerMetadata,
-}, build_iota_client, require_online_mode, is_bad_network};
+use crate::{error::ApiError, options::Options, types::*, build_iota_client, require_online_mode, is_bad_network};
 use bee_message::prelude::{MESSAGE_ID_LENGTH};
 use iota::{self, client::MilestoneResponse, MessageId};
 use log::debug;
+use serde::{Deserialize, Serialize};
+use crate::types::NetworkIdentifier;
 
-pub async fn network_status(network_request: NetworkRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NetworkStatusRequest {
+    pub network_identifier: NetworkIdentifier,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct NetworkStatusResponse {
+    pub current_block_identifier: BlockIdentifier,
+    pub current_block_timestamp: u64,
+    pub genesis_block_identifier: BlockIdentifier,
+    pub peers: Vec<Peer>,
+}
+
+pub async fn network_status(network_request: NetworkStatusRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
     let _ = require_online_mode(&options)?;

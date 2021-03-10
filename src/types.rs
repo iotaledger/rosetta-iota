@@ -185,212 +185,6 @@ pub struct TransactionIdentifier {
     pub hash: String,
 }
 
-// Requests and Rseponses
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AccountCoinsRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub account_identifier: AccountIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AccountCoinsResponse {
-    pub block_identifier: BlockIdentifier,
-    pub coins: Vec<Coin>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AccountBalanceRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub account_identifier: AccountIdentifier,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub block_identifier: Option<PartialBlockIdentifier>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AccountBalanceResponse {
-    pub block_identifier: BlockIdentifier,
-    pub balances: Vec<Amount>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct BlockRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub block_identifier: PartialBlockIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct BlockResponse {
-    pub block: Block,
-    // pub other_transactions: Vec<TransactionIdentifier>
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct BlockTransactionRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub block_identifier: BlockIdentifier,
-    pub transaction_identifier: TransactionIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct BlockTransactionResponse {
-    pub transaction: Transaction,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionCombineRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub unsigned_transaction: String,
-    pub signatures: Vec<Signature>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionCombineResponse {
-    pub signed_transaction: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionDeriveRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub public_key: PublicKey,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionDeriveResponse {
-    pub account_identifier: AccountIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionHashRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub signed_transaction: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionHashResponse {
-    pub transaction_identifier: TransactionIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadataRequest {
-    pub network_identifier: NetworkIdentifier,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<MetadataOptions>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadataResponse {
-    pub metadata: ConstructionMetadata,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionParseRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub signed: bool,
-    pub transaction: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionParseResponse {
-    pub operations: Vec<Operation>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPayloadsRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub operations: Vec<Operation>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPayloadsResponse {
-    pub unsigned_transaction: String,
-    pub payloads: Vec<SigningPayload>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPreprocessRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub operations: Vec<Operation>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPreprocessResponse {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<MetadataOptions>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionSubmitRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub signed_transaction: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionSubmitResponse {
-    pub transaction_identifier: TransactionIdentifier,
-    pub metadata: ConstructionSubmitResponseMetadata,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionSubmitResponseMetadata {
-    pub message_id: String,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MempoolRequest {
-    pub network_identifier: NetworkIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MempoolResponse {
-    pub transaction_identifiers: Vec<TransactionIdentifier>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MempoolTransactionRequest {
-    pub network_identifier: NetworkIdentifier,
-    pub transaction_identifier: TransactionIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MempoolTransactionResponse {
-    pub transaction: Transaction,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct MetadataRequest {}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct NetworkListResponse {
-    pub network_identifiers: Vec<NetworkIdentifier>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct NetworkOptionsResponse {
-    pub version: Version,
-    pub allow: Allow,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct NetworkRequest {
-    pub network_identifier: NetworkIdentifier,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct NetworkStatusResponse {
-    pub current_block_identifier: BlockIdentifier,
-    pub current_block_timestamp: u64,
-    pub genesis_block_identifier: BlockIdentifier,
-    pub peers: Vec<Peer>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct TransactionIdentifierResponse {
-    pub transaction_identifier: TransactionIdentifier,
-}
-
 // Miscellaneous
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -444,6 +238,16 @@ pub struct ErrorDetails {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadata {
+pub struct ConstructionPreprocessResponseOptions {
 
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionMetadataResponseMetadata {
+
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct ConstructionSubmitResponseMetadata {
+    pub message_id: String,
 }
