@@ -92,7 +92,10 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_cl
 
     for input in regular_essence.inputs() {
         if let Input::UTXO(i) = input {
-            let input_metadata = iota_client.get_output(&i).await.unwrap();
+            let input_metadata = match iota_client.get_output(&i).await {
+                Ok(metadata) => metadata,
+                Err(_) => return Err(ApiError::UnableToGetOutput),
+            };
             let transaction_id = input_metadata.transaction_id;
             let output_index = input_metadata.output_index;
             let is_spent = input_metadata.is_spent;
