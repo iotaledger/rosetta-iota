@@ -20,7 +20,6 @@ use bee_common::packable::Packable;
 use std::str::FromStr;
 use bee_rest_api::types::{OutputDto, AddressDto};
 use crate::operations::{utxo_input_operation, utxo_output_operation};
-use crate::currency::iota_currency;
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
 use std::convert::TryInto;
