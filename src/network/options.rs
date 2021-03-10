@@ -3,8 +3,8 @@
 
 use crate::{consts, error::ApiError, operations::*, options::Options, types::{
     Allow, NetworkOptionsResponse, NetworkRequest,
-     Version,
-},  require_offline_mode};
+    Version,
+}, is_bad_network};
 
 use log::debug;
 
@@ -17,11 +17,7 @@ pub async fn network_options(
     // todo: double check if this is really necessary
     // let _ = require_offline_mode(&options)?;
 
-    if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
-        || network_request.network_identifier.network != options.network
-    {
-        return Err(ApiError::BadNetwork);
-    }
+    is_bad_network(&options, &network_request.network_identifier)?;
 
     let version = Version {
         rosetta_version: consts::ROSETTA_VERSION.to_string(),

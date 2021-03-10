@@ -1,10 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError,  options::Options, types::{
+use crate::{error::ApiError, options::Options, types::{
     BlockIdentifier, NetworkRequest,
     NetworkStatusResponse, Peer, PeerMetadata,
-}, build_iota_client, require_online_mode};
+}, build_iota_client, require_online_mode, is_bad_network};
 use bee_message::prelude::{MESSAGE_ID_LENGTH};
 use iota::{self, client::MilestoneResponse, MessageId};
 use log::debug;
@@ -14,11 +14,7 @@ pub async fn network_status(network_request: NetworkRequest, options: Options) -
 
     let _ = require_online_mode(&options)?;
 
-    if network_request.network_identifier.blockchain != consts::BLOCKCHAIN
-        || network_request.network_identifier.network != options.network
-    {
-        return Err(ApiError::BadNetwork);
-    }
+    is_bad_network(&options, &network_request.network_identifier)?;
 
     let iota_client = build_iota_client(&options, true).await?;
 

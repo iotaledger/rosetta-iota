@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, consts, error::ApiError, options::Options, types::{AccountBalanceRequest, AccountBalanceResponse,
-                                                                                                                         Amount, BlockIdentifier}, build_iota_client, require_online_mode};
+use crate::{currency::iota_currency, error::ApiError, options::Options, types::{AccountBalanceRequest, AccountBalanceResponse,
+                                                                                        Amount, BlockIdentifier}, build_iota_client, require_online_mode, is_bad_network};
 use log::debug;
 
 pub async fn account_balance(
@@ -13,10 +13,7 @@ pub async fn account_balance(
 
     let _ = require_online_mode(&options)?;
 
-    let network_identifier = account_balance_request.network_identifier;
-    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
-        return Err(ApiError::BadNetwork);
-    }
+    is_bad_network(&options, &account_balance_request.network_identifier)?;
 
     // no historical balance lookup
     if account_balance_request.block_identifier.is_some() {

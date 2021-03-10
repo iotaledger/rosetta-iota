@@ -4,7 +4,7 @@
 use crate::{consts, error::ApiError, filters::{ EmptyRequest}, options::Options, types::{
     NetworkIdentifier, NetworkListResponse,
 
-},  require_offline_mode};
+}};
 
 use log::debug;
 
