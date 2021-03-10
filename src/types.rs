@@ -18,6 +18,12 @@ pub struct Allow {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct OperationStatus {
+    pub status: String,
+    pub successful: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BalanceExemption {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sub_account_address: Option<String>,
@@ -38,12 +44,6 @@ pub enum ExemptionType {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Amount {
-    pub value: String,
-    pub currency: Currency,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Block {
     pub block_identifier: BlockIdentifier,
     pub parent_block_identifier: BlockIdentifier,
@@ -58,15 +58,21 @@ pub struct Coin {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct CoinChange {
-    pub coin_identifier: CoinIdentifier,
-    pub coin_action: String
+pub struct Amount {
+    pub value: String,
+    pub currency: Currency,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Currency {
     pub symbol: String,
     pub decimals: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct CoinChange {
+    pub coin_identifier: CoinIdentifier,
+    pub coin_action: String
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -193,11 +199,7 @@ pub enum CurveType {
     Edwards25519,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct OperationStatus {
-    pub status: String,
-    pub successful: bool,
-}
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Peer {
