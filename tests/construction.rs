@@ -9,7 +9,7 @@ use rosetta_iota::operations::*;
 use rosetta_iota::Options;
 use rosetta_iota::consts::OFFLINE_MODE;
 use rosetta_iota::types::*;
-use rosetta_iota::construction::derive::construction_derive_request;
+use rosetta_iota::construction::derive::{construction_derive_request, ConstructionDeriveResponse, ConstructionDeriveRequest};
 use rosetta_iota::types::Operation;
 use rosetta_iota::operations::UTXO_INPUT;
 use bee_rest_api::endpoints::api::v1::balance_ed25519::BalanceForAddressResponse;
