@@ -56,7 +56,7 @@ if [ $PREFUNDED_ACCOUNT ]; then
   # render $ADDR again, now without quotes
   ADDR=$(echo $PREFUNDED_ACCOUNT | jq '.bech32_addr' -r)
 
-  OUTPUT_IDS=$(curl -X GET "$NODE_URL/api/v1/addresses/$ADDR/outputs" -H  "accept: application/json" | jq '.data.outputIds')
+  OUTPUT_IDS=$(curl -s -X GET "$NODE_URL/api/v1/addresses/$ADDR/outputs" -H  "accept: application/json" | jq '.data.outputIds')
   OUTPUT_ID_A=$(echo $OUTPUT_IDS | jq '.[0]')
   OUTPUT_ID_B=$(echo $OUTPUT_IDS | jq '.[1]')
 
@@ -71,7 +71,7 @@ fi
 if [ $PRUNE ]; then
 
   # modify rosetta-iota.json to make sure we are syncing from the pruned milestone
-  PRUNE_MS=$(curl -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
+  PRUNE_MS=$(curl -s -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
   START_MS=`expr $PRUNE_MS + 2`
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
