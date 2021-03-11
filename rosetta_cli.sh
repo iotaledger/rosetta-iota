@@ -19,7 +19,7 @@ ROOT=$(pwd)
 PRUNE=1
 #RECONCILE=1
 #CLEAN=1
-PREFUNDED_ACCOUNT=1
+CONSTRUCTION=1
 
 # start servers (online and offline)
 RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --port 3030 --mode online &
@@ -37,7 +37,7 @@ else
   cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 fi
 
-if [ $PREFUNDED_ACCOUNT ]; then
+if [ $CONSTRUCTION ]; then
   echo "--------------------------------------------------------------------------------"
   echo "asking for faucet funds to load up prefunded_accounts..."
 
@@ -97,10 +97,12 @@ echo "--------------------------------------------------------------------------
 echo "running rosetta-cli check:data"
 ~/bin/rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 
-# test Construction API
-echo "--------------------------------------------------------------------------------"
-echo "running rosetta-cli check:construction"
-~/bin/rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+if [ $CONSTRUCTION ]; then
+  # test Construction API
+  echo "--------------------------------------------------------------------------------"
+  echo "running rosetta-cli check:construction"
+  ~/bin/rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+fi
 
 kill $PID_ONLINE
 kill $PID_OFFLINE
