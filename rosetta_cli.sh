@@ -18,7 +18,7 @@ ROOT=$(pwd)
 # 1 to enable, comment out to disable
 PRUNE=1
 #RECONCILE=1
-CLEAN=1
+#CLEAN=1
 PREFUNDED_ACCOUNT=1
 
 # start servers (online and offline)
@@ -32,7 +32,13 @@ PID_OFFLINE=$!
 sleep 1
 
 if [ $CLEAN ]; then
+
   rm -rf $DATA_DIR
+
+else
+
+  cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+
 fi
 
 if [ $PREFUNDED_ACCOUNT ]; then
@@ -68,8 +74,7 @@ if [ $PREFUNDED_ACCOUNT ]; then
 
 fi
 
-if [ $PRUNE ]; then
-
+if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
   # modify rosetta-iota.json to make sure we are syncing from the pruned milestone
   PRUNE_MS=$(curl -s -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
   START_MS=`expr $PRUNE_MS + 2`
@@ -77,7 +82,7 @@ if [ $PRUNE ]; then
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 
-else
+elif ! [ $PRUNE ]; then
 
   cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
