@@ -32,17 +32,12 @@ PID_OFFLINE=$!
 sleep 1
 
 if [ $CLEAN ]; then
-
   rm -rf $DATA_DIR
-
 else
-
   cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-
 fi
 
 if [ $PREFUNDED_ACCOUNT ]; then
-
   echo "--------------------------------------------------------------------------------"
   echo "asking for faucet funds to load up prefunded_accounts..."
 
@@ -71,7 +66,6 @@ if [ $PREFUNDED_ACCOUNT ]; then
 
   sed -i 's/idA/'$OUTPUT_ID_A'/g' $ROOT/rosetta-cli-conf/iota.ros
   sed -i 's/idB/'$OUTPUT_ID_B'/g' $ROOT/rosetta-cli-conf/iota.ros
-
 fi
 
 if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
@@ -81,25 +75,18 @@ if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-
 elif ! [ $PRUNE ]; then
-
   cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-
 fi
 
 if [ $RECONCILE ]; then
-
   cat <<< $(jq '.data.reconciliation_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-
 else
-
   cat <<< $(jq '.data.reconciliation_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-
 fi
 
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
