@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<ConstructionPreprocessResponseOptions>,
+    pub options: Option<PreprocessOptions>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -27,8 +27,10 @@ pub(crate) async fn construction_metadata_request(
     debug!("/construction/metadata");
 
     let _ = require_online_mode(&options)?;
-
     is_bad_network(&options, &construction_metadata_request.network_identifier)?;
+
+
+
 
     Ok(ConstructionMetadataResponse {
         metadata: ConstructionMetadataResponseMetadata {}
