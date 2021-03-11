@@ -36,64 +36,40 @@ pub(crate) async fn construction_combine_request(
 
     is_bad_network(&options, &construction_combine_request.network_identifier)?;
 
-    let iota_client = build_iota_client(&options, false).await?;
-
     let essence = essence_from_hex_string(&construction_combine_request.unsigned_transaction)?;
-
     let regular_essence = match &essence {
         Essence::Regular(r) => r,
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
 
-    let signature_by_address_map = {
-        let mut ret = HashMap::new();
-        for s in &construction_combine_request.signatures {
-            let address = &s.signing_payload.account_identifier.as_ref().ok_or(ApiError::BadConstructionRequest("account_identifier not populated".to_string()))?.address;
-            ret.insert(address, s.clone());
-        }
-        ret
-    };
+    if regular_essence.inputs().len() != construction_combine_request.signatures.len() {
+        return Err(ApiError::BadConstructionRequest("for every input a signature must be provided".to_string()));
+    }
 
-    let mut signature_unlock_block_index_by_address = HashMap::new();
     let mut unlock_blocks = Vec::new();
+    let mut index_of_signature_unlock_block_with_address: HashMap<String, u16> = HashMap::new();
 
-    for input in regular_essence.inputs() {
+    for signature in construction_combine_request.signatures {
+        let account_identifier = signature.signing_payload.account_identifier.ok_or(ApiError::BadConstructionRequest("signing_payload.account_identifier not populated".to_string()))?;
+        let bech32_addr = account_identifier.address;
 
-        let input = match input {
-            Input::UTXO(i) => i,
-            _ => return Err(ApiError::BadConstructionRequest("input type not supported".to_string()))
-        };
-
-        let input_metadata = iota_client.get_output(&input).await.unwrap(); // TODO: handle unwrap
-        let address = match input_metadata.output {
-            OutputDto::SignatureLockedSingle(s) => {
-                match s.address {
-                    AddressDto::Ed25519(e) => e.address
-                }
-            },
-            OutputDto::SignatureLockedDustAllowance(_) => unimplemented!(),
-            _ => return Err(ApiError::BadConstructionRequest("output type not supported".to_string()))
-        };
-
-        // check if there exists a signature by the address of the input
-        if let Some(signature) = signature_by_address_map.get(&address) {
-
-            // check if a signature unlock block was already added for the address
-            if let Some(index) = signature_unlock_block_index_by_address.get(&address) {
-                // add a reference unlock block which references the index of the signature unlock block
-                unlock_blocks.push(UnlockBlock::Reference(ReferenceUnlock::new(*index).unwrap())); // TODO: handle unwrap
-            } else {
-                let mut public_key = [0u8; 32];
-                hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key)?;
-                let signature = Ed25519Signature::new(
-                    public_key,
-                    hex::decode(signature.hex_bytes.clone())?.into_boxed_slice()
-                );
-                unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
-                signature_unlock_block_index_by_address.insert(address, signature_unlock_block_index_by_address.len() as u16);
-            }
+        // check if a Signature Unlock Block already exists for the address
+        if let Some(index) = index_of_signature_unlock_block_with_address.get(&bech32_addr) {
+            // build a Reference Unlock Block
+            unlock_blocks.push(UnlockBlock::Reference(ReferenceUnlock::new(*index).unwrap()));
         } else {
-            return Err(ApiError::BadConstructionRequest(format!("no signature for address {} provided", &address)))
+            // build a Signature Unlock Block
+            let mut public_key = [0u8; 32];
+            hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key)?;
+            let signature = Ed25519Signature::new(
+                public_key,
+                hex::decode(signature.hex_bytes.clone())?.into_boxed_slice()
+            );
+
+            unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
+
+            // memorise the address and index of the Signature Unlock Block
+            index_of_signature_unlock_block_with_address.insert(bech32_addr, index_of_signature_unlock_block_with_address.len() as u16);
         }
     }
 
@@ -107,3 +83,4 @@ pub(crate) async fn construction_combine_request(
     })
 
 }
+
