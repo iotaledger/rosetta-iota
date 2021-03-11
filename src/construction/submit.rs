@@ -33,7 +33,7 @@ pub(crate) async fn construction_submit_request(
 
     is_bad_network(&options, &construction_submit_request.network_identifier)?;
 
-    let iota_client = build_iota_client(&options, true).await?;
+    let iota_client = build_iota_client(&options).await?;
 
     let transaction = transaction_from_hex_string(&construction_submit_request.signed_transaction)?;
     let transaction_id = transaction.id();

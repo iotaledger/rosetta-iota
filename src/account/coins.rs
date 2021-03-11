@@ -29,7 +29,7 @@ pub async fn account_coins(
 
     is_bad_network(&options, &account_coins_request.network_identifier)?;
 
-    let iota_client = build_iota_client(&options, true).await?;
+    let iota_client = build_iota_client(&options).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,

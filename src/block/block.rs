@@ -27,10 +27,9 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
     debug!("/block");
 
     let _ = require_online_mode(&options)?;
-
     is_bad_network(&options, &block_request.network_identifier)?;
 
-    let iota_client = build_iota_client(&options, true).await?;
+    let iota_client = build_iota_client(&options).await?;
 
     let milestone_index = block_request
         .block_identifier
