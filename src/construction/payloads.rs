@@ -31,12 +31,10 @@ pub(crate) async fn construction_payloads_request(
     debug!("/construction/payloads");
 
     let _ = require_offline_mode(&options)?;
-
     is_bad_network(&options, &construction_payloads_request.network_identifier)?;
 
     let mut inputs = vec![];
     let mut outputs = vec![];
-
     let mut signing_payloads = vec![];
 
     for operation in construction_payloads_request.operations {

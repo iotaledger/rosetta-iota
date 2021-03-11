@@ -29,20 +29,7 @@ pub async fn construction_preprocess_request(
     let _ = require_offline_mode(&options)?;
     is_bad_network(&options, &construction_preprocess_request.network_identifier)?;
 
-    let mut utxo_inputs = Vec::new();
-    for operation in construction_preprocess_request.operations {
-        match &operation.type_[..] {
-            "UTXO_INPUT" => {
-                let output_id = operation.coin_change.ok_or(ApiError::BadConstructionRequest("coin_change not set".to_string()))?.coin_identifier.identifier;
-                utxo_inputs.push(output_id);
-            }
-            _ => continue
-        }
-    }
-
     Ok(ConstructionPreprocessResponse {
-        options: Some(PreprocessOptions {
-            utxo_inputs
-        })
+        options: None
     })
 }
