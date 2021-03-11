@@ -41,7 +41,7 @@ if [ $PREFUNDED_ACCOUNT ]; then
   echo "asking for faucet funds to load up prefunded_accounts..."
 
   cd src/utils
-  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run)
+  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run 2> /dev/null)
 
   echo "prefunded_account: ${PREFUNDED_ACCOUNT}"
 
