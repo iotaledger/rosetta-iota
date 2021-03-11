@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::*;
-use crate::{Options, is_bad_network, build_iota_client, require_offline_mode};
+use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
 
 use log::debug;
@@ -11,7 +11,6 @@ use bee_common::packable::Packable;
 
 use std::collections::HashMap;
 use crate::construction::essence_from_hex_string;
-use bee_rest_api::types::{OutputDto, AddressDto};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
