@@ -19,6 +19,7 @@ ROOT=$(pwd)
 PRUNE=1
 #RECONCILE=1
 #CLEAN=1
+DATA=1
 CONSTRUCTION=1
 
 # start servers (online and offline)
@@ -92,10 +93,12 @@ fi
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 
-# test Data API
-echo "--------------------------------------------------------------------------------"
-echo "running rosetta-cli check:data"
-~/bin/rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+if [ $DATA ]; then
+  # test Data API
+  echo "--------------------------------------------------------------------------------"
+  echo "running rosetta-cli check:data"
+  ~/bin/rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+fi
 
 if [ $CONSTRUCTION ]; then
   # test Construction API
