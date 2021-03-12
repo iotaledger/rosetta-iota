@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use serde::{Deserialize, Serialize};
+use bee_rest_api::endpoints::api::v1::output::OutputResponse;
+use std::collections::HashMap;
 
 /// Full reference: https://www.rosetta-api.org/docs/Reference.html#models
 
@@ -284,11 +286,13 @@ pub struct Version {
 /// Self-defined objects
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionPreprocessResponseOptions;
+pub struct PreprocessOptions {
+    pub utxo_inputs: Vec<String>
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ConstructionMetadataResponseMetadata {
-
+pub struct ConstructionMetadata {
+    pub utxo_inputs_metadata: HashMap<String, OutputResponse>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

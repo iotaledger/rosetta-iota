@@ -36,7 +36,7 @@ pub(crate) async fn construction_parse_request(
 
     let _ = require_offline_mode(&options)?;
 
-    let iota_client = build_iota_client(&options, false).await?;
+    let iota_client = build_iota_client(&options).await?;
 
     let online = options.mode == ONLINE_MODE;
     if construction_parse_request.signed {
