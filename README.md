@@ -170,11 +170,23 @@ Here's an example of two Transaction Objects in the same Milestone:
 
 ### rosetta-cli
 
-The `test.sh` shell script automates testing via `rosetta-cli`.
+The `rosetta_cli.sh` shell script automates testing via `rosetta-cli`.
 
-It will use the shell variables `NODE_URL` and `NETWORK` to specify the network parameters to be tested.
-Bear in mind that syncing will start from the pruned Milestone, not Genesis.
+Make sure you have run the following (on a Debian-based Linux) to install dependencies:
+```
+$ sudo apt-get install sed jq psmisc
+```
 
+The script uses the following shell variables:
+ - `NODE_URL`: specifies which IOTA Node will be used to enter the network.
+ - `NETWORK`: specifies the network (e.g.: `mainnet` or `testnet6`).
+ - `DATA_DIR`: specifies where `rosetta-cli` should write its files. 
+ - `PRUNE`: enables pruning (useful when no Permanode is available). Comment out to disable.
+ - `RECONCILE`: enables reconciliation. Comment out to disable.
+ - `CLEAN`: enables deletion of `$DATA_DIR` everytime the script is executed. Comment out to disable.
+ - `DATA`: enables execution of `rosetta-cli check:data`. Comment out to disable.
+ - `CONSTRUCTION`: enables execution of `rosetta-cli check:construction`. Comment out to disable.
+ 
 ### curl
 
 Curl commands can also be used for manual inspection of each API endpoint.
