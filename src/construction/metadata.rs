@@ -36,13 +36,13 @@ pub(crate) async fn construction_metadata_request(
     let preprocess_options = construction_metadata_request.options.ok_or(ApiError::BadConstructionRequest("options not populated".to_string()))?;
 
     let mut utxo_inputs_metadata = HashMap::new();
-    for input_string in preprocess_options.utxo_inputs {
-        let input = input_string.parse::<UTXOInput>().map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
+    for input_id in preprocess_options.inputs {
+        let input = input_id.parse::<UTXOInput>().map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
         let input_metadata = iota_client.get_output(&input).await.map_err(|e| ApiError::IotaClientError(e))?;
-        utxo_inputs_metadata.insert(input_string, input_metadata);
+        utxo_inputs_metadata.insert(input_id, input_metadata);
     }
 
     Ok(ConstructionMetadataResponse {
-        metadata: ConstructionMetadata { utxo_inputs_metadata }
+        metadata: ConstructionMetadata { inputs_metadata: utxo_inputs_metadata }
     })
 }

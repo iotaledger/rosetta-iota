@@ -15,15 +15,13 @@ use crate::filters::{with_options, handle};
 use warp::Filter;
 use bee_message::prelude::*;
 use crate::error::ApiError;
-use crate::types::*;
+
 use bee_common::packable::Packable;
-use std::str::FromStr;
-use bee_rest_api::types::{OutputDto, AddressDto};
-use crate::operations::{utxo_input_operation, utxo_output_operation};
+
+
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
 use std::convert::TryInto;
-use iota::Client;
 
 pub mod combine;
 pub mod derive;
@@ -83,70 +81,9 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
         )
 }
 
-
-async fn regular_essence_to_operations(regular_essence: &RegularEssence, iota_client: Client, online: bool) -> Result<Vec<Operation>, ApiError>{
-
-    let mut operations = vec![];
-    let mut operation_counter = 0;
-
-    for input in regular_essence.inputs() {
-        if let Input::UTXO(i) = input {
-            let input_metadata = match iota_client.get_output(&i).await {
-                Ok(metadata) => metadata,
-                Err(_) => return Err(ApiError::UnableToGetOutput),
-            };
-            let transaction_id = input_metadata.transaction_id;
-            let output_index = input_metadata.output_index;
-            let is_spent = input_metadata.is_spent;
-
-            let (amount, ed25519_address) = match input_metadata.output {
-                OutputDto::Treasury(_) => panic!("Can't be used as input"),
-                OutputDto::SignatureLockedSingle(x) => match x.address {
-                    AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address)
-                },
-                OutputDto::SignatureLockedDustAllowance(_) => panic!("not implemented!"),
-            };
-
-            // todo: treat timeout on this unrwap
-            let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
-            let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
-
-            operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent, online));
-        }
-        operation_counter = operation_counter + 1;
-    }
-
-    let mut output_index = 0;
-    for output in regular_essence.outputs() {
-        let (amount, ed25519_address) = match output {
-            Output::SignatureLockedSingle(x) => match x.address() {
-                Address::Ed25519(ed25519) => (x.amount(), ed25519.clone().to_string()),
-                _ => panic!("not implemented!")
-            },
-            _ => panic!("not implemented!")
-        };
-
-        // todo: treat timeout on this unrwap
-        let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
-        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
-
-        operations.push(utxo_output_operation(bech32_address, amount, output_index, operation_counter));
-        output_index = output_index + 1;
-        operation_counter = operation_counter + 1;
-    }
-
-    Ok(operations)
-
-}
-
 fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiError> {
     let signed_transaction_hex_bytes = hex::decode(hex_str)?;
     Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice()).unwrap())
-}
-
-fn essence_from_hex_string(hex_str: &str) -> Result<Essence, ApiError> {
-    let essence_bytes = hex::decode(hex_str)?;
-    Ok(Essence::unpack(&mut essence_bytes.as_slice()).unwrap())
 }
 
 fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {

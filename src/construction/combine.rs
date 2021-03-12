@@ -7,10 +7,10 @@ use crate::error::ApiError;
 
 use log::debug;
 use bee_message::prelude::*;
-use bee_common::packable::Packable;
+
 
 use std::collections::HashMap;
-use crate::construction::essence_from_hex_string;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -35,8 +35,10 @@ pub(crate) async fn construction_combine_request(
 
     is_bad_network(&options, &construction_combine_request.network_identifier)?;
 
-    let essence = essence_from_hex_string(&construction_combine_request.unsigned_transaction)?;
-    let regular_essence = match &essence {
+    let unsigned_transaction_decoded = hex::decode(construction_combine_request.unsigned_transaction)?;
+    let unsigned_transaction: UnsignedTransaction = serde_json::from_slice(&unsigned_transaction_decoded).unwrap();
+
+    let regular_essence = match &unsigned_transaction.essence() {
         Essence::Regular(r) => r,
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
@@ -73,12 +75,15 @@ pub(crate) async fn construction_combine_request(
     }
 
     let transaction = TransactionPayload::builder()
-        .with_essence(essence)
+        .with_essence(unsigned_transaction.essence().clone())
         .with_unlock_blocks(UnlockBlocks::new(unlock_blocks).unwrap())
         .finish()?;
 
+    let signed_transaction = SignedTransaction::new(transaction, unsigned_transaction.inputs_metadata().clone());
+    let signed_transaction_encoded = hex::encode(serde_json::to_string(&signed_transaction).unwrap());
+
     Ok(ConstructionCombineResponse {
-        signed_transaction: hex::encode(transaction.pack_new())
+        signed_transaction: signed_transaction_encoded
     })
 
 }

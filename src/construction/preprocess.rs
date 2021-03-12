@@ -33,8 +33,8 @@ pub async fn construction_preprocess_request(
     for operation in construction_preprocess_request.operations {
         match &operation.type_[..] {
             "UTXO_INPUT" => {
-                let output_id = operation.coin_change.ok_or(ApiError::BadConstructionRequest("coin_change not set".to_string()))?.coin_identifier.identifier;
-                utxo_inputs.push(output_id);
+                let id = operation.coin_change.ok_or(ApiError::BadConstructionRequest("coin_change not populated for UTXO_INPUT".to_string()))?.coin_identifier.identifier;
+                utxo_inputs.push(id);
             }
             _ => continue
         }
@@ -42,7 +42,7 @@ pub async fn construction_preprocess_request(
 
     Ok(ConstructionPreprocessResponse {
         options: Some(PreprocessOptions {
-            utxo_inputs
+            inputs: utxo_inputs
         })
     })
 }

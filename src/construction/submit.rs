@@ -4,7 +4,7 @@
 use crate::types::*;
 use crate::{Options, is_bad_network, build_iota_client, require_online_mode};
 use crate::error::ApiError;
-use crate::construction::transaction_from_hex_string;
+
 
 use bee_message::prelude::*;
 
@@ -35,12 +35,15 @@ pub(crate) async fn construction_submit_request(
 
     let iota_client = build_iota_client(&options).await?;
 
-    let transaction = transaction_from_hex_string(&construction_submit_request.signed_transaction)?;
+    let signed_transaction_decoded = hex::decode(construction_submit_request.signed_transaction)?;
+    let signed_transaction: SignedTransaction = serde_json::from_slice(&signed_transaction_decoded).unwrap();
+    let transaction = signed_transaction.transaction();
+
     let transaction_id = transaction.id();
 
     let message = iota_client
         .message()
-        .finish_message(Some(Payload::Transaction(Box::new(transaction))))
+        .finish_message(Some(Payload::Transaction(Box::new(transaction.clone()))))
         .await?;
 
     match iota_client.post_message(&message).await {

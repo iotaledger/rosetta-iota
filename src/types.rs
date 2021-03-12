@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 use bee_rest_api::endpoints::api::v1::output::OutputResponse;
 use std::collections::HashMap;
+use bee_message::prelude::*;
 
 /// Full reference: https://www.rosetta-api.org/docs/Reference.html#models
 
@@ -286,13 +287,55 @@ pub struct Version {
 /// Self-defined objects
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct UnsignedTransaction {
+    essence: Essence,
+    inputs_metadata: HashMap<String, OutputResponse>,
+}
+
+impl UnsignedTransaction {
+    pub fn new(transaction_essence: Essence, inputs_metadata: HashMap<String, OutputResponse>) -> Self {
+        Self {
+            essence: transaction_essence,
+            inputs_metadata
+        }
+    }
+    pub fn essence(&self) -> &Essence {
+        &self.essence
+    }
+    pub fn inputs_metadata(&self) -> &HashMap<String, OutputResponse> {
+        &self.inputs_metadata
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SignedTransaction {
+    transaction: TransactionPayload,
+    inputs_metadata: HashMap<String, OutputResponse>,
+}
+
+impl SignedTransaction {
+    pub fn new(transaction: TransactionPayload, inputs_metadata: HashMap<String, OutputResponse>) -> Self {
+        Self {
+            transaction,
+            inputs_metadata
+        }
+    }
+    pub fn transaction(&self) -> &bee_message::prelude::TransactionPayload {
+        &self.transaction
+    }
+    pub fn inputs_metadata(&self) -> &HashMap<String, OutputResponse> {
+        &self.inputs_metadata
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PreprocessOptions {
-    pub utxo_inputs: Vec<String>
+    pub inputs: Vec<String>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadata {
-    pub utxo_inputs_metadata: HashMap<String, OutputResponse>
+    pub inputs_metadata: HashMap<String, OutputResponse>
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
