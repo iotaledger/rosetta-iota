@@ -175,6 +175,7 @@ The `rosetta_cli.sh` shell script automates testing via `rosetta-cli`.
 Make sure you have run the following (on a Debian-based Linux) to install dependencies:
 ```
 $ sudo apt-get install sed jq psmisc
+$ curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s
 ```
 
 The script uses the following shell variables:
