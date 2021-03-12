@@ -235,7 +235,7 @@ $ curl --request POST 'http://localhost:3030/construction/derive' \--header 'Acc
 
 - `/construction/metadata` (`online` mode only)
 ```
-$ curl -s --request POST 'http://localhost:3030/construction/metadata' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet6"},"options":{"utxo_inputs":["4cad8ab0113e2fba1b9abb15d701c2d86dc100bda6a414b5f5de22f4809b45860100","8b64c69388ce190bd2c53c951b0ca899851f41bf580a031b4f253c302dc173420100"]}}' | jq
+$ curl -s --request POST 'http://localhost:3030/construction/metadata' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet6"},"options":{"inputs":["4cad8ab0113e2fba1b9abb15d701c2d86dc100bda6a414b5f5de22f4809b45860100","8b64c69388ce190bd2c53c951b0ca899851f41bf580a031b4f253c302dc173420100"]}}' | jq
 ```
 
 - `/construction/preprocess` (`offline` mode only)
