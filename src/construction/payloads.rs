@@ -69,10 +69,10 @@ pub(crate) async fn construction_payloads_request(
         }
     }
 
-    let mut transaction_payload_essence = RegularEssenceBuilder::new();
+    let indexation_payload = IndexationPayload::new("rosetta".as_bytes(), &[])?;
 
-    // todo: Rosetta indexation payload?
-    // builder = builder.with_payload(p);
+    let mut transaction_payload_essence = RegularEssenceBuilder::new()
+        .with_payload(Payload::Indexation(Box::new(indexation_payload)));
 
     for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);
