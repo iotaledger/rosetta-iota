@@ -4,7 +4,7 @@
 use crate::types::*;
 use crate::{Options, is_bad_network, require_offline_mode};
 use crate::error::ApiError;
-use crate::construction::transaction_from_hex_string;
+use crate::construction::{deserialize_signed_transaction};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -30,11 +30,11 @@ pub(crate) async fn construction_hash_request(
 
     is_bad_network(&options, &construction_hash_request.network_identifier)?;
 
-    let transaction = transaction_from_hex_string(&construction_hash_request.signed_transaction)?;
+    let signed_transaction = deserialize_signed_transaction(&construction_hash_request.signed_transaction);
 
     Ok(ConstructionHashResponse {
         transaction_identifier: TransactionIdentifier {
-            hash: transaction.id().to_string(),
+            hash: signed_transaction.transaction().id().to_string(),
         },
     })
 }

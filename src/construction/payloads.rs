@@ -10,6 +10,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::operations::UTXO_SPENT;
+use crate::construction::serialize_unsigned_transaction;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionPayloadsRequest {
@@ -84,7 +85,6 @@ pub(crate) async fn construction_payloads_request(
     let essence = Essence::Regular(transaction_payload_essence.finish().unwrap());
     let hash_to_sign = essence.hash();
     let unsigned_transaction = UnsignedTransaction::new(essence, construction_payloads_request.metadata.inputs_metadata);
-    let unsigned_transaction_encoded = hex::encode(serde_json::to_string(&unsigned_transaction).unwrap());
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {
@@ -98,7 +98,7 @@ pub(crate) async fn construction_payloads_request(
     }
 
     Ok(ConstructionPayloadsResponse {
-        unsigned_transaction: unsigned_transaction_encoded,
+        unsigned_transaction: serialize_unsigned_transaction(&unsigned_transaction),
         payloads: signing_payloads
     })
 }

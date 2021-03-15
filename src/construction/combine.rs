@@ -12,6 +12,7 @@ use bee_message::prelude::*;
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use crate::construction::{deserialize_unsigned_transaction, serialize_signed_transaction};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionCombineRequest {
@@ -35,8 +36,7 @@ pub(crate) async fn construction_combine_request(
 
     is_bad_network(&options, &construction_combine_request.network_identifier)?;
 
-    let unsigned_transaction_decoded = hex::decode(construction_combine_request.unsigned_transaction)?;
-    let unsigned_transaction: UnsignedTransaction = serde_json::from_slice(&unsigned_transaction_decoded).unwrap();
+    let unsigned_transaction = deserialize_unsigned_transaction(&construction_combine_request.unsigned_transaction);
 
     let regular_essence = match &unsigned_transaction.essence() {
         Essence::Regular(r) => r,
@@ -80,10 +80,9 @@ pub(crate) async fn construction_combine_request(
         .finish()?;
 
     let signed_transaction = SignedTransaction::new(transaction, unsigned_transaction.inputs_metadata().clone());
-    let signed_transaction_encoded = hex::encode(serde_json::to_string(&signed_transaction).unwrap());
 
     Ok(ConstructionCombineResponse {
-        signed_transaction: signed_transaction_encoded
+        signed_transaction: serialize_signed_transaction(&signed_transaction)
     })
 
 }

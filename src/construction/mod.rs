@@ -13,15 +13,8 @@ use crate::Options;
 use crate::filters::{with_options, handle};
 
 use warp::Filter;
-use bee_message::prelude::*;
-use crate::error::ApiError;
 
-use bee_common::packable::Packable;
-
-
-use crypto::hashes::blake2b::Blake2b256;
-use crypto::hashes::Digest;
-use std::convert::TryInto;
+use crate::types::{UnsignedTransaction, SignedTransaction};
 
 pub mod combine;
 pub mod derive;
@@ -81,16 +74,19 @@ pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error
         )
 }
 
-fn transaction_from_hex_string(hex_str: &str) -> Result<TransactionPayload, ApiError> {
-    let signed_transaction_hex_bytes = hex::decode(hex_str)?;
-    Ok(TransactionPayload::unpack(&mut signed_transaction_hex_bytes.as_slice()).unwrap())
+fn serialize_unsigned_transaction(unsigned_transaction: &UnsignedTransaction) -> String {
+    hex::encode(serde_json::to_string(unsigned_transaction).unwrap())
 }
 
-fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
-    let public_key_bytes = hex::decode(hex_string)?;
-    let hash = Blake2b256::digest(&public_key_bytes);
-    let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
-    let address = Address::Ed25519(ed25519_address);
-
-    Ok(address)
+fn deserialize_unsigned_transaction(string: &String) -> UnsignedTransaction {
+    serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
 }
+
+fn serialize_signed_transaction(signed_transaction: &SignedTransaction) -> String {
+    hex::encode(serde_json::to_string(signed_transaction).unwrap())
+}
+
+fn deserialize_signed_transaction(string: &String) -> SignedTransaction {
+    serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
+}
+

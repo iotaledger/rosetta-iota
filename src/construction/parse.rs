@@ -11,12 +11,16 @@ use std::str::FromStr;
 use bee_message::prelude::*;
 
 use log::debug;
-use crate::construction::{address_from_public_key};
+use crate::construction::{deserialize_unsigned_transaction, deserialize_signed_transaction};
 
 use serde::{Deserialize, Serialize};
 use bee_rest_api::types::{OutputDto, AddressDto};
 use crate::operations::{utxo_input_operation, utxo_output_operation};
 use bee_rest_api::endpoints::api::v1::output::OutputResponse;
+
+use crypto::hashes::blake2b::Blake2b256;
+use crypto::hashes::Digest;
+use std::convert::TryInto;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseRequest {
@@ -53,15 +57,9 @@ async fn parse_unsigned_transaction(
     options: &Options
 ) -> Result<ConstructionParseResponse, ApiError> {
 
-    let unsigned_transaction_decoded = hex::decode(construction_parse_request.transaction)?;
-    let unsigned_transaction: UnsignedTransaction = serde_json::from_slice(&unsigned_transaction_decoded).unwrap();
+    let unsigned_transaction = deserialize_unsigned_transaction(&construction_parse_request.transaction);
 
-    let regular_essence = match unsigned_transaction.essence() {
-        Essence::Regular(r) => r,
-        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
-    };
-
-    let operations = regular_essence_to_operations(&regular_essence, unsigned_transaction.inputs_metadata(), options).await?;
+    let operations = essence_to_operations(unsigned_transaction.essence(), unsigned_transaction.inputs_metadata(), options).await?;
 
     Ok(ConstructionParseResponse {
         operations,
@@ -74,16 +72,11 @@ async fn parse_signed_transaction(
     options: &Options
 ) -> Result<ConstructionParseResponse, ApiError> {
 
-    let signed_transaction_decoded = hex::decode(construction_parse_request.transaction)?;
-    let signed_transaction: SignedTransaction = serde_json::from_slice(&signed_transaction_decoded).unwrap();
+    let signed_transaction = deserialize_signed_transaction(&construction_parse_request.transaction);
+
     let transaction = signed_transaction.transaction();
 
-    let regular_essence = match signed_transaction.transaction().essence() {
-        Essence::Regular(r) => r,
-        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
-    };
-
-    let operations = regular_essence_to_operations(&regular_essence, signed_transaction.inputs_metadata(), options).await?;
+    let operations = essence_to_operations(transaction.essence(), signed_transaction.inputs_metadata(), options).await?;
 
     let account_identifier_signers = {
         let mut accounts_identifiers = Vec::new();
@@ -111,7 +104,12 @@ async fn parse_signed_transaction(
 
 }
 
-async fn regular_essence_to_operations(regular_essence: &RegularEssence, inputs_metadata: &HashMap<String, OutputResponse>, options: &Options) -> Result<Vec<Operation>, ApiError>{
+async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<String, OutputResponse>, options: &Options) -> Result<Vec<Operation>, ApiError>{
+
+    let regular_essence = match essence {
+        Essence::Regular(r) => r,
+        _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
+    };
 
     let mut operations = vec![];
     let mut operation_counter = 0;
@@ -166,4 +164,13 @@ async fn regular_essence_to_operations(regular_essence: &RegularEssence, inputs_
 
     Ok(operations)
 
+}
+
+fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
+    let public_key_bytes = hex::decode(hex_string)?;
+    let hash = Blake2b256::digest(&public_key_bytes);
+    let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
+    let address = Address::Ed25519(ed25519_address);
+
+    Ok(address)
 }
