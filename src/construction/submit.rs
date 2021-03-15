@@ -10,6 +10,7 @@ use bee_message::prelude::*;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
+use crate::construction::deserialize_signed_transaction;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitRequest {
@@ -35,10 +36,8 @@ pub(crate) async fn construction_submit_request(
 
     let iota_client = build_iota_client(&options).await?;
 
-    let signed_transaction_decoded = hex::decode(construction_submit_request.signed_transaction)?;
-    let signed_transaction: SignedTransaction = serde_json::from_slice(&signed_transaction_decoded).unwrap();
+    let signed_transaction = deserialize_signed_transaction(&construction_submit_request.signed_transaction);
     let transaction = signed_transaction.transaction();
-
     let transaction_id = transaction.id();
 
     let message = iota_client
