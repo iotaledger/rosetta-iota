@@ -10,6 +10,7 @@ use std::collections::{HashMap, HashSet};
 use crate::types::{NetworkIdentifier, PartialBlockIdentifier};
 use serde::{Deserialize, Serialize};
 use crate::consts::ONLINE_MODE;
+use iota::MessageId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -78,19 +79,11 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
         Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
     };
 
-    // all_outputs has both created and consumed, but we still keep track of which is which
-    // by checking if output_counter > n_created_outputs
-    // very unelegant! todo: refactor
-    let mut output_counter = 0;
-    let n_created_outputs = utxo_changes.created_outputs.len();
-    let mut all_outputs = utxo_changes.created_outputs;
-    all_outputs.extend(utxo_changes.consumed_outputs);
-
     let mut transaction_hashset = HashSet::new();
-    let mut output_hashmap: HashMap<String, (Vec<OutputResponse>, bool)> = HashMap::new();
+    let mut output_hashmap: HashMap<String, (Vec<OutputResponse>)> = HashMap::new();
 
-    // loop over all_outputs
-    for output_id_str in all_outputs {
+    // loop over created_outputs
+    for output_id_str in utxo_changes.created_outputs {
         let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
 
         let output = match iota_client.get_output(&output_id).await {
@@ -98,30 +91,42 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
             Err(_) => return Err(ApiError::UnableToGetOutput),
         };
 
+        let message_id = output.clone().message_id;
+        let message = iota_client.get_message()
+            .data(&MessageId::from_str(&message_id[..]).unwrap()).await.unwrap();
+
+        // todo: finish this
+        // match message.payload() {
+        //     Some(p) => match p {
+        //         get list of inputs
+        //     },
+        //     None => panic!("no payload!")
+        // }
+
+        // perhaps we will also need to refactor output_hashmap so it contains
+        // HashMap<String, (Vec<OutputResponse>, Vec<Input>)>
+        // or something similar, where String is the Transaction ID
+
         let transaction_id = output.clone().transaction_id;
         transaction_hashset.insert(transaction_id.clone());
 
         // populate output_hashmap
         match output_hashmap.get(&transaction_id[..]) {
             None => {
-                //                                                                todo: refactor
-                output_hashmap.insert(transaction_id, (vec![output.clone()], output_counter >= n_created_outputs));
+                output_hashmap.insert(transaction_id, vec![output.clone()]);
                 ()
             },
-            Some((output_vec, _)) => {
+            Some(output_vec) => {
                 let mut output_vec_clone = output_vec.clone();
                 output_vec_clone.push(output.clone());
 
                 // update output_vec_value with output_vec_clone
-                //                                                                                                                           todo: refactor
-                let output_vec_value = output_hashmap.entry(transaction_id).or_insert((vec![output], output_counter >= n_created_outputs));
+                let output_vec_value = output_hashmap.entry(transaction_id).or_insert(vec![output]);
 
-                // this is ok                          todo: refactor
-                *output_vec_value = (output_vec_clone, output_counter >= n_created_outputs);
+                *output_vec_value = output_vec_clone;
             }
         }
 
-        output_counter = output_counter + 1;
     }
 
     let mut transactions = vec![];
@@ -132,9 +137,8 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
         let mut operations = vec![];
 
         match output_hashmap.get(&transaction[..]) {
-            Some((output_vec, consumed)) => {
+            Some(output_vec) => {
                 let mut operation_counter = 0;
-
                 for output in output_vec {
                     let is_spent = output.is_spent;
 
@@ -152,9 +156,8 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
                     let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
                     let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
 
-                    // todo: refactor
                     let online = options.mode == ONLINE_MODE;
-                    operations.push(utxo_input_operation(output.clone().transaction_id, bech32_address, amount, output.output_index, operation_counter, consumed, is_spent, online));
+                    operations.push(utxo_output_operation(bech32_address, amount, output.output_index, operation_counter));
                     operation_counter = operation_counter + 1;
                 }
             },
