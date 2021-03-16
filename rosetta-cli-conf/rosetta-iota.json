@@ -23,11 +23,7 @@
           "decimals": 0
         }
       }
-    ],
-    "end_conditions": {
-      "create_account": 10,
-      "transfer": 10
-    }
+    ]
   },
   "data": {
     "start_index": 1,
