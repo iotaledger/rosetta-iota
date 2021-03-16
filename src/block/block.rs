@@ -194,6 +194,7 @@ async fn build_rosetta_transactions(messages: Vec<Message>, iota_client: &Client
                     Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
                     amount,
                     operation_counter,
+                    true
                 ));
 
                 operation_counter += 1;

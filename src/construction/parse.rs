@@ -155,7 +155,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_output_operation(bech32_address, amount, operation_counter));
+        operations.push(utxo_output_operation(bech32_address, amount, operation_counter, false));
         operation_counter += 1;
     }
 

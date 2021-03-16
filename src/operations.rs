@@ -73,7 +73,7 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
     }
 }
 
-pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: u32) -> Operation {
+pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: u32, online: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -91,7 +91,10 @@ pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: u32)
         },
         related_operations: None,
         type_: UTXO_OUTPUT.into(),
-        status: None,
+        status: match online {
+            true => Some(SUCCESS.into()),
+            false => None,
+        },
         account: Some(account),
         amount: Some(amount),
         coin_change: None,
