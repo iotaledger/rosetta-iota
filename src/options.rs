@@ -12,6 +12,8 @@ pub struct Options {
     #[structopt(long)]
     pub bech32_hrp: String,
     #[structopt(long)]
+    pub indexation: String,
+    #[structopt(long)]
     pub mode: String,
     #[structopt(long)]
     pub port: u16,

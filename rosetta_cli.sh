@@ -23,10 +23,10 @@ DATA=1
 CONSTRUCTION=1
 
 # start servers (online and offline)
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --port 3030 --mode online &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3030 --mode online &
 PID_ONLINE=$!
 
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --port 3031 --mode offline &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3031 --mode offline &
 PID_OFFLINE=$!
 
 # wait for server to completely start

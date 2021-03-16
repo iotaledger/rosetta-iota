@@ -67,6 +67,7 @@ mod tests {
         let server_options = Options {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "offline".to_string(),
             port: 3030
@@ -93,6 +94,7 @@ mod tests {
         let server_options = Options {
             iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "offline".to_string(),
             port: 3030

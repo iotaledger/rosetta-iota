@@ -47,6 +47,7 @@ async fn test_transfer_funds() {
         let rosetta_options = Options {
             iota_endpoint: DEFAULT_NODE_URL.to_string(),
             network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: OFFLINE_MODE.into(),
             port: 3030

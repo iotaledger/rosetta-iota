@@ -69,7 +69,8 @@ pub(crate) async fn construction_payloads_request(
         }
     }
 
-    let indexation_payload = IndexationPayload::new("rosetta".as_bytes(), &[])?;
+    let index = options.indexation;
+    let indexation_payload = IndexationPayload::new(index.as_bytes(), &[])?;
 
     let mut transaction_payload_essence = RegularEssenceBuilder::new()
         .with_payload(Payload::Indexation(Box::new(indexation_payload)));
