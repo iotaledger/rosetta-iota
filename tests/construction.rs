@@ -1,7 +1,7 @@
 
 use bee_message::prelude::*;
 use bee_common::packable::Packable;
-use bee_rest_api::types::OutputDto;
+use bee_rest_api::types::dtos::OutputDto;
 use iota::Client;
 use iota::{ AddressOutputsOptions, OutputType};
 
@@ -12,8 +12,8 @@ use rosetta_iota::types::*;
 use rosetta_iota::construction::derive::{construction_derive_request, ConstructionDeriveResponse, ConstructionDeriveRequest};
 use rosetta_iota::types::Operation;
 use rosetta_iota::operations::UTXO_INPUT;
-use bee_rest_api::endpoints::api::v1::balance_ed25519::BalanceForAddressResponse;
-use bee_rest_api::endpoints::api::v1::output::OutputResponse;
+use iota::BalanceForAddressResponse;
+use iota::OutputResponse;
 
 const DEFAULT_NODE_URL: &str = "https://api.lb-0.testnet.chrysalis2.com";
 
