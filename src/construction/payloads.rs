@@ -8,6 +8,7 @@ use crate::error::ApiError;
 use bee_message::prelude::*;
 use log::debug;
 use serde::{Deserialize, Serialize};
+use bee_common::packable::Packable;
 
 use crate::construction::serialize_unsigned_transaction;
 
@@ -67,6 +68,10 @@ pub(crate) async fn construction_payloads_request(
 
     let mut transaction_payload_essence = RegularEssenceBuilder::new()
         .with_payload(Payload::Indexation(Box::new(indexation_payload)));
+
+    // sort inputs and outputs
+    inputs.sort_unstable_by_key(|i| i.0.pack_new());
+    outputs.sort_unstable_by_key(|o| o.pack_new());
 
     for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);
