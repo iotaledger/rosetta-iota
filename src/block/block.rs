@@ -92,9 +92,6 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
     Ok(response)
 }
 
-
-
-
 async fn messages_from_created_outputs(milestone_index: u32, iota_client: &Client) -> Result<Vec<Message>, ApiError> {
     let created_outputs = match iota_client.get_milestone_utxo_changes(milestone_index).await {
         Ok(utxo_changes) => utxo_changes.created_outputs,
