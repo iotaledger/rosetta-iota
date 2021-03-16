@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{error::ApiError, operations::*, options::Options, types::{Block, BlockIdentifier, Transaction, TransactionIdentifier}, build_iota_client, require_online_mode, is_bad_network};
-use bee_message::prelude::{Ed25519Address};
-use iota::{UTXOInput, OutputResponse, AddressDto, OutputDto};
+use bee_message::prelude::{Ed25519Address, OutputId, Payload, Input, Address};
+use iota::{AddressDto, OutputDto, Client};
 use log::debug;
-use std::str::FromStr;
-use std::collections::{HashMap, HashSet};
 use crate::types::{NetworkIdentifier, PartialBlockIdentifier};
 use serde::{Deserialize, Serialize};
-use crate::consts::ONLINE_MODE;
 use iota::MessageId;
+use bee_message::payload::transaction::{ Essence};
+use bee_message::Message;
+use bee_message::prelude::Output;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -35,13 +35,14 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
     let milestone_index = block_request
         .block_identifier
         .index
-        .ok_or_else(|| ApiError::BadMilestoneRequest)?;
+        .ok_or(ApiError::BadMilestoneRequest)?;
 
     let milestone = match iota_client.get_milestone(milestone_index).await {
         Ok(milestone) => milestone,
         Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index)),
     };
 
+    // TODO: Do we really need this check?
     if block_request.block_identifier.hash.is_some(){
         let block_request_hash = block_request.block_identifier.hash.unwrap();
         if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
@@ -74,112 +75,143 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
 
     let timestamp = milestone.timestamp * 1000;
 
-    let utxo_changes = match iota_client.get_milestone_utxo_changes(milestone_index).await {
-        Ok(utxo_changes) => utxo_changes,
-        Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
-    };
-
-    let mut transaction_hashset = HashSet::new();
-    let mut output_hashmap: HashMap<String, (Vec<OutputResponse>)> = HashMap::new();
-
-    // loop over created_outputs
-    for output_id_str in utxo_changes.created_outputs {
-        let output_id = UTXOInput::from_str(&output_id_str[..]).unwrap();
-
-        let output = match iota_client.get_output(&output_id).await {
-            Ok(output) => output,
-            Err(_) => return Err(ApiError::UnableToGetOutput),
-        };
-
-        let message_id = output.clone().message_id;
-        let message = iota_client.get_message()
-            .data(&MessageId::from_str(&message_id[..]).unwrap()).await.unwrap();
-
-        // todo: finish this
-        // match message.payload() {
-        //     Some(p) => match p {
-        //         get list of inputs
-        //     },
-        //     None => panic!("no payload!")
-        // }
-
-        // perhaps we will also need to refactor output_hashmap so it contains
-        // HashMap<String, (Vec<OutputResponse>, Vec<Input>)>
-        // or something similar, where String is the Transaction ID
-
-        let transaction_id = output.clone().transaction_id;
-        transaction_hashset.insert(transaction_id.clone());
-
-        // populate output_hashmap
-        match output_hashmap.get(&transaction_id[..]) {
-            None => {
-                output_hashmap.insert(transaction_id, vec![output.clone()]);
-                ()
-            },
-            Some(output_vec) => {
-                let mut output_vec_clone = output_vec.clone();
-                output_vec_clone.push(output.clone());
-
-                // update output_vec_value with output_vec_clone
-                let output_vec_value = output_hashmap.entry(transaction_id).or_insert(vec![output]);
-
-                *output_vec_value = output_vec_clone;
-            }
-        }
-
-    }
-
-    let mut transactions = vec![];
-
-    for transaction in transaction_hashset {
-        let transaction_identifier = TransactionIdentifier { hash: transaction.clone() };
-
-        let mut operations = vec![];
-
-        match output_hashmap.get(&transaction[..]) {
-            Some(output_vec) => {
-                let mut operation_counter = 0;
-                for output in output_vec {
-                    let is_spent = output.is_spent;
-
-                    let (amount, ed25519_address) = match output.clone().output {
-                        OutputDto::Treasury(_) => panic!("Can't be used as input"),
-                        OutputDto::SignatureLockedSingle(r) => match r.address {
-                            AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
-                        },
-                        OutputDto::SignatureLockedDustAllowance(r) => match r.address {
-                            AddressDto::Ed25519(ed25519) => (r.amount, ed25519.address),
-                        },
-                    };
-
-                    // todo: treat timeout on this unrwap
-                    let bech32_hrp = iota_client.get_bech32_hrp().await.unwrap();
-                    let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&bech32_hrp[..]);
-
-                    let online = options.mode == ONLINE_MODE;
-                    operations.push(utxo_output_operation(bech32_address, amount, output.output_index, operation_counter));
-                    operation_counter = operation_counter + 1;
-                }
-            },
-            None => panic!("no output_vec found on hashmap")
-        }
-
-        transactions.push(Transaction {
-            transaction_identifier: transaction_identifier,
-            operations: operations,
-            metadata: None
-        });
-    }
+    let messages_from_created_outputs = messages_from_created_outputs(milestone_index, &iota_client).await?;
+    let rosetta_transactions = build_rosetta_transactions(messages_from_created_outputs, &iota_client, &options).await?;
 
     let block = Block {
-        block_identifier: block_identifier,
-        parent_block_identifier: parent_block_identifier,
-        timestamp: timestamp,
-        transactions: transactions,
+        block_identifier,
+        parent_block_identifier,
+        timestamp,
+        transactions: rosetta_transactions,
         metadata: None
     };
 
     let response = BlockResponse { block };
 
     Ok(response)
+}
+
+
+
+
+async fn messages_from_created_outputs(milestone_index: u32, iota_client: &Client) -> Result<Vec<Message>, ApiError> {
+    let created_outputs = match iota_client.get_milestone_utxo_changes(milestone_index).await {
+        Ok(utxo_changes) => utxo_changes.created_outputs,
+        Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
+    };
+
+    let mut ret = Vec::new();
+    for created_output_id_string in created_outputs {
+        let created_output_id = created_output_id_string.parse::<OutputId>().map_err(|e| ApiError::BeeMessageError(e))?;
+        let output_response = iota_client.get_output(&created_output_id.into()).await.map_err(|e| ApiError::IotaClientError(e))?;
+        let message = {
+            let message_id = output_response.message_id.parse::<MessageId>().map_err(|e| ApiError::BeeMessageError(e))?;
+            iota_client.get_message().data(&message_id).await.map_err(|e| ApiError::IotaClientError(e))?
+        };
+        ret.push(message);
+    }
+
+    Ok(ret)
+}
+
+async fn build_rosetta_transactions(messages: Vec<Message>, iota_client: &Client, options: &Options) -> Result<Vec<Transaction>, ApiError> {
+    let mut ret = Vec::new();
+
+    for message in messages {
+        let message: Message = message;
+
+        let transaction_payload = match message.payload() {
+            Some(Payload::Transaction(t)) => t,
+            _ => return Err(ApiError::NotImplemented) // NOT SUPPORTED
+        };
+
+        let regular_essence = match transaction_payload.essence() {
+            Essence::Regular(r) => r,
+            _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+        };
+
+        let mut operation_counter = 0;
+
+        let mut utxo_input_operations = {
+            let mut ret = Vec::new();
+
+            for input in regular_essence.inputs() {
+
+                let utxo_input = match input {
+                    Input::UTXO(i) => i,
+                    _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+                };
+
+                let output_info = iota_client.get_output(&utxo_input).await?;
+
+                let (amount, ed25519_address) = match output_info.output {
+                    OutputDto::Treasury(_) => panic!("Can't be used as input"),
+                    OutputDto::SignatureLockedSingle(r) => match r.address {
+                        AddressDto::Ed25519(addr) => (r.amount, addr.address)
+                    },
+                    OutputDto::SignatureLockedDustAllowance(r) => match r.address {
+                        AddressDto::Ed25519(addr) => (r.amount, addr.address)
+                    },
+                };
+
+                ret.push(utxo_input_operation(
+                    output_info.transaction_id,
+                    Address::Ed25519(ed25519_address.parse::<Ed25519Address>()?).to_bech32(&options.bech32_hrp),
+                    amount,
+                    output_info.output_index,
+                    operation_counter,
+                    true,
+                    true,
+                ));
+
+                operation_counter += 1;
+            }
+
+            ret
+        };
+
+        let mut utxo_output_operations = {
+            let mut ret = Vec::new();
+
+            for output in regular_essence.outputs() {
+
+                let output: Output = output.clone();
+
+                let (amount, ed25519_address) = match output {
+                    Output::Treasury(_) => panic!("Can't be used as input"),
+                    Output::SignatureLockedSingle(r) => match r.address() {
+                        Address::Ed25519(addr) => (r.amount(), *addr),
+                        _ =>  panic!("Can't be used as address"),
+                    },
+                    Output::SignatureLockedDustAllowance(r) => match r.address() {
+                        Address::Ed25519(addr) => (r.amount(), *addr),
+                        _ => panic!("Can't be used as address"),
+                    },
+                    _ => panic!("Can't be used as output"),
+                };
+
+                ret.push(utxo_output_operation(
+                    Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
+                    amount,
+                    operation_counter,
+                ));
+
+                operation_counter += 1;
+            }
+
+            ret
+        };
+
+        utxo_input_operations.append(&mut utxo_output_operations);
+
+        let transaction = Transaction {
+            transaction_identifier: TransactionIdentifier { hash: transaction_payload.id().to_string() },
+            operations: utxo_input_operations,
+            metadata: None
+        };
+
+        ret.push(transaction);
+    }
+
+    Ok(ret)
 }

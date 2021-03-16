@@ -128,7 +128,6 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let transaction_id = input_metadata.transaction_id.clone();
         let output_index = input_metadata.output_index.clone();
-        let is_spent = input_metadata.is_spent.clone();
 
         let (amount, ed25519_address) = match &input_metadata.output {
             OutputDto::Treasury(_) => panic!("Can't be used as input"),
@@ -140,12 +139,11 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, &true, is_spent, false));
+        operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, true, false));
 
         operation_counter = operation_counter + 1;
     }
 
-    let mut output_index = 0;
     for output in regular_essence.outputs() {
         let (amount, ed25519_address) = match output {
             Output::SignatureLockedSingle(x) => match x.address() {
@@ -157,9 +155,8 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_output_operation(bech32_address, amount, output_index, operation_counter));
-        output_index = output_index + 1;
-        operation_counter = operation_counter + 1;
+        operations.push(utxo_output_operation(bech32_address, amount, operation_counter));
+        operation_counter += 1;
     }
 
     Ok(operations)
