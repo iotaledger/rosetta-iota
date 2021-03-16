@@ -140,7 +140,6 @@ transfer(1){
       {
         "operation_identifier":{
           "index":2,
-          "network_index":0
         },
         "type":"UTXO_OUTPUT",
         "account":{{recipient.account_identifier}},
@@ -155,7 +154,6 @@ transfer(1){
       {
         "operation_identifier":{
           "index":3,
-          "network_index":1
          },
           "type":"UTXO_OUTPUT",
           "account":{{change.account_identifier}},
