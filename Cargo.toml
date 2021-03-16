@@ -9,8 +9,8 @@ edition = "2018"
 [dependencies]
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
-bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "acab07e4bcff947c70cde312789a2ef2977c652b" }
-bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "acab07e4bcff947c70cde312789a2ef2977c652b" }
+bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "26215e3af88af4c54f460df7cffc39d26fdd6e05", features = ["endpoints"] }
+bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "26215e3af88af4c54f460df7cffc39d26fdd6e05" }
 iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
 digest = "0.9"
 log = "0.4"

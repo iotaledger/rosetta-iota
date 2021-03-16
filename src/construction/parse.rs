@@ -14,9 +14,9 @@ use log::debug;
 use crate::construction::{deserialize_unsigned_transaction, deserialize_signed_transaction};
 
 use serde::{Deserialize, Serialize};
-use bee_rest_api::types::{OutputDto, AddressDto};
+use bee_rest_api::types::dtos::{OutputDto, AddressDto};
 use crate::operations::{utxo_input_operation, utxo_output_operation};
-use bee_rest_api::endpoints::api::v1::output::OutputResponse;
+use iota::OutputResponse;
 
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;

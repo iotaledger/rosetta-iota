@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use serde::{Deserialize, Serialize};
-use bee_rest_api::endpoints::api::v1::output::OutputResponse;
+use iota::OutputResponse;
 use std::collections::HashMap;
 use bee_message::prelude::*;
 
