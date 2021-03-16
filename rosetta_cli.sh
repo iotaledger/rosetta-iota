@@ -19,8 +19,8 @@ ROOT=$(pwd)
 PRUNE=1
 #RECONCILE=1
 #CLEAN=1
-DATA=1
-CONSTRUCTION=1
+#DATA=1
+#CONSTRUCTION=1
 
 # start servers (online and offline)
 RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3030 --mode online &
