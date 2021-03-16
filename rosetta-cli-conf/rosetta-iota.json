@@ -23,7 +23,10 @@
           "decimals": 0
         }
       }
-    ]
+    ],
+    "end_conditions": {
+      "transfer": 1
+    }
   },
   "data": {
     "start_index": 1,
