@@ -1,0 +1,20 @@
+name: rosetta_cli.sh check data + construction
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  rosetta_cli_data_construction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install deps
+        run: |
+          sudo apt-get install sed jq psmisc
+          curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s
+
+      - name: run rosetta_cli.sh
+        run: DATA=1 CONSTRUCTION=1 PRUNE=1 ./rosetta_cli.sh
