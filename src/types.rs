@@ -130,7 +130,9 @@ pub struct Operation {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct OperationMetadata;
+pub struct OperationMetadata {
+    pub is_spent: String, // TODO: bool
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PublicKey {
