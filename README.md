@@ -175,13 +175,13 @@ The `rosetta_cli.sh` shell script automates testing via `rosetta-cli`.
 Make sure you have run the following (on a Debian-based Linux) to install dependencies:
 ```
 $ sudo apt-get install sed jq psmisc
-$ curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s
 ```
 
 The script uses the following shell variables:
  - `NODE_URL`: specifies which IOTA Node will be used to enter the network.
  - `NETWORK`: specifies the network (e.g.: `mainnet` or `testnet6`).
  - `DATA_DIR`: specifies where `rosetta-cli` should write its files. 
+ - `INSTALL`: enables installation of `rosetta-cli` via `curl`. Comment out to disable.
  - `PRUNE`: enables pruning (useful when no Permanode is available). Comment out to disable.
  - `RECONCILE`: enables reconciliation. Comment out to disable.
  - `CLEAN`: enables deletion of `$DATA_DIR` everytime the script is executed. Comment out to disable.

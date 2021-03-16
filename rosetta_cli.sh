@@ -17,10 +17,17 @@ ROOT=$(pwd)
 
 # 1 to enable, comment out to disable
 PRUNE=1
+#INSTALL
 #RECONCILE=1
 #CLEAN=1
 #DATA=1
 #CONSTRUCTION=1
+
+if [ $INSTALL ]; then
+  # install rosetta-cli
+  echo "installing rosetta-cli via curl..."
+  curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
+fi
 
 # start servers (online and offline)
 RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3030 --mode online &
@@ -97,14 +104,14 @@ if [ $DATA ]; then
   # test Data API
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:data"
-  ~/bin/rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  ./rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 fi
 
 if [ $CONSTRUCTION ]; then
   # test Construction API
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:construction"
-  ~/bin/rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  ./rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 fi
 
 kill $PID_ONLINE
