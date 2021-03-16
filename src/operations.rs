@@ -19,10 +19,6 @@ pub const SKIPPED: &str = "Skipped";
 pub const UTXO_CONSUMED: &str = "coin_spent"; // UTXO Input, where coins are coming from into the Transaction
 pub const UTXO_CREATED: &str = "coin_created"; // UTXO Output, where coins are going out from the Transaction
 
-// operation metadata
-pub const UTXO_SPENT: &str = "UTXO_SPENT"; // UTXO has already been spent (possibly by another Transaction)
-pub const UTXO_UNSPENT: &str = "UTXO_UNSPENT"; // UTXO has not yet been spent
-
 pub fn operation_type_list() -> Vec<String> {
     let mut ret = vec![];
     ret.push(UTXO_INPUT.into());

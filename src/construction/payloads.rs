@@ -9,7 +9,6 @@ use bee_message::prelude::*;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::operations::UTXO_SPENT;
 use crate::construction::serialize_unsigned_transaction;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -44,12 +43,6 @@ pub(crate) async fn construction_payloads_request(
 
         match &operation.type_[..] {
             "UTXO_INPUT" => {
-
-                let operation_metadata = operation.metadata.ok_or(ApiError::BadConstructionRequest("metadata not populated".to_string()))?;
-
-                if operation_metadata.is_spent == UTXO_SPENT {
-                    return Err(ApiError::UnableToSpend);
-                }
 
                 let output_id = operation.coin_change.ok_or(ApiError::BadConstructionRequest("coin_change not populated for UTXO_INPUT".to_string()))?.coin_identifier.identifier;
                 let utxo_input = output_id.parse::<UTXOInput>().map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
