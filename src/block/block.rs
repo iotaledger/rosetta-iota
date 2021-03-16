@@ -11,6 +11,7 @@ use iota::MessageId;
 use bee_message::payload::transaction::{ Essence};
 use bee_message::Message;
 use bee_message::prelude::Output;
+use std::collections::HashSet;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -100,15 +101,19 @@ async fn messages_from_created_outputs(milestone_index: u32, iota_client: &Clien
         Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
     };
 
+    let mut message_hashset = HashSet::new(); // hashset to avoid duplicates
     let mut ret = Vec::new();
     for created_output_id_string in created_outputs {
         let created_output_id = created_output_id_string.parse::<OutputId>().map_err(|e| ApiError::BeeMessageError(e))?;
         let output_response = iota_client.get_output(&created_output_id.into()).await.map_err(|e| ApiError::IotaClientError(e))?;
-        let message = {
-            let message_id = output_response.message_id.parse::<MessageId>().map_err(|e| ApiError::BeeMessageError(e))?;
-            iota_client.get_message().data(&message_id).await.map_err(|e| ApiError::IotaClientError(e))?
-        };
-        ret.push(message);
+        if !message_hashset.contains(&output_response.message_id) {
+            let message = {
+                let message_id = output_response.message_id.parse::<MessageId>().map_err(|e| ApiError::BeeMessageError(e))?;
+                iota_client.get_message().data(&message_id).await.map_err(|e| ApiError::IotaClientError(e))?
+            };
+            message_hashset.insert(output_response.message_id);
+            ret.push(message);
+        }
     }
 
     Ok(ret)
