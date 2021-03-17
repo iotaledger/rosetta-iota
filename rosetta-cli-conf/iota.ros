@@ -54,12 +54,21 @@ transfer(1){
     });
 
     // list inputs from faucet deposits
-    inputA = "10000000";
-    inputB = "10000000";
+    inputA = math({
+      "operation": "subtraction",
+      "left_value": "0",
+      "right_value": "10000000"
+    });
+    inputB = math({
+      "operation": "subtraction",
+      "left_value": "0",
+      "right_value": "10000000"
+    });
+    inputSum = {{inputA}} + {{inputB}};
 
-    // Set the amountA as some value <= sender.balance - dust_allowance
+    // sender.balance < amountA < dust_allowance
     dust_allowance = "10000000";
-    available_amount = {{inputA}} + {{inputB}};
+    available_amount = 0 - {{inputSum}};
     amountA = random_number({"minimum": {{dust_allowance}}, "maximum": {{available_amount}}});
     print_message({"amountA":{{amountA}}});
 
