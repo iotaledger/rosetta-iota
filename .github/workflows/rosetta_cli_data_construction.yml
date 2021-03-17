@@ -15,5 +15,10 @@ jobs:
         run: |
           sudo apt-get install sed jq psmisc
 
+      - name: build
+        run: |
+          cargo build
+          cd src/utils; cargo build
+
       - name: run rosetta_cli.sh
         run: INSTALL=1 DATA=1 CONSTRUCTION=1 PRUNE=1 INDEXATION="rosetta-ci" ./rosetta_cli.sh
