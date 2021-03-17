@@ -1,10 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, options::Options, types::{
-                                                                                        Amount, BlockIdentifier}, build_iota_client, require_online_mode, is_bad_network};
-use log::debug;
+use crate::{currency::iota_currency, error::ApiError, options::Options, types::{Amount, BlockIdentifier}, build_iota_client, require_online_mode, is_bad_network};
 use crate::types::{NetworkIdentifier, AccountIdentifier, PartialBlockIdentifier};
+
+use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -28,10 +28,9 @@ pub async fn account_balance(
     debug!("/account/balance");
 
     let _ = require_online_mode(&options)?;
-
     is_bad_network(&options, &account_balance_request.network_identifier)?;
 
-    // no historical balance lookup
+    // historical balance lookup is not supported
     if account_balance_request.block_identifier.is_some() {
         return Err(ApiError::HistoricalBalancesUnsupported);
     }
@@ -43,31 +42,29 @@ pub async fn account_balance(
         Err(_) => return Err(ApiError::UnableToGetNodeInfo),
     };
 
-    let confirmed_milestone_index = node_info.confirmed_milestone_index;
-    let solid_milestone = match iota_client.get_milestone(confirmed_milestone_index).await {
-        Ok(solid_milestone) => solid_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone(confirmed_milestone_index)),
-    };
-
-    let block_identifier = BlockIdentifier {
-        index: solid_milestone.index,
-        hash: solid_milestone.message_id.to_string(),
+    let confirmed_milestone = match iota_client.get_milestone(node_info.confirmed_milestone_index).await {
+        Ok(confirmed_milestone) => confirmed_milestone,
+        Err(_) => return Err(ApiError::UnableToGetMilestone(node_info.confirmed_milestone_index)),
     };
 
     let address = account_balance_request.account_identifier.address;
-
     let balance = match iota_client.get_address().balance(&address.into()).await {
         Ok(balance) => balance,
         Err(_) => return Err(ApiError::UnableToGetBalance),
     };
 
     let response = AccountBalanceResponse {
-        block_identifier,
-        balances: vec![Amount {
-            value: balance.balance.to_string(),
-            currency: iota_currency(),
-            metadata: None
-        }]
+        block_identifier: BlockIdentifier {
+            index: confirmed_milestone.index,
+            hash: confirmed_milestone.message_id.to_string(),
+        },
+        balances: vec![
+            Amount {
+                value: balance.balance.to_string(),
+                currency: iota_currency(),
+                metadata: None
+            }
+        ]
     };
 
     Ok(response)
