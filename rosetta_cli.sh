@@ -119,5 +119,9 @@ if [ $CONSTRUCTION ]; then
   ./rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
 fi
 
+if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
+  echo "nothing to do... exiting"
+fi
+
 kill $PID_ONLINE
 kill $PID_OFFLINE
