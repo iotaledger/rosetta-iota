@@ -53,9 +53,9 @@ pub(crate) async fn construction_payloads_request(
             },
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&address).unwrap();
-                let amount = operation.amount.ok_or(ApiError::BadConstructionRequest("amount not populated".to_string()))?.value.parse::<i64>().unwrap() * -1;
+                let amount = operation.amount.ok_or(ApiError::BadConstructionRequest("amount not populated".to_string()))?.value.parse::<u64>().unwrap();
                 // todo: tread Dust allowance
-                let output: Output = SignatureLockedSingleOutput::new(address, amount as u64).unwrap().into();
+                let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
                 outputs.push(output);
             },
             _ => return Err(ApiError::UnknownOperationType)

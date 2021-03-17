@@ -17,8 +17,7 @@ pub struct ConstructionPreprocessRequest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionPreprocessResponse {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<PreprocessOptions>,
+    pub options: PreprocessOptions,
 }
 
 pub async fn construction_preprocess_request(
@@ -43,8 +42,8 @@ pub async fn construction_preprocess_request(
     }
 
     Ok(ConstructionPreprocessResponse {
-        options: Some(PreprocessOptions {
+        options: PreprocessOptions {
             inputs: transaction_inputs
-        })
+        }
     })
 }

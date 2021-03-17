@@ -13,8 +13,7 @@ use std::collections::HashMap;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<PreprocessOptions>,
+    pub options: PreprocessOptions,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -33,10 +32,8 @@ pub(crate) async fn construction_metadata_request(
 
     let iota_client = build_iota_client(&options).await?;
 
-    let preprocess_options = construction_metadata_request.options.ok_or(ApiError::BadConstructionRequest("options not populated".to_string()))?;
-
     let mut utxo_inputs_metadata = HashMap::new();
-    for input_id in preprocess_options.inputs {
+    for input_id in construction_metadata_request.options.inputs {
         let input = input_id.parse::<UTXOInput>().map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
         let input_metadata = iota_client.get_output(&input).await.map_err(|e| ApiError::IotaClientError(e))?;
         utxo_inputs_metadata.insert(input_id, input_metadata);

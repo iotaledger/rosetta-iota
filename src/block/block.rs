@@ -21,8 +21,7 @@ pub struct BlockRequest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockResponse {
-    pub block: Block,
-    // pub other_transactions: Vec<TransactionIdentifier>
+    pub block: Block
 }
 
 pub async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
