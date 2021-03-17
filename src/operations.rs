@@ -40,7 +40,7 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
         sub_account: None,
     };
     let amount = Amount {
-        value: amnt.to_string(),
+        value: (amnt as i64 * -1).to_string(),
         currency: iota_currency(),
         metadata: None
     };
