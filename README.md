@@ -181,12 +181,17 @@ The script uses the following shell variables:
  - `NODE_URL`: specifies which IOTA Node will be used to enter the network.
  - `NETWORK`: specifies the network (e.g.: `mainnet` or `testnet6`).
  - `DATA_DIR`: specifies where `rosetta-cli` should write its files. 
- - `INSTALL`: enables installation of `rosetta-cli` via `curl`. Comment out to disable.
- - `PRUNE`: enables pruning (useful when no Permanode is available). Comment out to disable.
- - `RECONCILE`: enables reconciliation. Comment out to disable.
- - `CLEAN`: enables deletion of `$DATA_DIR` everytime the script is executed. Comment out to disable.
- - `DATA`: enables execution of `rosetta-cli check:data`. Comment out to disable.
- - `CONSTRUCTION`: enables execution of `rosetta-cli check:construction`. Comment out to disable.
+ - `INSTALL`: enables installation of `rosetta-cli` via `curl`. Disabled by default.
+ - `PRUNE`: enables pruning (useful when no Permanode is available). Disabled by default.
+ - `RECONCILE`: enables reconciliation. Disabled by default.
+ - `CLEAN`: enables deletion of `$DATA_DIR` everytime the script is executed. Disabled by default.
+ - `DATA`: enables execution of `rosetta-cli check:data`. Disabled by default.
+ - `CONSTRUCTION`: enables execution of `rosetta-cli check:construction`. Disabled by default.
+ 
+For example, you could run the script with the following options:
+```
+$ INSTALL=1 PRUNE=1 DATA=1 CONSTRUCTION=1 ./rosetta_cli.sh
+```
  
 ### curl
 
