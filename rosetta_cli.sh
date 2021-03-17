@@ -9,9 +9,15 @@ git checkout rosetta-cli-conf/rosetta-iota.json
 git checkout rosetta-cli-conf/iota.ros
 
 # define a few vars
-NODE_URL="http://honeycombos.iota.cafe:14265"
-NETWORK="testnet6"
-DATA_DIR=".rosetta-cli"
+if [ -z "$NODE_URL" ]; then
+  NODE_URL="http://honeycombos.iota.cafe:14265"
+fi
+if [ -z "$NETWORK" ]; then
+  NETWORK="testnet6"
+fi
+if [ -z "$DATA_DIR" ]; then
+  DATA_DIR=".rosetta-cli"
+fi
 
 ROOT=$(pwd)
 
