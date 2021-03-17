@@ -18,6 +18,12 @@ fi
 if [ -z "$DATA_DIR" ]; then
   DATA_DIR=".rosetta-cli"
 fi
+if [ -z "$INDEXATION" ]; then
+  INDEXATION="rosetta"
+fi
+if [ -z "$HRP" ]; then
+  HRP="atoi"
+fi
 
 ROOT=$(pwd)
 
@@ -36,10 +42,10 @@ if [ $INSTALL ]; then
 fi
 
 # start servers (online and offline)
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3030 --mode online &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3030 --mode online &
 PID_ONLINE=$!
 
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp atoi --indexation rosetta --port 3031 --mode offline &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3031 --mode offline &
 PID_OFFLINE=$!
 
 # wait for server to completely start

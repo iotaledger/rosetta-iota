@@ -16,4 +16,4 @@ jobs:
           sudo apt-get install sed jq psmisc
 
       - name: run rosetta_cli.sh
-        run: INSTALL=1 DATA=1 CONSTRUCTION=1 PRUNE=1 ./rosetta_cli.sh
+        run: INSTALL=1 DATA=1 CONSTRUCTION=1 PRUNE=1 INDEXATION="rosetta-ci" ./rosetta_cli.sh
