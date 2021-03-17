@@ -52,6 +52,11 @@ if [ $CONSTRUCTION ]; then
   cd src/utils
   PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run 2> /dev/null)
 
+  if [ -z "$PREFUNDED_ACCOUNT" ]; then
+    echo "error on getting funds from faucet... exiting"
+    exit 1
+  fi
+
   echo "prefunded_account: ${PREFUNDED_ACCOUNT}"
 
   SK=$(echo $PREFUNDED_ACCOUNT | jq '.sk')
