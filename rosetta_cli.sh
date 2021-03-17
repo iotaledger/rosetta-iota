@@ -122,6 +122,12 @@ if [ $DATA ]; then
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:data"
   ./rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  DATA_EXIT=$?
+fi
+
+if [ $DATA_EXIT ]; then
+  echo "rosetta-cli check:data unsuccessful..."
+  exit $DATA_EXIT
 fi
 
 if [ $CONSTRUCTION ]; then
@@ -129,6 +135,17 @@ if [ $CONSTRUCTION ]; then
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:construction"
   ./rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  CONSTRUCTION_EXIT=$?
+fi
+
+if [ $CONSTRUCTION_EXIT ]; then
+  echo "rosetta-cli check:construction unsuccessful..."
+  exit $CONSTRUCTION_EXIT
+fi
+
+if [ $DATA_EXIT ]; then
+  echo "rosetta-cli check:data unsuccessful..."
+  exit 1
 fi
 
 if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
