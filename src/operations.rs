@@ -55,8 +55,8 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
         related_operations: None,
         type_: UTXO_INPUT.into(),
         status: match online {
-            true => Some(SUCCESS.into()),
-            false => None,
+            true => Some(SUCCESS.into()), // call coming from /data/block
+            false => None, // call coming from /construction/parse
         },
         account: Some(account),
         amount: Some(amount),
