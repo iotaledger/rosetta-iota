@@ -35,13 +35,11 @@ struct PrefundedAccount {
     balance: u64
 }
 
-/// In this example we create addresses from a seed defined in .env
-#[tokio::main]
-async fn main() {
+pub async fn ask_faucet() {
 
     // Create iota client
     let iota = Client::builder() // Crate a client instance builder
-        .with_node("http://honeycombos.iota.cafe:14265") // Insert the node here
+        .with_node("http://api.hornet-1.testnet.chrysalis2.com/") // Insert the node here
         .unwrap()
         .finish()
         .await

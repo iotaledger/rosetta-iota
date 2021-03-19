@@ -62,7 +62,7 @@ if [ $CONSTRUCTION ]; then
   echo "asking for faucet funds to load up prefunded_accounts..."
 
   cd src/utils
-  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run 2> /dev/null)
+  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run -- --mode faucet 2> /dev/null)
 
   if [ -z "$PREFUNDED_ACCOUNT" ]; then
     echo "error on getting funds from faucet... exiting"
