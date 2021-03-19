@@ -74,6 +74,7 @@ if [ $CONSTRUCTION ]; then
   SK=$(echo $PREFUNDED_ACCOUNT | jq '.sk')
   ADDR=$(echo $PREFUNDED_ACCOUNT | jq '.bech32_addr')
 
+  cat <<< $(jq --argjson ADDR "$ADDR" '.[1].account_identifier.address |= $ADDR' $ROOT/rosetta-cli-conf/bootstrap_balances.json) > $ROOT/rosetta-cli-conf/bootstrap_balances.json
   cat <<< $(jq --argjson ADDR "$ADDR" '.construction.prefunded_accounts[0].account_identifier.address |= $ADDR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq --argjson SK "$SK" '.construction.prefunded_accounts[0].privkey |= $SK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 
