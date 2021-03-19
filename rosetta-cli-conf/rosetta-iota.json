@@ -37,6 +37,7 @@
     "log_reconciliations": false,
     "reconciliation_disabled": true,
     "pruning_disabled": false,
+    "bootstrap_balances": "bootstrap_balances.json",
     "end_conditions": {
       "tip": true
     }
