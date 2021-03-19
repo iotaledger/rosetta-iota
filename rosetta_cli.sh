@@ -10,7 +10,7 @@ git checkout rosetta-cli-conf/iota.ros
 
 # define a few vars
 if [ -z "$NODE_URL" ]; then
-  NODE_URL="http://honeycombos.iota.cafe:14265"
+  NODE_URL="https://api.hornet-rosetta.testnet.chrysalis2.com"
 fi
 if [ -z "$NETWORK" ]; then
   NETWORK="testnet6"
@@ -96,7 +96,13 @@ fi
 if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
   # modify rosetta-iota.json to make sure we are syncing from the pruned milestone
   PRUNE_MS=$(curl -s -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
-  START_MS=`expr $PRUNE_MS + 2`
+
+  # when starting from a $PRUNE_MS != 0, jump 2 because of parent block + unavailable pruning MS
+  if [ "$PRUNE_MS" -gt "0" ]; then
+    START_MS=`expr $PRUNE_MS + 2`
+  else
+    START_MS="1"
+  fi
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json

@@ -21,4 +21,4 @@ jobs:
           cd src/utils; cargo build
 
       - name: run rosetta_cli.sh
-        run: INSTALL=1 CONSTRUCTION=1 PRUNE=1 INDEXATION="rosetta-ci" ./rosetta_cli.sh
+        run: INSTALL=1 CONSTRUCTION=1 INDEXATION="rosetta-ci" ./rosetta_cli.sh
