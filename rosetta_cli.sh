@@ -131,9 +131,9 @@ if [ $DATA ]; then
   DATA_EXIT=$?
 fi
 
-if [ $DATA_EXIT ]; then
+if [ $DATA ] && [ $DATA_EXIT -ne 0 ]; then
   echo "rosetta-cli check:data unsuccessful..."
-  exit $DATA_EXIT
+  exit 1
 fi
 
 if [ $CONSTRUCTION ]; then
@@ -144,14 +144,9 @@ if [ $CONSTRUCTION ]; then
   CONSTRUCTION_EXIT=$?
 fi
 
-if [ $CONSTRUCTION_EXIT ]; then
+if [ $CONSTRUCTION ] && [ $CONSTRUCTION_EXIT -ne 0 ]; then
   echo "rosetta-cli check:construction unsuccessful..."
   exit $CONSTRUCTION_EXIT
-fi
-
-if [ $DATA_EXIT ]; then
-  echo "rosetta-cli check:data unsuccessful..."
-  exit 1
 fi
 
 if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
