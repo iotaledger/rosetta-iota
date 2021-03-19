@@ -103,7 +103,7 @@ impl ApiError {
             ApiError::UnsupportedCurve => false,
             ApiError::HexDecodingFailed(_) => false,
             ApiError::BeeMessageError(_) => false,
-            ApiError::IotaClientError(_) => false,
+            ApiError::IotaClientError(_) => true,
             ApiError::UnavailableOffline => false,
             ApiError::UnavailableOnline => false,
             ApiError::UnableToSpend => false,
