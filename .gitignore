@@ -17,3 +17,6 @@ book
 # Rosetta CLI
 .rosetta-cli
 rosetta-cli
+
+# utils snapshot
+src/utils/full_snapshot.bin

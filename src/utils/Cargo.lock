@@ -3297,12 +3297,14 @@ dependencies = [
  "iota-core 0.2.0-alpha.3 (git+https://github.com/iotaledger/iota.rs?branch=dev)",
  "iota-crypto 0.2.0 (git+https://github.com/iotaledger/crypto.rs?rev=8aa41999e88f41c4607451a6f8283bbc69c31d41)",
  "iota-wallet",
+ "log",
  "rand 0.7.3",
  "reqwest",
  "serde 1.0.123",
  "serde_json",
  "serde_repr",
  "structopt",
+ "thiserror",
  "tokio",
 ]
 
