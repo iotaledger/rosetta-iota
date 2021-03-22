@@ -13,6 +13,16 @@ IOTA Fullnodes (such as [HORNET](https://github.com/gohornet/hornet.git) and [BE
 
 Only Permanodes (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) have the ability of holding the entire Tangle history.
 
+## Node Endpoints
+The following IOTA Node endpoints are necessary for the `rosetta-iota` implementation:
+ - `/api/v1/info`
+ - `/api/v1/milestones`
+ - `/api/v1/milestones/{milestoneId}/utxo-changes`
+ - `/api/v1/address`
+ - `/api/v1/peers`
+ - `/api/v1/outputs`
+ - `/api/v1/messages`
+
 # IOTA and Rosetta
 
 Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.
