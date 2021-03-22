@@ -4,6 +4,9 @@
 use log::{error, info, warn};
 use std::{fs::File, io::copy, path::Path};
 use thiserror::Error;
+use bee_snapshot::header::SnapshotHeader;
+use bee_common::packable::Packable;
+use std::{io::BufReader, fs::OpenOptions};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -16,6 +19,8 @@ pub enum Error {
 pub async fn bootstrap_balances_from_snapshot() {
     download_snapshot_file(Path::new("full_snapshot.bin"),
                            &[String::from("https://dbfiles.testnet.chrysalis2.com/")]).await.unwrap();
+    let mut reader = BufReader::new(OpenOptions::new().read(true).open("full_snapshot.bin").expect("could not open snapshot"));
+    let header = SnapshotHeader::unpack(&mut reader).await;
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {

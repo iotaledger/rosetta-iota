@@ -263,6 +263,20 @@ checksum = "6c7f7096bc256f5e5cb960f60dfc4f4ef979ca65abe7fb9d5a4f77150d3783d4"
 
 [[package]]
 name = "bee-common"
+version = "0.1.1-alpha"
+source = "git+https://github.com/iotaledger/bee.git?rev=dev#3c67aeff3a485700fd494f9d749ac0a26cadb39a"
+dependencies = [
+ "chrono",
+ "dashmap 3.11.10",
+ "fern",
+ "futures",
+ "log",
+ "serde 1.0.123",
+ "thiserror",
+]
+
+[[package]]
+name = "bee-common"
 version = "0.3.1-alpha"
 source = "git+https://github.com/iotaledger/bee.git?rev=c42171ff33c80cc2efb183e244dc79b7f58d9ac4#c42171ff33c80cc2efb183e244dc79b7f58d9ac4"
 dependencies = [
@@ -3291,7 +3305,9 @@ dependencies = [
 name = "rosetta-iota-utils"
 version = "0.1.0"
 dependencies = [
+ "bee-common 0.1.1-alpha",
  "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04)",
+ "bee-snapshot 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04)",
  "dotenv",
  "hex",
  "iota-core 0.2.0-alpha.3 (git+https://github.com/iotaledger/iota.rs?branch=dev)",
