@@ -69,3 +69,39 @@ pub async fn account_balance(
 
     Ok(response)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_balance() {
+        let request = AccountBalanceRequest {
+            network_identifier: NetworkIdentifier {
+                blockchain: "iota".to_string(),
+                network: "testnet6".to_string(),
+                sub_network_identifier: None
+            },
+            account_identifier: AccountIdentifier {
+                address: String::from("atoi1qqp4g5xv4zjweaj5tu44yn365afdhe3n3t9nmp9wqreahzp8a3egc5zrx2h"),
+                sub_account: None
+            },
+            block_identifier: None
+        };
+
+        let server_options = Options {
+            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
+            bech32_hrp: "atoi".to_string(),
+            mode: "online".to_string(),
+            port: 3030
+        };
+
+        let response = account_balance(request, server_options).await.unwrap();
+
+        assert_eq!("IOTA", response.balances[0].currency.symbol);
+        assert_eq!(0, response.balances[0].currency.decimals);
+        // todo: more assertions
+    }
+}
