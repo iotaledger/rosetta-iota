@@ -217,3 +217,39 @@ async fn build_rosetta_transactions(messages: Vec<Message>, iota_client: &Client
 
     Ok(ret)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_block() {
+        let request = BlockRequest {
+            network_identifier: NetworkIdentifier {
+                blockchain: "iota".to_string(),
+                network: "testnet6".to_string(),
+                sub_network_identifier: None
+            },
+            block_identifier: PartialBlockIdentifier {
+                index: Some(10),
+                hash: None
+            }
+        };
+
+        let server_options = Options {
+            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
+            bech32_hrp: "atoi".to_string(),
+            mode: "online".to_string(),
+            port: 3030
+        };
+        let response = block(request, server_options).await.unwrap();
+        assert_eq!(10, response.block.block_identifier.index);
+        assert_eq!("62dd0dfde19584d250ea34157ee17945996380b792944bbea17b011ddc3225e3", response.block.block_identifier.hash);
+        assert_eq!(9, response.block.parent_block_identifier.index);
+        assert_eq!("b26f8a43e1e40c62f5c4984e1e778650a93ee53d915559adc032de7bfe30291f", response.block.parent_block_identifier.hash);
+        assert_eq!(1614779517000, response.block.timestamp);
+        assert_eq!(false, response.block.metadata.is_some());
+    }
+}
