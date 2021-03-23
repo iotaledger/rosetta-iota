@@ -66,3 +66,31 @@ pub async fn network_options(
 
     Ok(response)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_network_options() {
+        let request = NetworkOptionsRequest {
+            network_identifier: NetworkIdentifier {
+                blockchain: "iota".to_string(),
+                network: "testnet6".to_string(),
+                sub_network_identifier: None
+            }
+        };
+
+        let server_options = Options {
+            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
+            bech32_hrp: "atoi".to_string(),
+            mode: "online".to_string(),
+            port: 3030
+        };
+        let response = network_options(request, server_options).await.unwrap();
+
+        // todo: assertions
+    }
+}
