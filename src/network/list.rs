@@ -29,3 +29,25 @@ pub async fn network_list(_empty: EmptyRequest, options: Options) -> Result<Netw
 
     Ok(response)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_network_list() {
+        let server_options = Options {
+            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
+            bech32_hrp: "atoi".to_string(),
+            mode: "online".to_string(),
+            port: 3030
+        };
+        let response = network_list(EmptyRequest, server_options).await.unwrap();
+
+        assert_eq!("iota", response.network_identifiers[0].blockchain);
+        assert_eq!("testnet6", response.network_identifiers[0].network);
+        assert_eq!(false, response.network_identifiers[0].sub_network_identifier.is_some())
+    }
+}
