@@ -8,15 +8,5 @@
       "decimals":0
     },
     "value": "2779530283277761"
-  },
-  {
-    "account_identifier": {
-      "address":"atoi1qqp4g5xv4zjweaj5tu44yn365afdhe3n3t9nmp9wqreahzp8a3egc5zrx2h"
-    },
-    "currency":{
-      "symbol":"IOTA",
-      "decimals":0
-    },
-    "value": "20000000"
   }
 ]
