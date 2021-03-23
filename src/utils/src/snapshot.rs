@@ -17,6 +17,8 @@ pub enum Error {
 }
 
 pub async fn bootstrap_balances_from_snapshot() {
+    use bee_common::packable::Packable;
+
     download_snapshot_file(Path::new("full_snapshot.bin"),
                            &[String::from("https://dbfiles.testnet.chrysalis2.com/")]).await.unwrap();
     let mut reader = BufReader::new(OpenOptions::new().read(true).open("full_snapshot.bin").expect("could not open snapshot"));
