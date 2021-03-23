@@ -81,3 +81,35 @@ pub async fn account_coins(
 
     Ok(response)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_coins() {
+        let request = AccountCoinsRequest {
+            network_identifier: NetworkIdentifier {
+                blockchain: "iota".to_string(),
+                network: "testnet6".to_string(),
+                sub_network_identifier: None
+            },
+            account_identifier: AccountIdentifier {
+                address: String::from("atoi1qzgrk7whadapf4qw5sqvlxkrr0ve3nv09xgdfyc09gfp3e2369ghsj5g2rf"),
+                sub_account: None
+            },
+        };
+
+        let server_options = Options {
+            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet6".to_string(),
+            indexation: "rosetta".to_string(),
+            bech32_hrp: "atoi".to_string(),
+            mode: "online".to_string(),
+            port: 3030
+        };
+
+        let response = account_coins(request, server_options).await.unwrap();
+        // todo: assertions
+    }
+}
