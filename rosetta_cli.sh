@@ -115,6 +115,7 @@ if [ $RECONCILE ]; then
   cat <<< $(jq '.data.reconciliation_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq 'del(.data.end_conditions.tip)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
 else
   cat <<< $(jq '.data.reconciliation_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
   cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json

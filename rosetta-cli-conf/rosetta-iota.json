@@ -6,6 +6,7 @@
   "online_url": "http://localhost:3030",
   "data_directory": ".rosetta-cli",
   "max_sync_concurrency": 16,
+  "tip_delay": 5,
   "http_timeout": 1000,
   "max_retries": 50,
   "construction": {
