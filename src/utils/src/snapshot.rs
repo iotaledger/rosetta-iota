@@ -4,7 +4,7 @@
 use log::{error, info, warn};
 use std::{fs::File, io::copy, path::Path};
 use thiserror::Error;
-use bee_snapshot::header::SnapshotHeader;
+use bee_snapshot::{info::SnapshotInfo, header::SnapshotHeader};
 use bee_common::packable::Packable;
 use std::{io::BufReader, fs::OpenOptions};
 
@@ -17,10 +17,27 @@ pub enum Error {
 }
 
 pub async fn bootstrap_balances_from_snapshot() {
-    download_snapshot_file(Path::new("full_snapshot.bin"),
-                           &[String::from("https://dbfiles.testnet.chrysalis2.com/")]).await.unwrap();
-    let mut reader = BufReader::new(OpenOptions::new().read(true).open("full_snapshot.bin").expect("could not open snapshot"));
+
+    let full_path = Path::new("full_snapshot.bin");
+    let delta_path = Path::new("delta_snapshot.bin");
+    let url = "https://dbfiles.testnet.chrysalis2.com/";
+
+    if !full_path.exists() {
+        println!("Downloading full snapshot...");
+        download_snapshot_file(full_path,
+                                &[String::from(url)]).await.unwrap();
+    }
+
+    if !delta_path.exists() {
+        println!("Downloading delta snapshot...");
+        download_snapshot_file(delta_path,
+                               &[String::from(url)]).await.unwrap();
+    }
+
+    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("could not open snapshot"));
+
     let header = SnapshotHeader::unpack(&mut reader).unwrap();
+    let ms_index = header.sep_index();
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {
