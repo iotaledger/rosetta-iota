@@ -20,3 +20,4 @@ rosetta-cli
 
 # utils snapshot
 src/utils/full_snapshot.bin
+src/utils/delta_snapshot.bin
