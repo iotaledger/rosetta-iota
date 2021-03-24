@@ -5,8 +5,7 @@ fuser -k 3030/tcp
 fuser -k 3031/tcp
 
 # clean up any previous modifications to config files
-git checkout rosetta-cli-conf/rosetta-iota.json
-git checkout rosetta-cli-conf/iota.ros
+git checkout rosetta-cli-conf
 
 # define a few vars
 if [ -z "$NODE_URL" ]; then
@@ -34,6 +33,7 @@ PRUNE=1
 #CLEAN=1
 #DATA=1
 #CONSTRUCTION=1
+#MAINNET=1
 
 if [ $INSTALL ]; then
   # install rosetta-cli
@@ -51,10 +51,16 @@ PID_OFFLINE=$!
 # wait for server to completely start
 sleep 1
 
+if [ $MAINNET ]; then
+  CONF_DIR=$ROOT/rosetta-cli-conf/mainnet
+else
+  CONF_DIR=$ROOT/rosetta-cli-conf/testnet
+fi
+
 if [ $CLEAN ]; then
   rm -rf $DATA_DIR
 else
-  cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
 if [ $CONSTRUCTION ]; then
@@ -74,8 +80,8 @@ if [ $CONSTRUCTION ]; then
   SK=$(echo $PREFUNDED_ACCOUNT | jq '.sk')
   ADDR=$(echo $PREFUNDED_ACCOUNT | jq '.bech32_addr')
 
-  cat <<< $(jq --argjson ADDR "$ADDR" '.construction.prefunded_accounts[0].account_identifier.address |= $ADDR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq --argjson SK "$SK" '.construction.prefunded_accounts[0].privkey |= $SK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq --argjson ADDR "$ADDR" '.construction.prefunded_accounts[0].account_identifier.address |= $ADDR' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq --argjson SK "$SK" '.construction.prefunded_accounts[0].privkey |= $SK' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 
   cd $ROOT
 
@@ -89,8 +95,8 @@ if [ $CONSTRUCTION ]; then
   echo "output_id_A: ${OUTPUT_ID_A}"
   echo "output_id_B: ${OUTPUT_ID_B}"
 
-  sed -i 's/idA/'$OUTPUT_ID_A'/g' $ROOT/rosetta-cli-conf/iota.ros
-  sed -i 's/idB/'$OUTPUT_ID_B'/g' $ROOT/rosetta-cli-conf/iota.ros
+  sed -i 's/idA/'$OUTPUT_ID_A'/g' $CONF_DIR/iota.ros
+  sed -i 's/idB/'$OUTPUT_ID_B'/g' $CONF_DIR/iota.ros
 fi
 
 if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
@@ -104,30 +110,30 @@ if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
     START_MS="1"
   fi
 
-  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq '.data.pruning_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq '.data.pruning_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 elif ! [ $PRUNE ]; then
-  cat <<< $(jq 'del(.data.start_index)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq '.data.pruning_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq '.data.pruning_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
 if [ $RECONCILE ]; then
-  cat <<< $(jq '.data.reconciliation_disabled |= false' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.reconciliation_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 else
-  cat <<< $(jq '.data.reconciliation_disabled |= true' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-  cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+  cat <<< $(jq '.data.reconciliation_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
-cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
-cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $ROOT/rosetta-cli-conf/rosetta-iota.json
+cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 
 if [ $DATA ]; then
   # test Data API
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:data"
-  ./rosetta-cli check:data --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  ./rosetta-cli check:data --configuration-file $CONF_DIR/rosetta-iota.json
   DATA_EXIT=$?
 fi
 
@@ -140,7 +146,7 @@ if [ $CONSTRUCTION ]; then
   # test Construction API
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:construction"
-  ./rosetta-cli check:construction --configuration-file $ROOT/rosetta-cli-conf/rosetta-iota.json
+  ./rosetta-cli check:construction --configuration-file $CONF_DIR/rosetta-iota.json
   CONSTRUCTION_EXIT=$?
 fi
 
