@@ -263,20 +263,6 @@ checksum = "6c7f7096bc256f5e5cb960f60dfc4f4ef979ca65abe7fb9d5a4f77150d3783d4"
 
 [[package]]
 name = "bee-common"
-version = "0.1.1-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=dev#3c67aeff3a485700fd494f9d749ac0a26cadb39a"
-dependencies = [
- "chrono",
- "dashmap 3.11.10",
- "fern",
- "futures",
- "log",
- "serde 1.0.123",
- "thiserror",
-]
-
-[[package]]
-name = "bee-common"
 version = "0.3.1-alpha"
 source = "git+https://github.com/iotaledger/bee.git?rev=c42171ff33c80cc2efb183e244dc79b7f58d9ac4#c42171ff33c80cc2efb183e244dc79b7f58d9ac4"
 dependencies = [
@@ -396,6 +382,21 @@ dependencies = [
 [[package]]
 name = "bee-message"
 version = "0.1.0-alpha"
+source = "git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9#89355819bc34c3433ac2613ead44134c51af75f9"
+dependencies = [
+ "bech32",
+ "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
+ "bee-pow 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
+ "digest 0.9.0",
+ "hex",
+ "iota-crypto 0.3.0",
+ "ref-cast",
+ "thiserror",
+]
+
+[[package]]
+name = "bee-message"
+version = "0.1.0-alpha"
 source = "git+https://github.com/iotaledger/bee.git?rev=acab07e4bcff947c70cde312789a2ef2977c652b#acab07e4bcff947c70cde312789a2ef2977c652b"
 dependencies = [
  "bech32",
@@ -455,6 +456,17 @@ dependencies = [
  "bee-crypto 0.2.0-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
  "bee-ternary 0.4.0-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
  "iota-crypto 0.2.0 (git+https://github.com/iotaledger/crypto.rs?rev=09ff1a94d6a87838589ccf1b874cfa3283a00f26)",
+ "thiserror",
+]
+
+[[package]]
+name = "bee-pow"
+version = "0.1.0-alpha"
+source = "git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9#89355819bc34c3433ac2613ead44134c51af75f9"
+dependencies = [
+ "bee-crypto 0.2.0-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
+ "bee-ternary 0.4.0-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
+ "iota-crypto 0.3.0",
  "thiserror",
 ]
 
@@ -617,6 +629,26 @@ dependencies = [
  "async-trait",
  "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
  "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04)",
+ "bee-runtime",
+ "bee-storage",
+ "chrono",
+ "flume",
+ "futures",
+ "log",
+ "reqwest",
+ "serde 1.0.123",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "bee-snapshot"
+version = "0.1.0-alpha"
+source = "git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9#89355819bc34c3433ac2613ead44134c51af75f9"
+dependencies = [
+ "async-trait",
+ "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
+ "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
  "bee-runtime",
  "bee-storage",
  "chrono",
@@ -3305,9 +3337,9 @@ dependencies = [
 name = "rosetta-iota-utils"
 version = "0.1.0"
 dependencies = [
- "bee-common 0.1.1-alpha",
- "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04)",
- "bee-snapshot 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=6a3ac5d7475a8f13289da4bdc8c920e4d4b97c04)",
+ "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
+ "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
+ "bee-snapshot 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
  "dotenv",
  "hex",
  "iota-core 0.2.0-alpha.3 (git+https://github.com/iotaledger/iota.rs?branch=dev)",
@@ -3935,9 +3967,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.2.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8190d04c665ea9e6b6a0dc45523ade572c088d2e6566244c1122671dbf4ae3a"
+checksum = "134af885d758d645f0f0505c9a8b3f9bf8a348fd822e112ab5248138348f1722"
 dependencies = [
  "autocfg",
  "bytes",
