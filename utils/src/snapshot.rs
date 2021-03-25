@@ -41,7 +41,7 @@ pub async fn bootstrap_balances_from_snapshot() {
 
     let sep_index = read_delta_snapshot(delta_path).await;
     let created_outputs = read_full_snapshot(full_path).await;
-    
+
 }
 
 async fn read_delta_snapshot(delta_path: &Path) -> MilestoneIndex {
