@@ -19,5 +19,5 @@ book
 rosetta-cli
 
 # utils snapshot
-src/utils/full_snapshot.bin
-src/utils/delta_snapshot.bin
+utils/full_snapshot.bin
+utils/delta_snapshot.bin
