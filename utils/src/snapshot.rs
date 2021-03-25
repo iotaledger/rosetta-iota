@@ -4,9 +4,12 @@
 use log::{error, info, warn};
 use std::{fs::File, io::copy, path::Path};
 use thiserror::Error;
-use bee_snapshot::{info::SnapshotInfo, header::SnapshotHeader, milestone_diff::MilestoneDiff};
+use bee_snapshot::{ header::SnapshotHeader};
 use bee_common::packable::Packable;
 use std::{io::BufReader, fs::OpenOptions};
+use bee_message::prelude::*;
+use std::collections::HashMap;
+use bee_message::solid_entry_point::SolidEntryPoint;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -14,6 +17,8 @@ pub enum Error {
     InvalidFilePath(String),
     #[error("")]
     NoDownloadSourceAvailable,
+    #[error("")]
+    UnsupportedOutputKind,
 }
 
 pub async fn bootstrap_balances_from_snapshot() {
@@ -25,7 +30,7 @@ pub async fn bootstrap_balances_from_snapshot() {
     if !full_path.exists() {
         println!("Downloading full snapshot...");
         download_snapshot_file(full_path,
-                                &[String::from(url)]).await.unwrap();
+                               &[String::from(url)]).await.unwrap();
     }
 
     if !delta_path.exists() {
@@ -34,11 +39,54 @@ pub async fn bootstrap_balances_from_snapshot() {
                                &[String::from(url)]).await.unwrap();
     }
 
-    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("could not open snapshot"));
+    let sep_index = read_delta_snapshot(delta_path).await;
+    let created_outputs = read_full_snapshot(full_path).await;
+    
+}
 
+async fn read_delta_snapshot(delta_path: &Path) -> MilestoneIndex {
+    println!("Reading delta snapshot...");
+    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("could not open delta snapshot"));
     let header = SnapshotHeader::unpack(&mut reader).unwrap();
-    let ms_index = header.sep_index();
-    let ms_diff = MilestoneDiff::unpack(&mut reader).unwrap();
+
+    for _ in 0..header.sep_count() {
+        let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
+    }
+
+    let sep_index = header.sep_index();
+
+    println!("Delta snapshot successfully read.");
+
+    sep_index
+}
+
+async fn read_full_snapshot(full_path: &Path) -> HashMap<OutputId, CreatedOutput>{
+    println!("Reading full snapshot...");
+
+    let mut reader = BufReader::new(OpenOptions::new().read(true).open(full_path).expect("Could not open full snapshot."));
+    let header = SnapshotHeader::unpack(&mut reader).expect("Can not read snapshot header.");
+
+    for _ in 0..header.sep_count() {
+        let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
+    }
+
+    let mut outputs = HashMap::new();
+    for _ in 0..header.output_count() {
+        let message_id = MessageId::unpack(&mut reader).expect("Can not read message id of output.");
+        let output_id = OutputId::unpack(&mut reader).expect("Can not read output id.");
+        let output = Output::unpack(&mut reader).expect("Can not read output.");
+        if !matches!(
+                output,
+                Output::SignatureLockedSingle(_) | Output::SignatureLockedDustAllowance(_),
+            ) {
+            panic!("Output type not supported.");
+        }
+        outputs.insert(output_id, CreatedOutput::new(message_id, output));
+    }
+
+    println!("Full snapshot successfully read.");
+
+    outputs
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {
