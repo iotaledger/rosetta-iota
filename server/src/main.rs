@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use rosetta_iota::{consts, run_server, Options};
+use rosetta_iota_server::{consts, run_server, Options};
 use structopt::StructOpt;
 use std::process;
 

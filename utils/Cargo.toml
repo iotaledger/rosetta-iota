@@ -12,7 +12,7 @@ tokio = { version = "1.4", features = ["full"] }
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 hex = "0.4.2"
 dotenv = "0.15.0"
-iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "8aa41999e88f41c4607451a6f8283bbc69c31d41", features = ["blake2b", "ed25519", "random"] }
+iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
 bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "89355819bc34c3433ac2613ead44134c51af75f9" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
 bee-snapshot = { git = "https://github.com/iotaledger/bee.git", rev = "89355819bc34c3433ac2613ead44134c51af75f9" }

@@ -42,10 +42,10 @@ if [ $INSTALL ]; then
 fi
 
 # start servers (online and offline)
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3030 --mode online &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -p rosetta-iota-server -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3030 --mode online &
 PID_ONLINE=$!
 
-RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3031 --mode offline &
+RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -p rosetta-iota-server -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3031 --mode offline &
 PID_OFFLINE=$!
 
 # wait for server to completely start
@@ -67,8 +67,7 @@ if [ $CONSTRUCTION ]; then
   echo "--------------------------------------------------------------------------------"
   echo "asking for faucet funds to load up prefunded_accounts..."
 
-  cd src/utils
-  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run -- --mode faucet 2> /dev/null)
+  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run -p utils -- --mode faucet 2> /dev/null)
 
   if [ -z "$PREFUNDED_ACCOUNT" ]; then
     echo "error on getting funds from faucet... exiting"
@@ -82,8 +81,6 @@ if [ $CONSTRUCTION ]; then
 
   cat <<< $(jq --argjson ADDR "$ADDR" '.construction.prefunded_accounts[0].account_identifier.address |= $ADDR' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq --argjson SK "$SK" '.construction.prefunded_accounts[0].privkey |= $SK' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-
-  cd $ROOT
 
   # render $ADDR again, now without quotes
   ADDR=$(echo $PREFUNDED_ACCOUNT | jq '.bech32_addr' -r)
@@ -121,7 +118,7 @@ if [ $RECONCILE ]; then
   cat <<< $(jq '.data.reconciliation_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-  cat <<< $(jq 'del(.data.end_conditions.tip)' $ROOT/rosetta-cli-conf/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq 'del(.data.end_conditions.tip)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 else
   cat <<< $(jq '.data.reconciliation_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
