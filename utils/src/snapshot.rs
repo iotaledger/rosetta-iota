@@ -4,7 +4,8 @@
 use log::{error, info, warn};
 use std::{fs::File, io::copy, path::Path};
 use thiserror::Error;
-use bee_snapshot::{ header::SnapshotHeader};
+use bee_snapshot::{ header::SnapshotHeader, milestone_diff::MilestoneDiff};
+use bee_ledger::{types::BalanceDiffs, consensus::dust::DUST_THRESHOLD};
 use bee_common::packable::Packable;
 use std::{io::BufReader, fs::OpenOptions};
 use bee_message::prelude::*;
@@ -39,12 +40,64 @@ pub async fn bootstrap_balances_from_snapshot() {
                                &[String::from(url)]).await.unwrap();
     }
 
-    let sep_index = read_delta_snapshot(delta_path).await;
-    let created_outputs = read_full_snapshot(full_path).await;
+    let sep_index = read_sep_index(delta_path).await;
+    let created_outputs = read_full_outputs(full_path).await;
 
+    let ms_diff = read_delta_diff(delta_path).await;
+
+    let a = 1;
 }
 
-async fn read_delta_snapshot(delta_path: &Path) -> MilestoneIndex {
+async fn read_delta_diff(delta_path: &Path) {
+    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("cannot read buffer"));
+
+    let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
+    for _ in 0..header.sep_count() {
+        SolidEntryPoint::unpack(&mut reader).expect("cannot unpack sep");
+    }
+
+    for _ in 0..header.milestone_diff_count() {
+        let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
+        let index = diff.milestone().essence().index();
+        let mut balance_diffs = BalanceDiffs::new();
+        for (_, output) in diff.created().iter() {
+            match output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    balance_diffs.amount_add(*output.address(), output.amount());
+                    if output.amount() < DUST_THRESHOLD {
+                        balance_diffs.dust_output_inc(*output.address());
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    balance_diffs.amount_add(*output.address(), output.amount());
+                    balance_diffs.dust_allowance_add(*output.address(), output.amount());
+                }
+                _ => panic!("unsuported output kind"),
+            }
+        }
+
+        let mut consumed = HashMap::new();
+
+        for (output_id, (created_output, consumed_output)) in diff.consumed().iter() {
+            match created_output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    balance_diffs.amount_sub(*output.address(), output.amount());
+                    if output.amount() < DUST_THRESHOLD {
+                        balance_diffs.dust_output_dec(*output.address());
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    balance_diffs.amount_sub(*output.address(), output.amount());
+                    balance_diffs.dust_allowance_sub(*output.address(), output.amount());
+                }
+                _ => panic!("unsuported output kind"),
+            }
+            consumed.insert(*output_id, (*consumed_output).clone());
+        }
+    }
+}
+
+async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {
     println!("Reading delta snapshot...");
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("could not open delta snapshot"));
     let header = SnapshotHeader::unpack(&mut reader).unwrap();
@@ -60,7 +113,7 @@ async fn read_delta_snapshot(delta_path: &Path) -> MilestoneIndex {
     sep_index
 }
 
-async fn read_full_snapshot(full_path: &Path) -> HashMap<OutputId, CreatedOutput>{
+async fn read_full_outputs(full_path: &Path) -> HashMap<OutputId, CreatedOutput>{
     println!("Reading full snapshot...");
 
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(full_path).expect("Could not open full snapshot."));
