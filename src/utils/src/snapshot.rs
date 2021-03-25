@@ -4,7 +4,7 @@
 use log::{error, info, warn};
 use std::{fs::File, io::copy, path::Path};
 use thiserror::Error;
-use bee_snapshot::{info::SnapshotInfo, header::SnapshotHeader};
+use bee_snapshot::{info::SnapshotInfo, header::SnapshotHeader, milestone_diff::MilestoneDiff};
 use bee_common::packable::Packable;
 use std::{io::BufReader, fs::OpenOptions};
 
@@ -38,6 +38,7 @@ pub async fn bootstrap_balances_from_snapshot() {
 
     let header = SnapshotHeader::unpack(&mut reader).unwrap();
     let ms_index = header.sep_index();
+    let ms_diff = MilestoneDiff::unpack(&mut reader).unwrap();
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {
