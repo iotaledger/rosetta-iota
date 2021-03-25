@@ -18,4 +18,4 @@
  
 ## Documentation
 
-Please refer to `/docs` and its subdirectories for further documentation.
+Please refer to [https://rosetta-api.docs.iota.org](https://rosetta-api.docs.iota.org) for documentation.
