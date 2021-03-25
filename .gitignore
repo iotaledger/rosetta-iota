@@ -18,6 +18,8 @@ book
 .rosetta-cli
 rosetta-cli
 
-# utils snapshot
+# utils files
 utils/full_snapshot.bin
 utils/delta_snapshot.bin
+utils/bootstrap_balances.json
+utils/sep_index

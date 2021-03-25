@@ -3296,6 +3296,7 @@ dependencies = [
  "log",
  "rand 0.7.3",
  "reqwest",
+ "rosetta-iota-server",
  "serde 1.0.125",
  "serde_json",
  "serde_repr",

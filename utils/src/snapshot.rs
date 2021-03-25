@@ -1,16 +1,19 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use rosetta_iota_server::types::{AccountIdentifier, Currency};
+use iota::Client;
 use log::{error, info, warn};
-use std::{fs::File, io::copy, path::Path};
+use std::{fs, fs::File, io::copy, path::Path};
 use thiserror::Error;
 use bee_snapshot::{ header::SnapshotHeader, milestone_diff::MilestoneDiff};
-use bee_ledger::{types::BalanceDiffs, consensus::dust::DUST_THRESHOLD};
+use bee_ledger::{types::BalanceDiffs};
 use bee_common::packable::Packable;
 use std::{io::BufReader, fs::OpenOptions};
 use bee_message::prelude::*;
 use std::collections::HashMap;
 use bee_message::solid_entry_point::SolidEntryPoint;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -41,14 +44,20 @@ pub async fn bootstrap_balances_from_snapshot() {
     }
 
     let sep_index = read_sep_index(delta_path).await;
-    let created_outputs = read_full_outputs(full_path).await;
-
-    let ms_diff = read_delta_diff(delta_path).await;
-
-    let a = 1;
+    let json_string = read_delta_diff(delta_path).await;
+    fs::write("bootstrap_balances.json", json_string).expect("cannot write to file");
+    fs::write("sep_index", sep_index.to_string()).expect("cannot write to file");
 }
 
-async fn read_delta_diff(delta_path: &Path) {
+
+#[derive(Serialize, Deserialize, Debug)]
+struct BootstrapBalanceEntry {
+    account_identifier: AccountIdentifier,
+    currency: Currency,
+    value: String
+}
+
+async fn read_delta_diff(delta_path: &Path) -> String {
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("cannot read buffer"));
 
     let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
@@ -56,15 +65,16 @@ async fn read_delta_diff(delta_path: &Path) {
         SolidEntryPoint::unpack(&mut reader).expect("cannot unpack sep");
     }
 
+    let mut balance_diffs = BalanceDiffs::new();
+
     for _ in 0..header.milestone_diff_count() {
         let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
-        let index = diff.milestone().essence().index();
-        let mut balance_diffs = BalanceDiffs::new();
         for (_, output) in diff.created().iter() {
             match output.inner() {
                 Output::SignatureLockedSingle(output) => {
                     balance_diffs.amount_add(*output.address(), output.amount());
-                    if output.amount() < DUST_THRESHOLD {
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
                         balance_diffs.dust_output_inc(*output.address());
                     }
                 }
@@ -82,7 +92,8 @@ async fn read_delta_diff(delta_path: &Path) {
             match created_output.inner() {
                 Output::SignatureLockedSingle(output) => {
                     balance_diffs.amount_sub(*output.address(), output.amount());
-                    if output.amount() < DUST_THRESHOLD {
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
                         balance_diffs.dust_output_dec(*output.address());
                     }
                 }
@@ -95,6 +106,40 @@ async fn read_delta_diff(delta_path: &Path) {
             consumed.insert(*output_id, (*consumed_output).clone());
         }
     }
+
+    let iota = Client::builder() // Crate a client instance builder
+        .with_node("https://api.hornet-rosetta.testnet.chrysalis2.com") // Insert the node here
+        .unwrap()
+        .finish()
+        .await
+        .unwrap();
+    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
+
+    let mut json_entries = Vec::new();
+
+    for (addr, balance_diff) in balance_diffs {
+        let addr = addr.to_bech32(&bech32_hrp);
+
+        // is this correct?
+        let balance = balance_diff.amount() + balance_diff.dust_allowance() + balance_diff.dust_output();
+
+        json_entries.push(BootstrapBalanceEntry {
+            account_identifier: AccountIdentifier {
+                address: addr,
+                sub_account: None
+            },
+            currency: Currency {
+                symbol: "IOTA".to_string(),
+                decimals: 0,
+                metadata: None
+            },
+            value: balance.to_string()
+        });
+    }
+
+    let json_string = serde_json::to_string_pretty(&json_entries).unwrap();
+
+    json_string
 }
 
 async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {

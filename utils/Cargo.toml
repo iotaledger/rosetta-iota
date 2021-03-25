@@ -7,6 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rosetta-iota-server = { path = "../server"}
 rand = "0.7"
 tokio = { version = "1.4", features = ["full"] }
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
