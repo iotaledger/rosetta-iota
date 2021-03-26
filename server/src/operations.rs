@@ -34,7 +34,7 @@ pub fn operation_status_skipped() -> String {
     SKIPPED.into()
 }
 
-pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: u32, consumed: bool, online: bool) -> Operation {
+pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, output_index: u16, operation_counter: usize, consumed: bool, online: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -73,7 +73,7 @@ pub fn utxo_input_operation(transaction_id: String, address: String, amnt: u64, 
     }
 }
 
-pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: u32, online: bool) -> Operation {
+pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,

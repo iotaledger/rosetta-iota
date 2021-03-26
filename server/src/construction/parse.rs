@@ -112,8 +112,6 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
     };
 
     let mut operations = vec![];
-    let mut operation_counter = 0;
-
     for input in regular_essence.inputs() {
 
         let utxo_input = match input {
@@ -139,9 +137,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operation_counter, true, false));
-
-        operation_counter = operation_counter + 1;
+        operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operations.len(), true, false));
     }
 
     for output in regular_essence.outputs() {
@@ -155,8 +151,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
 
         let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_output_operation(bech32_address, amount, operation_counter, false));
-        operation_counter += 1;
+        operations.push(utxo_output_operation(bech32_address, amount, operations.len(), false));
     }
 
     Ok(operations)

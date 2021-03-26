@@ -13,7 +13,9 @@ use bee_message::Message;
 use bee_message::prelude::Output;
 use std::convert::TryFrom;
 use bee_rest_api::types::responses::OutputResponse;
-use std::collections::HashSet;
+
+use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -78,8 +80,8 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
 
     let timestamp = milestone.timestamp * 1000;
 
-    let created_outputs = filter_created_outputs(milestone_index, &iota_client).await?;
-    let transactions = process_created_outputs(created_outputs, &iota_client, &options).await?;
+    let messages = messages_of_created_outputs(milestone_index, &iota_client).await?;
+    let transactions = build_rosetta_transactions(messages, &iota_client, &options).await?;
 
     let block = Block {
         block_identifier,
@@ -94,71 +96,77 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
     Ok(response)
 }
 
+struct MessageInfo {
+    pub message: Message,
+    pub created_outputs: Vec<CreatedOutput>,
+}
+
 struct CreatedOutput {
     pub output_id: OutputId,
     pub output_response: OutputResponse,
-    pub message: Message,
 }
 
-async fn filter_created_outputs(
+async fn messages_of_created_outputs (
     milestone_index: u32,
-    iota_client: &Client
-) -> Result<Vec<CreatedOutput>, ApiError> {
+    iota_client: &Client,
+) -> Result<HashMap<MessageId, MessageInfo>, ApiError> {
+    let mut messages_of_created_outputs = HashMap::new();
+
     let created_outputs = match iota_client.get_milestone_utxo_changes(milestone_index).await {
         Ok(utxo_changes) => utxo_changes.created_outputs,
         Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
     };
 
-    let mut visited_message_ids = HashSet::new();
-    let mut created_outputs_to_process = Vec::new();
-    for created_output_id_string in created_outputs {
-
-        let output_id = created_output_id_string.parse::<OutputId>().map_err(|e| ApiError::BeeMessageError(e))?;
+    for output_id_string in created_outputs {
+        let output_id = output_id_string.parse::<OutputId>().map_err(|e| ApiError::BeeMessageError(e))?;
         let output_response = iota_client.get_output(&output_id.into()).await.map_err(|e| ApiError::IotaClientError(e))?;
+        let message_id = output_response.message_id.parse::<MessageId>().map_err(|e| ApiError::BeeMessageError(e))?;
 
-        let message_id_string = output_response.message_id.clone();
-        if !visited_message_ids.contains(&message_id_string) {
-            visited_message_ids.insert(message_id_string.clone());
+        let created_output = CreatedOutput { output_id, output_response };
 
-            let message = {
-                let message_id = message_id_string.parse::<MessageId>().map_err(|e| ApiError::BeeMessageError(e))?;
-                iota_client.get_message().data(&message_id).await.map_err(|e| ApiError::IotaClientError(e))?
-            };
-
-            let created_output = CreatedOutput { output_id, output_response, message };
-
-            created_outputs_to_process.push(created_output);
+        match messages_of_created_outputs.entry(message_id) {
+            Entry::Occupied(mut entry) => {
+                let message_info: &mut MessageInfo = entry.get_mut();
+                message_info.created_outputs.push(created_output);
+            }
+            Entry::Vacant(entry) => {
+                let message = iota_client.get_message().data(&message_id).await.map_err(|e| ApiError::IotaClientError(e))?;
+                let created_outputs = vec![created_output];
+                let message_info = MessageInfo {
+                    message,
+                    created_outputs
+                };
+                entry.insert(message_info);
+            }
         }
+
     }
 
-    Ok(created_outputs_to_process)
+    Ok(messages_of_created_outputs)
 }
 
-async fn process_created_outputs(created_outputs: Vec<CreatedOutput>, iota_client: &Client, options: &Options) -> Result<Vec<Transaction>, ApiError>{
+async fn build_rosetta_transactions(messages: HashMap<MessageId, MessageInfo>, iota_client: &Client, options: &Options) -> Result<Vec<Transaction>, ApiError>{
     let mut built_transactions = Vec::new();
 
-    for created_output in created_outputs {
-        let created_output: CreatedOutput = created_output;
-
-        let built_transaction = match created_output.message.payload() {
+    for (_message_id, message_info) in messages {
+        let transaction = match message_info.message.payload() {
             Some(Payload::Transaction(t)) => from_transaction(t, iota_client, options).await?,
-            Some(Payload::Milestone(_)) => from_milestone(&created_output, options).await?,
+            Some(Payload::Milestone(m)) => from_milestone(m, &message_info.created_outputs, options).await?,
             _ => return Err(ApiError::NotImplemented) // NOT SUPPORTED
         };
-
-        built_transactions.push(built_transaction);
+        built_transactions.push(transaction);
     }
 
     Ok(built_transactions)
 }
 
+
 async fn from_transaction(transaction_payload: &TransactionPayload, iota_client: &Client, options: &Options) -> Result<Transaction, ApiError> {
+
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
         _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
     };
-
-    let mut operation_counter = 0;
 
     let mut utxo_input_operations = {
         let mut ret = Vec::new();
@@ -181,12 +189,11 @@ async fn from_transaction(transaction_payload: &TransactionPayload, iota_client:
                 Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
                 amount,
                 output_info.output_index,
-                operation_counter,
+                ret.len(),
                 true,
                 true,
             ));
 
-            operation_counter += 1;
         }
 
         ret
@@ -204,11 +211,10 @@ async fn from_transaction(transaction_payload: &TransactionPayload, iota_client:
             ret.push(utxo_output_operation(
                 Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
                 amount,
-                operation_counter,
+                ret.len(),
                 true
             ));
 
-            operation_counter += 1;
         }
 
         ret
@@ -226,21 +232,26 @@ async fn from_transaction(transaction_payload: &TransactionPayload, iota_client:
 
 }
 
-async fn from_milestone(created_output: &CreatedOutput, options: &Options) -> Result<Transaction, ApiError> {
+async fn from_milestone(milestone_payload: &MilestonePayload, created_outputs: &Vec<CreatedOutput>, options: &Options) -> Result<Transaction, ApiError> {
+    let mut operations = Vec::new();
 
-    let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NotImplemented)?;
-    let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+    for created_output in created_outputs {
+        let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NotImplemented)?;
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
-    let mint_operation = utxo_output_operation(
-        Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
-        amount,
-        0,
-        true
-    );
+        let mint_operation = utxo_output_operation(
+            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
+            amount,
+            operations.len(),
+            true
+        );
+
+        operations.push(mint_operation);
+    }
 
     let transaction = Transaction {
-        transaction_identifier: TransactionIdentifier { hash: created_output.output_response.transaction_id.clone() },
-        operations: vec![mint_operation],
+        transaction_identifier: TransactionIdentifier { hash: milestone_payload.id().to_string() },
+        operations,
         metadata: None
     };
 
