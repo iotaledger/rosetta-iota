@@ -168,68 +168,55 @@ async fn from_transaction(transaction_payload: &TransactionPayload, iota_client:
         _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
     };
 
-    let mut utxo_input_operations = {
-        let mut ret = Vec::new();
+    let mut operations = Vec::new();
 
-        for input in regular_essence.inputs() {
+    for input in regular_essence.inputs() {
 
-            let utxo_input = match input {
-                Input::UTXO(i) => i,
-                _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
-            };
+        let utxo_input = match input {
+            Input::UTXO(i) => i,
+            _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+        };
 
-            let output_info = iota_client.get_output(&utxo_input).await?;
+        let output_info = iota_client.get_output(&utxo_input).await?;
 
-            let output = Output::try_from(&output_info.output).map_err(|_| ApiError::NotImplemented)?;
+        let output = Output::try_from(&output_info.output).map_err(|_| ApiError::NotImplemented)?;
 
-            let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
-            ret.push(utxo_input_operation(
-                output_info.transaction_id,
-                Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
-                amount,
-                output_info.output_index,
-                ret.len(),
-                true,
-                true,
-            ));
+        operations.push(utxo_input_operation(
+            output_info.transaction_id,
+            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
+            amount,
+            output_info.output_index,
+            operations.len(),
+            true,
+            true,
+        ));
 
-        }
+    }
 
-        ret
-    };
+    for output in regular_essence.outputs() {
 
-    let mut utxo_output_operations = {
-        let mut ret = Vec::new();
+        let output: Output = output.clone();
 
-        for output in regular_essence.outputs() {
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
-            let output: Output = output.clone();
+        operations.push(utxo_output_operation(
+            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
+            amount,
+            operations.len(),
+            true
+        ));
 
-            let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
-
-            ret.push(utxo_output_operation(
-                Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
-                amount,
-                ret.len(),
-                true
-            ));
-
-        }
-
-        ret
-    };
-
-    utxo_input_operations.append(&mut utxo_output_operations);
+    }
 
     let transaction = Transaction {
         transaction_identifier: TransactionIdentifier { hash: transaction_payload.id().to_string() },
-        operations: utxo_input_operations,
+        operations,
         metadata: None
     };
 
     Ok(transaction)
-
 }
 
 async fn from_milestone(milestone_payload: &MilestonePayload, created_outputs: &Vec<CreatedOutput>, options: &Options) -> Result<Transaction, ApiError> {

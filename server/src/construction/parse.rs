@@ -111,7 +111,8 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
         _ => return Err(ApiError::BadConstructionRequest("essence type not supported".to_string()))
     };
 
-    let mut operations = vec![];
+    let mut operations = Vec::new();
+
     for input in regular_essence.inputs() {
 
         let utxo_input = match input {
