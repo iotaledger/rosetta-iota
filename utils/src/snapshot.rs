@@ -43,8 +43,10 @@ pub async fn bootstrap_balances_from_snapshot() {
                                &[String::from(url)]).await.unwrap();
     }
 
+    let mut balance_diffs = read_full_outputs(full_path).await;
+
     let sep_index = read_sep_index(delta_path).await;
-    let json_string = read_delta_diff(delta_path).await;
+    let json_string = read_delta_diff(delta_path, balance_diffs).await;
     fs::write("bootstrap_balances.json", json_string).expect("cannot write to file");
     fs::write("sep_index", sep_index.to_string()).expect("cannot write to file");
 }
@@ -57,15 +59,13 @@ struct BootstrapBalanceEntry {
     value: String
 }
 
-async fn read_delta_diff(delta_path: &Path) -> String {
+async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> String {
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("cannot read buffer"));
 
     let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
     for _ in 0..header.sep_count() {
         SolidEntryPoint::unpack(&mut reader).expect("cannot unpack sep");
     }
-
-    let mut balance_diffs = BalanceDiffs::new();
 
     for _ in 0..header.milestone_diff_count() {
         let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
@@ -121,7 +121,7 @@ async fn read_delta_diff(delta_path: &Path) -> String {
         let addr = addr.to_bech32(&bech32_hrp);
 
         // is this correct?
-        let balance = balance_diff.amount() + balance_diff.dust_allowance() + balance_diff.dust_output();
+        let balance = balance_diff.amount();
 
         json_entries.push(BootstrapBalanceEntry {
             account_identifier: AccountIdentifier {
@@ -158,7 +158,7 @@ async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {
     sep_index
 }
 
-async fn read_full_outputs(full_path: &Path) -> HashMap<OutputId, CreatedOutput>{
+async fn read_full_outputs(full_path: &Path) -> BalanceDiffs{
     println!("Reading full snapshot...");
 
     let mut reader = BufReader::new(OpenOptions::new().read(true).open(full_path).expect("Could not open full snapshot."));
@@ -168,23 +168,32 @@ async fn read_full_outputs(full_path: &Path) -> HashMap<OutputId, CreatedOutput>
         let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
     }
 
-    let mut outputs = HashMap::new();
+    let mut count = 0;
+    let mut balance_diffs = BalanceDiffs::new();
     for _ in 0..header.output_count() {
         let message_id = MessageId::unpack(&mut reader).expect("Can not read message id of output.");
         let output_id = OutputId::unpack(&mut reader).expect("Can not read output id.");
         let output = Output::unpack(&mut reader).expect("Can not read output.");
-        if !matches!(
-                output,
-                Output::SignatureLockedSingle(_) | Output::SignatureLockedDustAllowance(_),
-            ) {
-            panic!("Output type not supported.");
+
+        match output {
+            Output::SignatureLockedSingle(output) => {
+                balance_diffs.amount_add(*output.address(), output.amount());
+                // DUST_THRESHOLD
+                if output.amount() < 1_000_000 {
+                    balance_diffs.dust_output_inc(*output.address());
+                }
+            }
+            Output::SignatureLockedDustAllowance(output) => {
+                balance_diffs.amount_add(*output.address(), output.amount());
+                balance_diffs.dust_allowance_add(*output.address(), output.amount());
+            }
+            _ => panic!("unsuported output kind"),
         }
-        outputs.insert(output_id, CreatedOutput::new(message_id, output));
     }
 
     println!("Full snapshot successfully read.");
 
-    outputs
+    balance_diffs
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {
