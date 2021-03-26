@@ -225,12 +225,17 @@ async fn from_milestone(milestone_payload: &MilestonePayload, created_outputs: &
     for created_output in created_outputs {
         let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NotImplemented)?;
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+        let transaction_id = created_output.output_response.transaction_id.parse::<TransactionId>().map_err(|e| ApiError::BeeMessageError(e))?;
+        let output_index = created_output.output_response.output_index;
 
-        let mint_operation = utxo_output_operation(
+        let mint_operation = utxo_input_operation(
+            transaction_id.to_string(),
             Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
             amount,
+            output_index,
             operations.len(),
-            true
+            false,
+            true,
         );
 
         operations.push(mint_operation);
