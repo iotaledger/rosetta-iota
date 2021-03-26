@@ -123,18 +123,20 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
         // is this correct?
         let balance = balance_diff.amount();
 
-        json_entries.push(BootstrapBalanceEntry {
-            account_identifier: AccountIdentifier {
-                address: addr,
-                sub_account: None
-            },
-            currency: Currency {
-                symbol: "IOTA".to_string(),
-                decimals: 0,
-                metadata: None
-            },
-            value: balance.to_string()
-        });
+        if balance > 0 {
+            json_entries.push(BootstrapBalanceEntry {
+                account_identifier: AccountIdentifier {
+                    address: addr,
+                    sub_account: None
+                },
+                currency: Currency {
+                    symbol: "IOTA".to_string(),
+                    decimals: 0,
+                    metadata: None
+                },
+                value: balance.to_string()
+            });
+        }
     }
 
     let json_string = serde_json::to_string_pretty(&json_entries).unwrap();
