@@ -27,7 +27,7 @@ fi
 ROOT=$(pwd)
 
 # 1 to enable, comment out to disable
-PRUNE=1
+#PRUNE=1
 #INSTALL
 #RECONCILE=1
 #CLEAN=1
@@ -96,20 +96,23 @@ if [ $CONSTRUCTION ]; then
   sed -i 's/idB/'$OUTPUT_ID_B'/g' $CONF_DIR/iota.ros
 fi
 
-if ([ $PRUNE ] && [ $CLEAN ]) || [ ! -d $DATA_DIR ]; then
-  # modify rosetta-iota.json to make sure we are syncing from the pruned milestone
-  PRUNE_MS=$(curl -s -X GET "$NODE_URL/api/v1/info" -H  "accept: application/json" | jq '.data.pruningIndex')
+if [ $PRUNE ]; then
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot 2> /dev/null
 
-  # when starting from a $PRUNE_MS != 0, jump 2 because of parent block + unavailable pruning MS
-  if [ "$PRUNE_MS" -gt "0" ]; then
-    START_MS=`expr $PRUNE_MS + 2`
-  else
-    START_MS="1"
-  fi
+  # move generated file to $CONF_DIR
+  mv bootstrap_balances.json $CONF_DIR
+
+  # modify rosetta-iota.json to make sure we are syncing from the SEP milestone
+  START_MS=$(cat sep_index)
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-elif ! [ $PRUNE ]; then
+
+  # clean up artifacts
+  rm delta_snapshot.bin
+  rm full_snapshot.bin
+  rm sep_index
+else
   cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
