@@ -102,8 +102,8 @@ if [ $PRUNE ]; then
   # move generated file to $CONF_DIR
   mv bootstrap_balances.json $CONF_DIR
 
-  # modify rosetta-iota.json to make sure we are syncing from the SEP milestone
-  START_MS=$(cat sep_index)
+  SEP_INDEX=$(cat sep_index)
+  START_MS=`expr $SEP_INDEX + 1`
 
   cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.pruning_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
