@@ -23,3 +23,7 @@ utils/full_snapshot.bin
 utils/delta_snapshot.bin
 utils/bootstrap_balances.json
 utils/sep_index
+full_snapshot.bin
+delta_snapshot.bin
+bootstrap_balances.json
+sep_index
