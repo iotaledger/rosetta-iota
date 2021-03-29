@@ -16,6 +16,7 @@ book
 
 # Rosetta CLI
 .rosetta-cli
+.rosetta-cli-alphanet
 rosetta-cli
 
 # utils files
@@ -27,3 +28,6 @@ full_snapshot.bin
 delta_snapshot.bin
 bootstrap_balances.json
 sep_index
+
+# hornet for alphanet tests
+hornet

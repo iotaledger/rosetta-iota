@@ -1,0 +1,12 @@
+[
+  {
+    "account_identifier": {
+      "address": "atoi1qztz8a6c6wm5m4386vzmelfkcsuqewzzwnec7hnv88jtvh9wgq3hjch2kvv"
+    },
+    "currency": {
+      "symbol": "IOTA",
+      "decimals": 0
+    },
+    "value": "2779529283277761"
+  }
+]
