@@ -34,10 +34,12 @@ fi
 
 if [ -z "$LOAD_GENESIS" ] && [ -z "$LOAD_SNAPSHOT" ] && [ -z "$CONTINUE_DATA_DIR" ]; then
   echo "loading method not set"
+  exit 1
 fi
 
 if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
   echo "nothing to do... exiting"
+  exit 1
 fi
 
 # start servers (online and offline)
