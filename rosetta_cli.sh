@@ -30,7 +30,6 @@ ROOT=$(pwd)
 #PRUNE=1
 #INSTALL
 #RECONCILE=1
-#CLEAN=1
 #DATA=1
 #CONSTRUCTION=1
 #MAINNET=1
@@ -49,18 +48,12 @@ RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -p rosetta-iota-server --
 PID_OFFLINE=$!
 
 # wait for server to completely start
-sleep 1
+sleep 5
 
 if [ $MAINNET ]; then
   CONF_DIR=$ROOT/rosetta-cli-conf/mainnet
 else
   CONF_DIR=$ROOT/rosetta-cli-conf/testnet
-fi
-
-if [ $CLEAN ]; then
-  rm -rf $DATA_DIR
-else
-  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
 if [ $CONSTRUCTION ]; then
