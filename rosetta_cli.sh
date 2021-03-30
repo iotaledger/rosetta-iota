@@ -97,6 +97,9 @@ if [ $CONSTRUCTION ]; then
 fi
 
 if [ $PRUNE ]; then
+  # remove the database
+  rm -rf $DATA_DIR
+
   RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot 2> /dev/null
 
   # move generated file to $CONF_DIR
