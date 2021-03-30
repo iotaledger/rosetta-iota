@@ -18,8 +18,9 @@ ROOT=$(pwd)
 CONF_DIR=$ROOT/rosetta-cli-conf/testnet
 
 # 1 to enable, comment out to disable
-#LOAD_SNAPSHOT=1
-#LOAD_GENESIS=1
+#LOAD_GENESIS=1 to start synching from genesis
+#LOAD_SNAPSHOT=1 to start synching from the latest snapshot
+#CONTINUE_DATA_DIR=1 to continue with the state from $DATA_DIR
 #INSTALL=1
 #RECONCILE=1
 #DATA=1
@@ -29,6 +30,10 @@ if [ $INSTALL ]; then
   # install rosetta-cli
   echo "installing rosetta-cli via curl..."
   curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
+fi
+
+if [ -z "$LOAD_GENESIS" ] && [ -z "$LOAD_SNAPSHOT" ] && [ -z "$CONTINUE_DATA_DIR" ]; then
+  echo "loading method not set"
 fi
 
 if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
