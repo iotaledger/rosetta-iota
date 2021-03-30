@@ -5,39 +5,34 @@ fuser -k 3030/tcp
 fuser -k 3031/tcp
 
 # clean up any previous modifications to config files
-git checkout rosetta-cli-conf
+echo "reset rosetta-cli-conf/testnet..."
+git checkout rosetta-cli-conf/testnet
 
 # define a few vars
-if [ -z "$NODE_URL" ]; then
-  NODE_URL="https://api.hornet-rosetta.testnet.chrysalis2.com"
-fi
-if [ -z "$NETWORK" ]; then
-  NETWORK="testnet6"
-fi
-if [ -z "$DATA_DIR" ]; then
-  DATA_DIR=".rosetta-cli"
-fi
-if [ -z "$INDEXATION" ]; then
-  INDEXATION="rosetta"
-fi
-if [ -z "$HRP" ]; then
-  HRP="atoi"
-fi
-
+NODE_URL="https://api.hornet-rosetta.testnet.chrysalis2.com"
+NETWORK="testnet6"
+DATA_DIR=".rosetta-cli-testnet"
+INDEXATION="rosetta"
+HRP="atoi"
 ROOT=$(pwd)
+CONF_DIR=$ROOT/rosetta-cli-conf/testnet
 
 # 1 to enable, comment out to disable
-#PRUNE=1
-#INSTALL
+#LOAD_SNAPSHOT=1
+#LOAD_GENESIS=1
+#INSTALL=1
 #RECONCILE=1
 #DATA=1
 #CONSTRUCTION=1
-#MAINNET=1
 
 if [ $INSTALL ]; then
   # install rosetta-cli
   echo "installing rosetta-cli via curl..."
   curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
+fi
+
+if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
+  echo "nothing to do... exiting"
 fi
 
 # start servers (online and offline)
@@ -47,13 +42,40 @@ PID_ONLINE=$!
 RUST_BACKTRACE=1 RUST_LOG=iota_rosetta=debug cargo run -p rosetta-iota-server -- --network $NETWORK --iota-endpoint $NODE_URL --bech32-hrp $HRP --indexation $INDEXATION --port 3031 --mode offline &
 PID_OFFLINE=$!
 
-# wait for server to completely start
+# wait for the server to completely start
 sleep 5
 
-if [ $MAINNET ]; then
-  CONF_DIR=$ROOT/rosetta-cli-conf/mainnet
-else
-  CONF_DIR=$ROOT/rosetta-cli-conf/testnet
+if [ $LOAD_GENESIS ]; then
+  # remove the data directory
+  rm -rf $DATA_DIR
+  # all other values are already set in the default config
+fi
+
+if [ $LOAD_SNAPSHOT ]; then
+  # remove the data directory
+  rm -rf $DATA_DIR
+
+  # download latest snapshot and create the bootstrap_balances.json
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot 2> /dev/null
+
+  # move generated file to $CONF_DIR
+  mv bootstrap_balances.json $CONF_DIR
+
+  SEP_INDEX=$(cat sep_index)
+  START_MS=`expr $SEP_INDEX + 1`
+
+  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+
+  # clean up artifacts
+  rm delta_snapshot.bin
+  rm full_snapshot.bin
+  rm sep_index
+fi
+
+# if no genesis/snapshot should be loaded continue with the state from $DATA_DIR
+if [ -z "$LOAD_SNAPSHOT" ] && [ -z "$LOAD_GENESIS" ]; then
+  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
 if [ $CONSTRUCTION ]; then
@@ -89,38 +111,11 @@ if [ $CONSTRUCTION ]; then
   sed -i 's/idB/'$OUTPUT_ID_B'/g' $CONF_DIR/iota.ros
 fi
 
-if [ $PRUNE ]; then
-  # remove the database
-  rm -rf $DATA_DIR
-
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot 2> /dev/null
-
-  # move generated file to $CONF_DIR
-  mv bootstrap_balances.json $CONF_DIR
-
-  SEP_INDEX=$(cat sep_index)
-  START_MS=`expr $SEP_INDEX + 1`
-
-  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-  cat <<< $(jq '.data.pruning_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-
-  # clean up artifacts
-  rm delta_snapshot.bin
-  rm full_snapshot.bin
-  rm sep_index
-else
-  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-  cat <<< $(jq '.data.pruning_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-fi
-
 if [ $RECONCILE ]; then
   cat <<< $(jq '.data.reconciliation_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq 'del(.data.end_conditions.tip)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-else
-  cat <<< $(jq '.data.reconciliation_disabled |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-  cat <<< $(jq 'del(.data.end_conditions.reconciliation_coverage)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
 
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
@@ -150,10 +145,6 @@ fi
 if [ $CONSTRUCTION ] && [ $CONSTRUCTION_EXIT -ne 0 ]; then
   echo "rosetta-cli check:construction unsuccessful..."
   exit $CONSTRUCTION_EXIT
-fi
-
-if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
-  echo "nothing to do... exiting"
 fi
 
 kill $PID_ONLINE

@@ -1,4 +1,4 @@
-name: rosetta_cli.sh check data + construction
+name: rosetta_cli_testnet.sh check data + construction
 
 on:
   push:
@@ -19,5 +19,5 @@ jobs:
         run: |
           cargo build
 
-      - name: run rosetta_cli.sh
-        run: INSTALL=1 DATA=1 CONSTRUCTION=1 INDEXATION="rosetta-ci" ./rosetta_cli.sh
+      - name: run rosetta_cli_testnet.sh
+        run: INSTALL=1 DATA=1 CONSTRUCTION=1 INDEXATION="rosetta-ci" ./rosetta_cli_testnet.sh
