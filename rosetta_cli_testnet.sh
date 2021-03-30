@@ -79,8 +79,8 @@ if [ $LOAD_SNAPSHOT ]; then
   rm sep_index
 fi
 
-# if no genesis/snapshot should be loaded continue with the state from $DATA_DIR
-if [ -z "$LOAD_SNAPSHOT" ] && [ -z "$LOAD_GENESIS" ]; then
+# if there is no genesis/snapshot to load continue with the state from $DATA_DIR
+if [ "$CONTINUE_DATA_DIR" ]; then
   cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 fi
