@@ -1,4 +1,4 @@
-name: rosetta_cli_testnet.sh check data + reconciliation + construction on a local alphanet
+name: rosetta_cli_alphanet_check_data_with_reconciliation_and_construction
 
 on:
   push:
