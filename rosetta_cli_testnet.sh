@@ -89,7 +89,7 @@ if [ $CONSTRUCTION ]; then
   echo "--------------------------------------------------------------------------------"
   echo "asking for faucet funds to load up prefunded_accounts..."
 
-  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run -p utils -- --mode faucet 2> /dev/null)
+  PREFUNDED_ACCOUNT=$(RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode faucet 2> /dev/null)
 
   if [ -z "$PREFUNDED_ACCOUNT" ]; then
     echo "error on getting funds from faucet... exiting"
