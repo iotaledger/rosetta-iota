@@ -12,9 +12,12 @@ use crypto::{
 use serde::{Serialize, Deserialize};
 use serde_json;
 
+use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
 use std::convert::TryInto;
+use std::{thread, time};
+use iota::client::BalanceForAddressResponse;
 
 #[derive(Deserialize)]
 struct FaucetMessageResponse {
@@ -59,21 +62,18 @@ pub async fn ask_faucet() {
     let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
     let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
 
-    // ask for funds twice
-    loop {
-        if let Ok(id) = get_funds(&bech32_address).await {
-            reattach_promote_until_confirmed(&id, &iota).await;
-            break id;
-        }
-    };
-    loop {
-        if let Ok(id) = get_funds(&bech32_address).await {
-            reattach_promote_until_confirmed(&id, &iota).await;
-            break id;
-        }
-    };
+    // ask for 10000000i twice (uncomment for IF or TangleKit faucet)
+    //ask_if_faucet_twice(&bech32_address, &iota);
+    ask_tanglekit_faucet_twice(&bech32_address).await;
 
-    let balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
+    // wait for consensus on the ledger
+    let mut balance_response: BalanceForAddressResponse;
+    loop {
+        balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
+        if balance_response.balance == 20000000 {
+            break;
+        }
+    }
 
     // Construct JSON
     let prefunded_account = PrefundedAccount {
@@ -89,7 +89,22 @@ pub async fn ask_faucet() {
     println!("{}", prefunded_account_pretty);
 }
 
-async fn get_funds(address: &String) -> Result<MessageId> {
+async fn ask_if_faucet_twice(bech32_address: &String, iota: &Client) {
+    loop {
+        if let Ok(id) = get_funds_if_faucet(&bech32_address).await {
+            reattach_promote_until_confirmed(&id, &iota).await;
+            break id;
+        }
+    };
+    loop {
+        if let Ok(id) = get_funds_if_faucet(&bech32_address).await {
+            reattach_promote_until_confirmed(&id, &iota).await;
+            break id;
+        }
+    };
+}
+
+async fn get_funds_if_faucet(address: &String) -> Result<MessageId> {
     // use the faucet to get funds on the address
     let response = reqwest::get(&format!(
         "https://faucet.testnet.chrysalis2.com/api?address={}",
@@ -106,6 +121,23 @@ async fn get_funds(address: &String) -> Result<MessageId> {
     let faucet_message_id = MessageId::from_str(&response.data.id).map_err(|_| iota_wallet::Error::InsufficientFunds)?;
 
     Ok(faucet_message_id)
+}
+
+async fn ask_tanglekit_faucet_twice(bech32_address: &String) {
+    get_funds_tanglekit_faucet(&bech32_address).await;
+    get_funds_tanglekit_faucet(&bech32_address).await;
+}
+
+async fn get_funds_tanglekit_faucet(address: &String) {
+    let mut map = HashMap::new();
+    map.insert("address", address.to_string());
+
+    let client = reqwest::Client::new();
+    let response = client.post("https://faucet.tanglekit.de/api/enqueue")
+        .json(&map)
+        .send()
+        .await
+        .expect("could not send POST");
 }
 
 async fn reattach_promote_until_confirmed(message_id: &MessageId, iota: &Client) {
