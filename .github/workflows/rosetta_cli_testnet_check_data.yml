@@ -20,4 +20,4 @@ jobs:
           cargo build
 
       - name: run rosetta_cli_testnet.sh
-        run: INSTALL=1 DATA=1="rosetta-ci" ./rosetta_cli_testnet.sh
+        run: INSTALL=1 BOOTSTRAP_SNAPSHOT=1 DATA=1="rosetta-ci" ./rosetta_cli_testnet.sh

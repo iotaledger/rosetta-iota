@@ -1,4 +1,4 @@
-name: rosetta_cli_testnet.sh check construction
+name: rosetta_cli_testnet_check_construction
 
 on:
   push:
