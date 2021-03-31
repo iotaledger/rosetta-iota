@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  rosetta_cli_data_construction:
+  rosetta_cli_testnet_check_data_with_reconciliation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,4 +20,4 @@ jobs:
           cargo build
 
       - name: run rosetta_cli_testnet.sh
-        run: INSTALL=1 BOOTSTRAP_SNAPSHOT=1 DATA=1 RECONCILE=1="rosetta-ci" ./rosetta_cli_testnet.sh
+        run: INSTALL=1 BOOTSTRAP_SNAPSHOT=1 DATA_WITH_RECONCILIATION=1="rosetta-ci" ./rosetta_cli_testnet.sh

@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  rosetta_cli_data_construction:
+  rosetta_cli_alphanet_check_data_with_reconciliation_and_construction:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

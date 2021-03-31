@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  rosetta_cli_data_construction:
+  rosetta_cli_testnet_check_data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
