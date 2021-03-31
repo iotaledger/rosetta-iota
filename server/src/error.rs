@@ -98,7 +98,7 @@ impl ApiError {
             ApiError::UnableToGetGenesisMilestone => false,
             ApiError::HistoricalBalancesUnsupported => false,
             ApiError::BadConstructionRequest(_) => false,
-            ApiError::UnableToGetBalance => false,
+            ApiError::UnableToGetBalance => true,
             ApiError::UnableToGetOutputsFromAddress => false,
             ApiError::UnsupportedCurve => false,
             ApiError::HexDecodingFailed(_) => false,
