@@ -18,9 +18,9 @@ ROOT=$(pwd)
 CONF_DIR=$ROOT/rosetta-cli-conf/testnet
 
 # 1 to enable, comment out to disable
-#LOAD_GENESIS=1 to start synching from genesis
-#LOAD_SNAPSHOT=1 to start synching from the latest snapshot
-#CONTINUE_DATA_DIR=1 to continue with the state from $DATA_DIR
+#BOOTSTRAP_GENESIS=1 ...deletes the DATA_DIR and starts synching from block index 1
+#BOOTSTRAP_SNAPSHOT=1 ...deletes the DATA_DIR, downloads the latest available snapshot and starts synching from the snapshot state
+#NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and be populated)
 #INSTALL=1
 #RECONCILE=1
 #DATA=1
@@ -32,13 +32,13 @@ if [ $INSTALL ]; then
   curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
 fi
 
-if [ -z "$LOAD_GENESIS" ] && [ -z "$LOAD_SNAPSHOT" ] && [ -z "$CONTINUE_DATA_DIR" ]; then
-  echo "loading method not set"
+if [ -z "$BOOTSTRAP_GENESIS" ] && [ -z "$BOOTSTRAP_SNAPSHOT" ] && [ -z "$NO_BOOTSTRAP" ]; then
+  echo "no bootstrapping method was specified..."
   exit 1
 fi
 
 if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
-  echo "nothing to do... exiting"
+  echo "not specified what should be tested..."
   exit 1
 fi
 
@@ -52,13 +52,13 @@ PID_OFFLINE=$!
 # wait for the server to completely start
 sleep 5
 
-if [ $LOAD_GENESIS ]; then
+if [ $BOOTSTRAP_GENESIS ]; then
   # remove the data directory
   rm -rf $DATA_DIR
   # all other values are already set in the default config
 fi
 
-if [ $LOAD_SNAPSHOT ]; then
+if [ $BOOTSTRAP_SNAPSHOT ]; then
   # remove the data directory
   rm -rf $DATA_DIR
 
@@ -79,10 +79,13 @@ if [ $LOAD_SNAPSHOT ]; then
   rm sep_index
 fi
 
-# if there is no genesis/snapshot to load continue with the state from $DATA_DIR
-if [ "$CONTINUE_DATA_DIR" ]; then
+# start synching from $DATA_DIR
+if [ "$NO_BOOTSTRAP" ]; then
   cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  if [ -d "$DATA_DIR" ]; then
+    echo "can not find data directory, please boostrap rosetta-cli..."
+  fi
 fi
 
 if [ $CONSTRUCTION ]; then
