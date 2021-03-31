@@ -20,11 +20,11 @@ CONF_DIR=$ROOT/rosetta-cli-conf/testnet
 # 1 to enable, comment out to disable
 #BOOTSTRAP_GENESIS=1 ...deletes the DATA_DIR and starts synching from block index 1
 #BOOTSTRAP_SNAPSHOT=1 ...deletes the DATA_DIR, downloads the latest available snapshot and starts synching from the snapshot state
-#NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and be populated)
-#INSTALL=1
-#RECONCILE=1
-#DATA=1
-#CONSTRUCTION=1
+#NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and the ledger state must be present)
+#INSTALL=1 ...installs rosetta-cli
+#DATA=1 ...tests the Data API
+#DATA_WITH_RECONCILIATION=1 ...tests the Data API with reconciliation enabled
+#CONSTRUCTION=1 ...tests the Construction API
 
 if [ $INSTALL ]; then
   # install rosetta-cli
@@ -37,7 +37,7 @@ if [ -z "$BOOTSTRAP_GENESIS" ] && [ -z "$BOOTSTRAP_SNAPSHOT" ] && [ -z "$NO_BOOT
   exit 1
 fi
 
-if [ -z "$DATA" ] && [ -z "$CONSTRUCTION" ]; then
+if [ -z "$DATA" ] && [ -z "$DATA_WITH_RECONCILIATION" ] && [ -z "$CONSTRUCTION" ]; then
   echo "not specified what should be tested..."
   exit 1
 fi
@@ -121,7 +121,7 @@ if [ $CONSTRUCTION ]; then
   sed -i 's/idB/'$OUTPUT_ID_B'/g' $CONF_DIR/iota.ros
 fi
 
-if [ $RECONCILE ]; then
+if [ $DATA_WITH_RECONCILIATION ]; then
   cat <<< $(jq '.data.reconciliation_disabled |= false' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.coverage |= 0.95' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
   cat <<< $(jq '.data.end_conditions.reconciliation_coverage.from_tip |= true' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
@@ -144,7 +144,7 @@ if [ $CONSTRUCTION ] && [ $CONSTRUCTION_EXIT -ne 0 ]; then
   exit $CONSTRUCTION_EXIT
 fi
 
-if [ $DATA ]; then
+if [ $DATA ] || [ $DATA_WITH_RECONCILIATION ]; then
   # test Data API
   echo "--------------------------------------------------------------------------------"
   echo "running rosetta-cli check:data"
