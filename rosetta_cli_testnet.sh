@@ -128,19 +128,6 @@ fi
 cat <<< $(jq --arg NETWORK "$NETWORK" '.network.network |= $NETWORK' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 cat <<< $(jq --arg DATA_DIR "$DATA_DIR" '.data_directory |= $DATA_DIR' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
 
-if [ $DATA ]; then
-  # test Data API
-  echo "--------------------------------------------------------------------------------"
-  echo "running rosetta-cli check:data"
-  ./rosetta-cli check:data --configuration-file $CONF_DIR/rosetta-iota.json
-  DATA_EXIT=$?
-fi
-
-if [ $DATA ] && [ $DATA_EXIT -ne 0 ]; then
-  echo "rosetta-cli check:data unsuccessful..."
-  exit 1
-fi
-
 if [ $CONSTRUCTION ]; then
   # test Construction API
   echo "--------------------------------------------------------------------------------"
@@ -152,6 +139,19 @@ fi
 if [ $CONSTRUCTION ] && [ $CONSTRUCTION_EXIT -ne 0 ]; then
   echo "rosetta-cli check:construction unsuccessful..."
   exit $CONSTRUCTION_EXIT
+fi
+
+if [ $DATA ]; then
+  # test Data API
+  echo "--------------------------------------------------------------------------------"
+  echo "running rosetta-cli check:data"
+  ./rosetta-cli check:data --configuration-file $CONF_DIR/rosetta-iota.json
+  DATA_EXIT=$?
+fi
+
+if [ $DATA ] && [ $DATA_EXIT -ne 0 ]; then
+  echo "rosetta-cli check:data unsuccessful..."
+  exit 1
 fi
 
 kill $PID_ONLINE
