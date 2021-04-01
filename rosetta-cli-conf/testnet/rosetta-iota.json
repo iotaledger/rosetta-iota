@@ -5,9 +5,9 @@
   },
   "online_url": "http://localhost:3030",
   "data_directory": ".rosetta-cli",
-  "http_timeout": 10,
-  "max_retries": 15,
-  "max_sync_concurrency": 10,
+  "http_timeout": 3,
+  "max_retries": 10,
+  "max_sync_concurrency": 1,
   "tip_delay": 1,
   "construction": {
     "offline_url": "http://localhost:3031",
@@ -38,8 +38,8 @@
     "log_reconciliations": false,
     "reconciliation_disabled": true,
     "pruning_disabled": false,
-    "active_reconciliation_concurrency": 10,
-    "inactive_reconciliation_concurrency": 10,
+    "active_reconciliation_concurrency": 1,
+    "inactive_reconciliation_concurrency": 1,
     "bootstrap_balances": "bootstrap_balances.json",
     "end_conditions": {
       "tip": true
