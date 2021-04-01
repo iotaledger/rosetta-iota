@@ -5,10 +5,9 @@
   },
   "online_url": "http://localhost:3030",
   "data_directory": ".rosetta-cli",
-  "http_timeout": 10,
+  "http_timeout": 1000,
   "max_retries": 50,
-  "max_online_connections": 120,
-  "max_sync_concurrency": 64,
+  "max_sync_concurrency": 32,
   "tip_delay": 1,
   "construction": {
     "offline_url": "http://localhost:3031",
