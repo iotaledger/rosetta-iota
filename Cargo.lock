@@ -3286,6 +3286,7 @@ dependencies = [
  "bee-common 0.3.1-alpha (git+https://github.com/iotaledger/bee.git?branch=dev)",
  "bee-ledger 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
  "bee-message 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
+ "bee-rest-api 0.1.0-alpha (git+https://github.com/iotaledger/bee.git?rev=89355819bc34c3433ac2613ead44134c51af75f9)",
  "bee-snapshot",
  "dotenv",
  "flume",
