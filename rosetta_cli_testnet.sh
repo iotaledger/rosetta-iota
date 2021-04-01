@@ -152,7 +152,7 @@ if [ $DATA ] || [ $DATA_WITH_RECONCILIATION ]; then
   DATA_EXIT=$?
 fi
 
-if [ $DATA ] && [ $DATA_EXIT -ne 0 ]; then
+if ([ $DATA ] || [ $DATA_WITH_RECONCILIATION ]) && [ $DATA_EXIT -ne 0 ]; then
   echo "rosetta-cli check:data unsuccessful..."
   exit 1
 fi
