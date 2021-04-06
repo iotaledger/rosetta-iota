@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  hornet:
+    image: iotaledger/hornet:chrysalis2-preview
+    restart: "no"
+    working_dir: /app
+    expose:
+      # dashbboard
+      - "8081"
+      # http rest api
+      - "14265"
+      # libp2p/gossip protocol
+      - "15600"
+      # pprof profiling
+      - "6060"
+      # MQTT
+      - "1883"
+      # prometheus exporter
+      - "9311"
+    ports:
+      - "127.0.0.1:14265:14265/tcp"
+      - "127.0.0.1:8081:8081/tcp"
+      - "0.0.0.0:15600:15600/tcp"
+    volumes:
+      - './config.json:/app/config.json:ro'
+      - './peering.json:/app/peering.json'
+      - './data:/tmp'
+      - '/etc/ssl/certs:/etc/ssl/certs:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+  rosetta:
+    image: iotaledger/rosetta:latest
+    command: --bech32-hrp atoi --iota-endpoint http://127.0.0.1:14265 --network testnet6
+    restart: "no"
+    expose:
+      # rosetta api port
+      - "3030"
+    ports:
+      - "0.0.0.0:3030:3030/tcp"
