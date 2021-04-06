@@ -28,7 +28,7 @@ services:
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'
   rosetta:
-    image: iotaledger/rosetta:latest
+    image: iotaledger/rosetta-iota:latest
     command: --bech32-hrp atoi --iota-endpoint http://127.0.0.1:14265 --network testnet6
     restart: "no"
     expose:
