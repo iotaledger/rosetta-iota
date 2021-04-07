@@ -1,10 +1,10 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "testnet6"
+    "network": "testnet7"
   },
   "online_url": "http://localhost:3030",
-  "data_directory": ".rosetta-cli",
+  "data_directory": ".rosetta-cli-testnet",
   "http_timeout": 1000,
   "max_retries": 50,
   "max_sync_concurrency": 1,
@@ -15,9 +15,9 @@
     "prefunded_accounts": [
       {
         "account_identifier": {
-          "address": "atoi1qqp4g5xv4zjweaj5tu44yn365afdhe3n3t9nmp9wqreahzp8a3egc5zrx2h"
+          "address": "{{ ADDRESS }}"
         },
-        "privkey": "b9693c5f208ed20d74d0d21358c81cfe8f5d2265e48f136dc6b31956959f7fd9",
+        "privkey": "{{ PRIVATE_KEY }}",
         "curve_type": "edwards25519",
         "currency": {
           "symbol": "IOTA",
@@ -36,13 +36,16 @@
     "log_transactions": true,
     "log_balance_changes": true,
     "log_reconciliations": false,
-    "reconciliation_disabled": true,
+    "reconciliation_disabled": false,
     "pruning_disabled": false,
     "active_reconciliation_concurrency": 1,
     "inactive_reconciliation_concurrency": 1,
     "bootstrap_balances": "bootstrap_balances.json",
     "end_conditions": {
-      "tip": true
+      "reconciliation_coverage": {
+        "coverage": 0.95,
+        "from_tip": true
+      }
     }
   }
 }
