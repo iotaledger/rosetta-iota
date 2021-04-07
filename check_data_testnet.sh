@@ -6,8 +6,9 @@ ROOT=$(pwd)
 CONF_DIR=$ROOT/rosetta-cli-conf/testnet
 
 # 1 to enable, comment out to disable
-#BOOTSTRAP_BALANCES=1 ...deletes the DATA_DIR, downloads the latest available IOTA snapshot and starts synching from the snapshot state
-#NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and the ledger state must be present)
+# INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
+# BOOTSTRAP_BALANCES=1 ...deletes the DATA_DIR, downloads the latest available IOTA snapshot and starts synching from the snapshot state
+# NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and the ledger state must be present)
 
 if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
   echo "bootstrapping method not specified..."
@@ -45,6 +46,12 @@ if [ "$NO_BOOTSTRAP" ]; then
   fi
 fi
 
+# install rosetta-cli
+if [ $INSTALL ]; then
+  # install rosetta-cli
+  echo "installing rosetta-cli via curl..."
+  curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
+fi
 # test Data API
 echo "--------------------------------------------------------------------------------"
 echo "running rosetta-cli check:data"
