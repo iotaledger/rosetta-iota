@@ -36,7 +36,7 @@ ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta
 
 ## Testing with rosetta-cli
 Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of `rosetta-iota`, [install `rosetta-cli`](https://github.com/coinbase/rosetta-cli#install) and run the commands below.
+To validate the correctness of `rosetta-iota` run the commands below:
 
 Testing the Data API **(Testnet)**:
 ```
