@@ -1,38 +1,33 @@
 version: '3.3'
+
 services:
   hornet:
     image: iotaledger/hornet:chrysalis2-preview
     restart: "no"
     working_dir: /app
     expose:
-      # dashbboard
-      - "8081"
       # http rest api
       - "14265"
       # libp2p/gossip protocol
       - "15600"
-      # pprof profiling
-      - "6060"
-      # MQTT
-      - "1883"
-      # prometheus exporter
-      - "9311"
     ports:
       - "127.0.0.1:14265:14265/tcp"
-      - "127.0.0.1:8081:8081/tcp"
       - "0.0.0.0:15600:15600/tcp"
     volumes:
       - './config.json:/app/config.json:ro'
       - './peering.json:/app/peering.json'
-      - './data:/tmp'
+      - './data:/data'
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'
+
   rosetta:
-    image: iotaledger/rosetta-iota:latest
-    command: --bech32-hrp atoi --iota-endpoint http://127.0.0.1:14265 --network testnet6
-    restart: "no"
+    build: .
+    command: --bech32-hrp $ROSETTA_BECH32_HRP --iota-endpoint http://hornet:14265 --network $ROSETTA_NETWORK_NAME --indexation $ROSETTA_INDEXATION --mode $ROSETTA_MODE --port 3030
+    restart: "always"
+    environment:
+      RUST_LOG: debug
     expose:
-      # rosetta api port
+      # API port
       - "3030"
     ports:
       - "0.0.0.0:3030:3030/tcp"
