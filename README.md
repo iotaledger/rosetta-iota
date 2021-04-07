@@ -9,13 +9,36 @@
 
 ## Overview
 
-`rosetta-iota` provides a reference implementation of the [Rosetta API](https://www.rosetta-api.org/) for IOTA in Rust.
+`rosetta-iota` provides a reference implementation of the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information [here](https://www.rosetta-api.org/).
 
 ## Features
 
- - Rosetta API implementation (both Data API and Construction API)
- - Stateless, offline transaction construction for any Ed25519-Bech32 Address.
+ - Implementation of both Data API and Construction API
+ - Stateless, offline, curve-based transaction construction
+ 
+## Quick start
+
+Ensure `docker` and `docker-compose` is installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
+
+**Following commands will start an IOTA fullnode ([Hornet](https://github.com/gohornet/hornet)) together with a Rosetta API instance.**
+Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+
+**Testnet:Online**
+```
+ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=online docker-compose up
+```
+
+**Testnet:Offline**
+```
+ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=offline docker-compose up
+```
+
+## Testing with rosetta-cli
+To validate `rosetta-iota`, [install `rosetta-cli`](https://github.com/coinbase/rosetta-cli#install)
+and run one of the following commands:
+* `rosetta-cli check:data --configuration-file rosetta-cli-conf/devnet.json`
+* `rosetta-cli check:construction --configuration-file rosetta-cli-conf/devnet.json`
  
 ## Documentation
 
-Please refer to [https://rosetta-api.docs.iota.org](https://rosetta-api.docs.iota.org) for documentation.
+Please refer to [https://rosetta-api.docs.iota.org](https://rosetta-api.docs.iota.org) for further documentation.

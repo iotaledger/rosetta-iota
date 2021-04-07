@@ -14,8 +14,8 @@ services:
       - "127.0.0.1:14265:14265/tcp"
       - "0.0.0.0:15600:15600/tcp"
     volumes:
-      - './config.json:/app/config.json:ro'
-      - './peering.json:/app/peering.json'
+      - './hornet/config.json:/app/config.json:ro'
+      - './hornet/peering.json:/app/peering.json'
       - './data:/data'
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'
@@ -25,7 +25,7 @@ services:
     command: --bech32-hrp $ROSETTA_BECH32_HRP --iota-endpoint http://hornet:14265 --network $ROSETTA_NETWORK_NAME --indexation $ROSETTA_INDEXATION --mode $ROSETTA_MODE --port 3030
     restart: "always"
     environment:
-      RUST_LOG: debug
+      RUST_LOG: info
     expose:
       # API port
       - "3030"
