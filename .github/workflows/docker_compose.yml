@@ -1,0 +1,12 @@
+name: Docker Compose Actions Workflow
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=andrea ROSETTA_MODE=online docker-compose up
