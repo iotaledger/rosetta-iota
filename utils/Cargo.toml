@@ -8,16 +8,15 @@ edition = "2018"
 
 [dependencies]
 rosetta-iota-server = { path = "../server"}
-rand = "0.7"
 tokio = { version = "1.4", features = ["full"] }
 iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
 hex = "0.4.2"
 dotenv = "0.15.0"
 iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
-bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "28d5d866405ded9fe03bdd140113cff6a4d4deab" }
+bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "e8cafb6591ec0c29f80705ae51fb8cb890fa98b0" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
-bee-snapshot = { git = "https://github.com/iotaledger/bee.git", rev = "28d5d866405ded9fe03bdd140113cff6a4d4deab" }
-bee-ledger = { git = "https://github.com/iotaledger/bee.git", rev = "28d5d866405ded9fe03bdd140113cff6a4d4deab" }
+bee-snapshot = { git = "https://github.com/iotaledger/bee.git", rev = "e8cafb6591ec0c29f80705ae51fb8cb890fa98b0" }
+bee-ledger = { git = "https://github.com/iotaledger/bee.git", rev = "e8cafb6591ec0c29f80705ae51fb8cb890fa98b0" }
 iota-wallet = { git = "https://github.com/iotaledger/wallet.rs", branch = "develop" }
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -26,7 +25,6 @@ serde_repr = "0.1"
 structopt = "0.3"
 thiserror = "1.0"
 log = "0.4"
-flume = "0.10"
 
 [[bin]]
 name = "rosetta-iota-utils"
