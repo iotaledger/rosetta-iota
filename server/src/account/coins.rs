@@ -1,12 +1,20 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, options::Options, types::*, build_iota_client, require_online_mode, is_bad_network};
-use crate::types::{NetworkIdentifier, AccountIdentifier};
+use crate::{
+    build_iota_client,
+    currency::iota_currency,
+    error::ApiError,
+    is_bad_network,
+    options::Options,
+    require_online_mode,
+    types::{AccountIdentifier, NetworkIdentifier, *},
+};
+
+use bee_rest_api::types::dtos::{AddressDto, OutputDto};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use bee_rest_api::types::dtos::{OutputDto, AddressDto};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -61,13 +69,13 @@ pub async fn account_coins(
 
         coins.push(Coin {
             coin_identifier: CoinIdentifier {
-                identifier: output_info.transaction_id
+                identifier: output_info.transaction_id,
             },
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
-                metadata: None
-            }
+                metadata: None,
+            },
         });
     }
 
@@ -76,7 +84,7 @@ pub async fn account_coins(
             index: confirmed_milestone.index,
             hash: confirmed_milestone.message_id.to_string(),
         },
-        coins
+        coins,
     };
 
     Ok(response)
@@ -92,11 +100,11 @@ mod tests {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
                 network: "testnet6".to_string(),
-                sub_network_identifier: None
+                sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
                 address: String::from("atoi1qzgrk7whadapf4qw5sqvlxkrr0ve3nv09xgdfyc09gfp3e2369ghsj5g2rf"),
-                sub_account: None
+                sub_account: None,
             },
         };
 
@@ -106,7 +114,7 @@ mod tests {
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
-            port: 3030
+            port: 3030,
         };
 
         let response = account_coins(request, server_options).await.unwrap();

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use rosetta_iota_server::{consts, run_server, Options};
-use structopt::StructOpt;
 use std::process;
+use structopt::StructOpt;
 
 #[tokio::main]
 async fn main() {
@@ -23,5 +23,10 @@ async fn main() {
     let mut binding_addr = String::from("0.0.0.0:");
     binding_addr.push_str(&options.port.to_string());
 
-    run_server(binding_addr.parse().expect("Unable to parse socket address"), options, shutdown).await;
+    run_server(
+        binding_addr.parse().expect("Unable to parse socket address"),
+        options,
+        shutdown,
+    )
+    .await;
 }

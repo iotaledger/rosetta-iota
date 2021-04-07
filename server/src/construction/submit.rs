@@ -1,16 +1,15 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::types::*;
-use crate::{Options, is_bad_network, build_iota_client, require_online_mode};
-use crate::error::ApiError;
-
+use crate::{
+    build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_bad_network,
+    require_online_mode, types::*, Options,
+};
 
 use bee_message::prelude::*;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use crate::construction::deserialize_signed_transaction;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitRequest {
@@ -50,7 +49,9 @@ pub(crate) async fn construction_submit_request(
             transaction_identifier: TransactionIdentifier {
                 hash: transaction_id.to_string(),
             },
-            metadata: ConstructionSubmitResponseMetadata { message_id: message_id.to_string() }
+            metadata: ConstructionSubmitResponseMetadata {
+                message_id: message_id.to_string(),
+            },
         }),
         Err(_) => Err(ApiError::BadConstructionRequest("can not submit message".to_string())),
     }

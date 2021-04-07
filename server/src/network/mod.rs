@@ -1,12 +1,13 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::{
+    filters::{handle, with_empty_request, with_options},
+    network::{list::network_list, options::network_options, status::network_status},
+    Options,
+};
+
 use warp::Filter;
-use crate::Options;
-use crate::filters::{with_empty_request, with_options, handle};
-use crate::network::list::network_list;
-use crate::network::options::network_options;
-use crate::network::status::network_status;
 
 mod list;
 mod options;

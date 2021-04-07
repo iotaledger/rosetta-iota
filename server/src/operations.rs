@@ -3,9 +3,8 @@
 
 use crate::{
     currency::iota_currency,
-    types::{AccountIdentifier, Amount, Operation, OperationIdentifier},
+    types::{AccountIdentifier, Amount, CoinAction, CoinChange, CoinIdentifier, Operation, OperationIdentifier},
 };
-use crate::types::{CoinChange, CoinIdentifier, CoinAction};
 
 // operation types
 pub const UTXO_INPUT: &str = "UTXO_INPUT";
@@ -41,7 +40,7 @@ pub fn utxo_input_operation(
     output_index: u16,
     operation_counter: usize,
     consumed: bool,
-    online: bool
+    online: bool,
 ) -> Operation {
     let account = AccountIdentifier {
         address,
@@ -54,7 +53,7 @@ pub fn utxo_input_operation(
             false => amnt.to_string(),
         },
         currency: iota_currency(),
-        metadata: None
+        metadata: None,
     };
 
     let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
@@ -68,29 +67,22 @@ pub fn utxo_input_operation(
         type_: UTXO_INPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()), // call coming from /data/block
-            false => None, // call coming from /construction/parse
+            false => None,                // call coming from /construction/parse
         },
         account: Some(account),
         amount: Some(amount),
         coin_change: Some(CoinChange {
-            coin_identifier: CoinIdentifier {
-                identifier: output_id
-            },
+            coin_identifier: CoinIdentifier { identifier: output_id },
             coin_action: match consumed {
                 true => CoinAction::CoinSpent,
-                false => CoinAction::CoinCreated
+                false => CoinAction::CoinCreated,
             },
         }),
-        metadata: None
+        metadata: None,
     }
 }
 
-pub fn utxo_output_operation(
-    address: String,
-    amnt: u64,
-    operation_counter: usize,
-    online: bool
-) -> Operation {
+pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -116,6 +108,6 @@ pub fn utxo_output_operation(
         account: Some(account),
         amount: Some(amount),
         coin_change: None,
-        metadata: None
+        metadata: None,
     }
 }

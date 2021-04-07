@@ -1,8 +1,15 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, options::Options, types::{Amount, BlockIdentifier}, build_iota_client, require_online_mode, is_bad_network};
-use crate::types::{NetworkIdentifier, AccountIdentifier, PartialBlockIdentifier};
+use crate::{
+    build_iota_client,
+    currency::iota_currency,
+    error::ApiError,
+    is_bad_network,
+    options::Options,
+    require_online_mode,
+    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
+};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -58,13 +65,11 @@ pub async fn account_balance(
             index: confirmed_milestone.index,
             hash: confirmed_milestone.message_id.to_string(),
         },
-        balances: vec![
-            Amount {
-                value: balance.balance.to_string(),
-                currency: iota_currency(),
-                metadata: None
-            }
-        ]
+        balances: vec![Amount {
+            value: balance.balance.to_string(),
+            currency: iota_currency(),
+            metadata: None,
+        }],
     };
 
     Ok(response)
@@ -80,13 +85,13 @@ mod tests {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
                 network: "testnet6".to_string(),
-                sub_network_identifier: None
+                sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
                 address: String::from("atoi1qqp4g5xv4zjweaj5tu44yn365afdhe3n3t9nmp9wqreahzp8a3egc5zrx2h"),
-                sub_account: None
+                sub_account: None,
             },
-            block_identifier: None
+            block_identifier: None,
         };
 
         let server_options = Options {
@@ -95,7 +100,7 @@ mod tests {
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
-            port: 3030
+            port: 3030,
         };
 
         let response = account_balance(request, server_options).await.unwrap();

@@ -1,14 +1,17 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::error::ApiError;
+use crate::{error::ApiError, types::NetworkIdentifier};
+
+pub use options::Options;
+
+use iota::Client;
+
 use core::future::Future;
 use log::{error, info};
-pub use options::Options;
-use std::{convert::Infallible, net::SocketAddr};
 use warp::{http::StatusCode, Filter};
-use crate::types::NetworkIdentifier;
-use iota::Client;
+
+use std::{convert::Infallible, net::SocketAddr};
 
 pub mod account;
 pub mod block;
@@ -89,33 +92,22 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     Ok(warp::reply::with_status(json, status))
 }
 
-pub async fn build_iota_client(
-    options: &Options
-) -> Result<Client, ApiError> {
+pub async fn build_iota_client(options: &Options) -> Result<Client, ApiError> {
     let builder = iota::Client::builder()
         .with_network(&options.network)
         .with_node(&options.iota_endpoint)
         .map_err(|_| ApiError::UnableToBuildClient)?;
-    Ok(builder.finish()
-        .await
-        .map_err(|_| ApiError::UnableToBuildClient)?)
+    Ok(builder.finish().await.map_err(|_| ApiError::UnableToBuildClient)?)
 }
 
-pub fn is_bad_network(
-    options: &Options,
-    network_identifier: &NetworkIdentifier,
-) -> Result<(), ApiError> {
-    if network_identifier.blockchain != consts::BLOCKCHAIN
-        || network_identifier.network != options.network
-    {
+pub fn is_bad_network(options: &Options, network_identifier: &NetworkIdentifier) -> Result<(), ApiError> {
+    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }
     Ok(())
 }
 
-pub fn require_online_mode(
-    options: &Options
-) -> Result<(), ApiError> {
+pub fn require_online_mode(options: &Options) -> Result<(), ApiError> {
     if options.mode == consts::ONLINE_MODE {
         Ok(())
     } else {
@@ -123,9 +115,7 @@ pub fn require_online_mode(
     }
 }
 
-pub fn require_offline_mode(
-    options: &Options
-) -> Result<(), ApiError> {
+pub fn require_offline_mode(options: &Options) -> Result<(), ApiError> {
     if options.mode == consts::OFFLINE_MODE {
         Ok(())
     } else {

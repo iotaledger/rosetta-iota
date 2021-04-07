@@ -1,12 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, filters::{ EmptyRequest}, options::Options, types::{
-    NetworkIdentifier,
+use crate::{consts, error::ApiError, filters::EmptyRequest, options::Options, types::NetworkIdentifier};
 
-}};
-use serde::{Deserialize, Serialize};
 use log::debug;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NetworkListResponse {
@@ -42,7 +40,7 @@ mod tests {
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
-            port: 3030
+            port: 3030,
         };
         let response = network_list(EmptyRequest, server_options).await.unwrap();
 

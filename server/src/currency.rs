@@ -7,6 +7,6 @@ pub fn iota_currency() -> Currency {
     Currency {
         symbol: String::from("IOTA"),
         decimals: 0,
-        metadata: None
+        metadata: None,
     }
 }

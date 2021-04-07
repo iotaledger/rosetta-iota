@@ -1,10 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::types::*;
-use crate::{Options, is_bad_network, require_offline_mode};
-use crate::error::ApiError;
-use crate::construction::{deserialize_signed_transaction};
+use crate::{
+    construction::deserialize_signed_transaction, error::ApiError, is_bad_network, require_offline_mode, types::*,
+    Options,
+};
 
 use log::debug;
 use serde::{Deserialize, Serialize};

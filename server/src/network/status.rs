@@ -1,12 +1,21 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, options::Options, types::*, build_iota_client, require_online_mode, is_bad_network};
-use bee_message::prelude::{MESSAGE_ID_LENGTH};
+use crate::{
+    build_iota_client,
+    error::ApiError,
+    is_bad_network,
+    options::Options,
+    require_online_mode,
+    types::{NetworkIdentifier, *},
+};
+
+use bee_message::prelude::MESSAGE_ID_LENGTH;
+
 use iota::{self, client::MilestoneResponse, MessageId};
+
 use log::debug;
 use serde::{Deserialize, Serialize};
-use crate::types::NetworkIdentifier;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NetworkStatusRequest {
@@ -21,7 +30,10 @@ pub struct NetworkStatusResponse {
     pub peers: Vec<Peer>,
 }
 
-pub async fn network_status(network_request: NetworkStatusRequest, options: Options) -> Result<NetworkStatusResponse, ApiError> {
+pub async fn network_status(
+    network_request: NetworkStatusRequest,
+    options: Options,
+) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
     let _ = require_online_mode(&options)?;
@@ -98,8 +110,8 @@ mod tests {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
                 network: "testnet6".to_string(),
-                sub_network_identifier: None
-            }
+                sub_network_identifier: None,
+            },
         };
 
         let server_options = Options {
@@ -108,7 +120,7 @@ mod tests {
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
-            port: 3030
+            port: 3030,
         };
         let response = network_status(request, server_options).await.unwrap();
 

@@ -1,12 +1,17 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, types::*, operations::*, options::Options,
- is_bad_network};
-use serde::{Deserialize, Serialize};
+use crate::{
+    consts,
+    error::ApiError,
+    is_bad_network,
+    operations::*,
+    options::Options,
+    types::{NetworkIdentifier, *},
+};
 
 use log::debug;
-use crate::types::{NetworkIdentifier};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NetworkOptionsRequest {
@@ -39,12 +44,12 @@ pub async fn network_options(
     let operation_statuses = vec![
         OperationStatus {
             status: operation_status_success(),
-            successful: true
+            successful: true,
         },
         OperationStatus {
             status: operation_status_skipped(),
-            successful: false
-        }
+            successful: false,
+        },
     ];
 
     let operation_types = operation_type_list();
@@ -59,7 +64,7 @@ pub async fn network_options(
         timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
-        mempool_coins: false
+        mempool_coins: false,
     };
 
     let response = NetworkOptionsResponse { version, allow };
@@ -77,8 +82,8 @@ mod tests {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
                 network: "testnet6".to_string(),
-                sub_network_identifier: None
-            }
+                sub_network_identifier: None,
+            },
         };
 
         let server_options = Options {
@@ -87,7 +92,7 @@ mod tests {
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
-            port: 3030
+            port: 3030,
         };
         let response = network_options(request, server_options).await.unwrap();
 

@@ -1,8 +1,12 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{ filters::{handle, with_options},  options::Options};
-use crate::block::block::block;
+use crate::{
+    block::block::block,
+    filters::{handle, with_options},
+    options::Options,
+};
+
 use warp::Filter;
 
 mod block;

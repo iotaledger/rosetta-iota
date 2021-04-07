@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::types::{self, ErrorDetails};
+
 use thiserror::Error;
 use warp::{http::StatusCode, reply::Reply};
 

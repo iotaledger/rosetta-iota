@@ -21,6 +21,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
   rm -rf $DATA_DIR
 
   # download latest snapshot and create the bootstrap_balances.json
+  echo "running rosetta-iota-utils to download latest snapshot..."
   RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot
 
   # move generated file to $CONF_DIR

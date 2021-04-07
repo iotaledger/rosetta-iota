@@ -1,10 +1,12 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use bee_message::prelude::*;
 use bee_rest_api::types::responses::OutputResponse;
+
+use serde::{Deserialize, Serialize};
+
+use std::collections::HashMap;
 
 /// Full reference: https://www.rosetta-api.org/docs/Reference.html#models
 
@@ -28,7 +30,7 @@ pub struct Amount {
     pub value: String,
     pub currency: Currency,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<AmountMetadata>
+    pub metadata: Option<AmountMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -51,7 +53,7 @@ pub struct Block {
     pub timestamp: u64,
     pub transactions: Vec<Transaction>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<BlockMetadata>
+    pub metadata: Option<BlockMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -68,13 +70,13 @@ pub enum CoinAction {
     #[serde(rename = "coin_created")]
     CoinCreated,
     #[serde(rename = "coin_spent")]
-    CoinSpent
+    CoinSpent,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CoinChange {
     pub coin_identifier: CoinIdentifier,
-    pub coin_action: CoinAction
+    pub coin_action: CoinAction,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -82,7 +84,7 @@ pub struct Currency {
     pub symbol: String,
     pub decimals: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<CurrencyMetadata>
+    pub metadata: Option<CurrencyMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -175,9 +177,9 @@ pub struct SigningPayload {
 pub struct Transaction {
     pub transaction_identifier: TransactionIdentifier,
     pub operations: Vec<Operation>,
-    //pub related_transactions: Option<RelatedTransaction>, TODO
+    // pub related_transactions: Option<RelatedTransaction>, TODO
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<TransactionMetadata>
+    pub metadata: Option<TransactionMetadata>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -200,7 +202,7 @@ pub struct BlockIdentifier {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct CoinIdentifier {
-    pub identifier: String
+    pub identifier: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -296,7 +298,7 @@ impl UnsignedTransaction {
     pub fn new(transaction_essence: Essence, inputs_metadata: HashMap<String, OutputResponse>) -> Self {
         Self {
             essence: transaction_essence,
-            inputs_metadata
+            inputs_metadata,
         }
     }
     pub fn essence(&self) -> &Essence {
@@ -317,7 +319,7 @@ impl SignedTransaction {
     pub fn new(transaction: TransactionPayload, inputs_metadata: HashMap<String, OutputResponse>) -> Self {
         Self {
             transaction,
-            inputs_metadata
+            inputs_metadata,
         }
     }
     pub fn transaction(&self) -> &bee_message::prelude::TransactionPayload {
@@ -330,21 +332,15 @@ impl SignedTransaction {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PreprocessOptions {
-    pub inputs: Vec<String>
+    pub inputs: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadata {
-    pub inputs_metadata: HashMap<String, OutputResponse>
+    pub inputs_metadata: HashMap<String, OutputResponse>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitResponseMetadata {
     pub message_id: String,
 }
-
-
-
-
-
-

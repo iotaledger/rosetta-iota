@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{error::ApiError, options::Options};
+
 use futures::future::BoxFuture;
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, future::Future};
 use warp::Filter;
+
+use std::{convert::Infallible, future::Future};
 
 pub fn with_options(options: Options) -> impl Filter<Extract = (Options,), Error = Infallible> + Clone {
     warp::any().map(move || options.clone())
