@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # define a few vars
-DATA_DIR=".rosetta-cli-testnet"
 ROOT=$(pwd)
 CONF_DIR=$ROOT/rosetta-cli-conf/testnet
+DATA_DIR=".rosetta-cli-testnet"
 
-# 1 to enable, comment out to disable
+# uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
-# BOOTSTRAP_BALANCES=1 ...deletes the DATA_DIR, downloads the latest available IOTA snapshot and starts synching from the snapshot state
-# NO_BOOTSTRAP=1 ...continues to synch where it ended last time (DATA_DIR must exist and the ledger state must be present)
+# BOOTSTRAP_BALANCES=1 ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
+# NO_BOOTSTRAP=1 ...keeps the rosetta-cli storage
 
 if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
   echo "bootstrapping method not specified..."
@@ -21,7 +21,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
   rm -rf $DATA_DIR
 
   # download latest snapshot and create the bootstrap_balances.json
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot 2> /dev/null
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot
 
   # move generated file to $CONF_DIR
   mv bootstrap_balances.json $CONF_DIR

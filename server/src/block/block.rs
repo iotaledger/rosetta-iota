@@ -7,7 +7,7 @@ use iota::{Client};
 use log::debug;
 use crate::types::{NetworkIdentifier, PartialBlockIdentifier};
 use serde::{Deserialize, Serialize};
-use iota::MessageId;
+
 use bee_message::payload::transaction::{ Essence};
 use bee_message::Message;
 use bee_message::prelude::Output;
@@ -16,6 +16,8 @@ use bee_rest_api::types::responses::OutputResponse;
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+
+use bee_message::prelude::*;
 
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -173,7 +175,7 @@ async fn from_transaction(transaction_payload: &TransactionPayload, iota_client:
     for input in regular_essence.inputs() {
 
         let utxo_input = match input {
-            Input::UTXO(i) => i,
+            Input::Utxo(i) => i,
             _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
         };
 

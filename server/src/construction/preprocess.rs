@@ -7,7 +7,7 @@ use crate::error::ApiError;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use iota::prelude::OutputId;
+use bee_message::prelude::*;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionPreprocessRequest {

@@ -7,8 +7,9 @@ use crate::error::ApiError;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use bee_message::prelude::UTXOInput;
 use std::collections::HashMap;
+
+use bee_message::prelude::*;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataRequest {
@@ -34,7 +35,7 @@ pub(crate) async fn construction_metadata_request(
 
     let mut utxo_inputs_metadata = HashMap::new();
     for input_id in construction_metadata_request.options.inputs {
-        let input = input_id.parse::<UTXOInput>().map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
+        let input = input_id.parse::<UtxoInput>().map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
         let input_metadata = iota_client.get_output(&input).await.map_err(|e| ApiError::IotaClientError(e))?;
         utxo_inputs_metadata.insert(input_id, input_metadata);
     }

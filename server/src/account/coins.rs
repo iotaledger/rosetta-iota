@@ -4,9 +4,9 @@
 use crate::{currency::iota_currency, error::ApiError, options::Options, types::*, build_iota_client, require_online_mode, is_bad_network};
 use crate::types::{NetworkIdentifier, AccountIdentifier};
 
-use iota::{Bech32Address, OutputDto, AddressDto};
 use log::debug;
 use serde::{Deserialize, Serialize};
+use bee_rest_api::types::dtos::{OutputDto, AddressDto};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -41,7 +41,7 @@ pub async fn account_coins(
         Err(_) => return Err(ApiError::UnableToGetMilestone(node_info.confirmed_milestone_index)),
     };
 
-    let address = Bech32Address(account_coins_request.account_identifier.address);
+    let address = account_coins_request.account_identifier.address;
     let outputs = match iota_client.find_outputs(&[], &[address.clone()]).await {
         Ok(outputs) => outputs,
         Err(_) => return Err(ApiError::UnableToGetOutputsFromAddress),

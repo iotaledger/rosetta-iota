@@ -46,8 +46,8 @@ pub(crate) async fn construction_payloads_request(
             "UTXO_INPUT" => {
 
                 let output_id = operation.coin_change.ok_or(ApiError::BadConstructionRequest("coin_change not populated for UTXO_INPUT".to_string()))?.coin_identifier.identifier;
-                let utxo_input = output_id.parse::<UTXOInput>().map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
-                let input = Input::UTXO(utxo_input);
+                let utxo_input = output_id.parse::<UtxoInput>().map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
+                let input = Input::Utxo(utxo_input);
 
                 inputs.push((input, address));
             },

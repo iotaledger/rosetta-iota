@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use serde::{Deserialize, Serialize};
-use iota::OutputResponse;
 use std::collections::HashMap;
 use bee_message::prelude::*;
+use bee_rest_api::types::responses::OutputResponse;
 
 /// Full reference: https://www.rosetta-api.org/docs/Reference.html#models
 

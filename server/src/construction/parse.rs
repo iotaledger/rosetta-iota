@@ -16,11 +16,11 @@ use crate::construction::{deserialize_unsigned_transaction, deserialize_signed_t
 use serde::{Deserialize, Serialize};
 use bee_rest_api::types::dtos::{OutputDto, AddressDto};
 use crate::operations::{utxo_input_operation, utxo_output_operation};
-use iota::OutputResponse;
 
 use crypto::hashes::blake2b::Blake2b256;
 use crypto::hashes::Digest;
 use std::convert::TryInto;
+use bee_rest_api::types::responses::OutputResponse;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseRequest {
@@ -116,7 +116,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
     for input in regular_essence.inputs() {
 
         let utxo_input = match input {
-            Input::UTXO(i) => i,
+            Input::Utxo(i) => i,
             _ => return Err(ApiError::BadConstructionRequest("input type not supported".to_string()))
         };
 
@@ -136,7 +136,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
             OutputDto::SignatureLockedDustAllowance(_) => panic!("not implemented!"),
         };
 
-        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
+        let bech32_address = Address::Ed25519(Ed25519Address::from_str(&ed25519_address).unwrap()).to_bech32(&options.bech32_hrp);
 
         operations.push(utxo_input_operation(transaction_id, bech32_address, amount, output_index, operations.len(), true, false));
     }
@@ -150,7 +150,7 @@ async fn essence_to_operations(essence: &Essence, inputs_metadata: &HashMap<Stri
             _ => panic!("not implemented!")
         };
 
-        let bech32_address = Ed25519Address::from_str(&ed25519_address).unwrap().to_bech32(&options.bech32_hrp);
+        let bech32_address = Address::Ed25519(Ed25519Address::from_str(&ed25519_address).unwrap()).to_bech32(&options.bech32_hrp);
 
         operations.push(utxo_output_operation(bech32_address, amount, operations.len(), false));
     }

@@ -48,7 +48,7 @@ pub async fn account_balance(
     };
 
     let address = account_balance_request.account_identifier.address;
-    let balance = match iota_client.get_address().balance(&address.into()).await {
+    let balance = match iota_client.get_address().balance(&address).await {
         Ok(balance) => balance,
         Err(_) => return Err(ApiError::UnableToGetBalance),
     };
