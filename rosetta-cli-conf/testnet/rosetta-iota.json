@@ -4,42 +4,17 @@
     "network": "testnet7"
   },
   "online_url": "http://localhost:3030",
-  "data_directory": ".rosetta-cli-testnet",
-  "http_timeout": 1000,
-  "max_retries": 50,
-  "max_sync_concurrency": 1,
+  "data_directory": ".rosetta-cli-testnet-data",
+  "http_timeout": 3,
+  "max_retries": 5,
+  "max_sync_concurrency": 32,
   "tip_delay": 5,
-  "construction": {
-    "offline_url": "http://localhost:3031",
-    "constructor_dsl_file": "iota.ros",
-    "prefunded_accounts": [
-      {
-        "account_identifier": {
-          "address": "{{ ADDRESS }}"
-        },
-        "privkey": "{{ PRIVATE_KEY }}",
-        "curve_type": "edwards25519",
-        "currency": {
-          "symbol": "IOTA",
-          "decimals": 0
-        }
-      }
-    ],
-    "end_conditions": {
-      "transfer": 1
-    }
-  },
   "data": {
-    "start_index": 1,
     "historical_balance_enabled": false,
-    "inactive_discrepency_search_disabled": true,
-    "log_transactions": true,
-    "log_balance_changes": true,
-    "log_reconciliations": false,
     "reconciliation_disabled": false,
     "pruning_disabled": false,
-    "active_reconciliation_concurrency": 1,
-    "inactive_reconciliation_concurrency": 1,
+    "active_reconciliation_concurrency": 32,
+    "inactive_reconciliation_concurrency": 32,
     "bootstrap_balances": "bootstrap_balances.json",
     "end_conditions": {
       "reconciliation_coverage": {

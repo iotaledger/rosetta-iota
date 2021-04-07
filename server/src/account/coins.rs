@@ -117,7 +117,7 @@ mod tests {
             port: 3030,
         };
 
-        let response = account_coins(request, server_options).await.unwrap();
+        let _response = account_coins(request, server_options).await.unwrap();
         // todo: assertions
     }
 }

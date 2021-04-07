@@ -21,7 +21,6 @@ use bee_rest_api::types::responses::OutputResponse;
 use iota::Client;
 
 use log::debug;
-
 use serde::{Deserialize, Serialize};
 
 use std::{
@@ -314,35 +313,35 @@ mod tests {
         let request = BlockRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
-                network: "testnet6".to_string(),
+                network: "testnet7".to_string(),
                 sub_network_identifier: None,
             },
             block_identifier: PartialBlockIdentifier {
-                index: Some(10),
+                index: Some(252),
                 hash: None,
             },
         };
 
         let server_options = Options {
             iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
+            network: "testnet7".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: "online".to_string(),
             port: 3030,
         };
         let response = block(request, server_options).await.unwrap();
-        assert_eq!(10, response.block.block_identifier.index);
+        assert_eq!(252, response.block.block_identifier.index);
         assert_eq!(
-            "62dd0dfde19584d250ea34157ee17945996380b792944bbea17b011ddc3225e3",
+            "81cb76571142610b3773f247dc6d915673d4b7e4f73bad2ab82d94a10e3ed5bd",
             response.block.block_identifier.hash
         );
-        assert_eq!(9, response.block.parent_block_identifier.index);
+        assert_eq!(251, response.block.parent_block_identifier.index);
         assert_eq!(
-            "b26f8a43e1e40c62f5c4984e1e778650a93ee53d915559adc032de7bfe30291f",
+            "beec71a316e761cabc66e82ff67d451e49f2941f160c38b4296af9de05bba638",
             response.block.parent_block_identifier.hash
         );
-        assert_eq!(1614779517000, response.block.timestamp);
+        assert_eq!(1617799822 * 1000, response.block.timestamp);
         assert_eq!(false, response.block.metadata.is_some());
     }
 }

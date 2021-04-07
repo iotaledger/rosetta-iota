@@ -122,7 +122,7 @@ mod tests {
             mode: "online".to_string(),
             port: 3030,
         };
-        let response = network_status(request, server_options).await.unwrap();
+        let _response = network_status(request, server_options).await.unwrap();
 
         // todo: assertions
     }

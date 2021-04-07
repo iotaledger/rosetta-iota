@@ -19,7 +19,7 @@
   
 ## Quick start
 
-Ensure `docker` and `docker-compose` is installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
+Ensure `docker` and `docker-compose` are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
 
 **Following commands will start an IOTA fullnode ([Hornet](https://github.com/gohornet/hornet)) together with a Rosetta API instance.**
 Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030
