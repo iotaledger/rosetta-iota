@@ -43,7 +43,7 @@ pub async fn bootstrap_balances_from_snapshot() {
                                &[String::from(url)]).await.unwrap();
     }
 
-    let mut balance_diffs = read_full_outputs(full_path).await;
+    let balance_diffs = read_full_outputs(full_path).await;
 
     let sep_index = read_sep_index(delta_path).await;
     let json_string = read_delta_diff(delta_path, balance_diffs).await;
@@ -170,11 +170,10 @@ async fn read_full_outputs(full_path: &Path) -> BalanceDiffs{
         let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
     }
 
-    let mut count = 0;
     let mut balance_diffs = BalanceDiffs::new();
     for _ in 0..header.output_count() {
-        let message_id = MessageId::unpack(&mut reader).expect("Can not read message id of output.");
-        let output_id = OutputId::unpack(&mut reader).expect("Can not read output id.");
+        let _ = MessageId::unpack(&mut reader).expect("Can not read message id of output.");
+        let _ = OutputId::unpack(&mut reader).expect("Can not read output id.");
         let output = Output::unpack(&mut reader).expect("Can not read output.");
 
         match output {
@@ -189,7 +188,7 @@ async fn read_full_outputs(full_path: &Path) -> BalanceDiffs{
                 balance_diffs.amount_add(*output.address(), output.amount());
                 balance_diffs.dust_allowance_add(*output.address(), output.amount());
             }
-            _ => panic!("unsuported output kind"),
+            _ => panic!("unsupported output kind"),
         }
     }
 

@@ -11,8 +11,6 @@ use crypto::hashes::Digest;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use bee_message::prelude::*;
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionDeriveRequest {
     pub network_identifier: NetworkIdentifier,

@@ -9,8 +9,6 @@ use crate::construction::{deserialize_signed_transaction};
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use bee_message::prelude::*;
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionHashRequest {
     pub network_identifier: NetworkIdentifier,

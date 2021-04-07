@@ -1,10 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use iota::{Client, MessageId};
-use iota_wallet::Result;
-use bee_message::prelude::Ed25519Address;
-use std::str::FromStr;
+use iota::{Client};
+use bee_message::prelude::*;
 use crypto::{
     ed25519::SecretKey,
     hashes::{blake2b::Blake2b256, Digest}
@@ -13,20 +11,16 @@ use serde::{Serialize, Deserialize};
 use serde_json;
 
 use std::collections::HashMap;
-use std::time::Duration;
-use tokio::time::sleep;
 use std::convert::TryInto;
-use std::{thread, time};
-use iota::client::BalanceForAddressResponse;
 
 #[derive(Deserialize)]
 struct FaucetMessageResponse {
-    id: String,
+    pub id: String,
 }
 
 #[derive(Deserialize)]
 struct FaucetResponse {
-    data: FaucetMessageResponse,
+    pub data: FaucetMessageResponse,
 }
 
 #[derive(Serialize)]
@@ -42,7 +36,7 @@ pub async fn ask_faucet() {
 
     // Create iota client
     let iota = Client::builder() // Crate a client instance builder
-        .with_node("http://api.hornet-1.testnet.chrysalis2.com/") // Insert the node here
+        .with_node("https://api.lb-0.testnet.chrysalis2.com/") // Insert the node here
         .unwrap()
         .finish()
         .await
@@ -60,16 +54,16 @@ pub async fn ask_faucet() {
 
     // Get bech32 representation
     let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
-    let bech32_address = ed25519_address.to_bech32(&bech32_hrp);
+    let bech32_address = Address::Ed25519(ed25519_address).to_bech32(&bech32_hrp);
 
     // ask for 10000000i twice (uncomment for IF or TangleKit faucet)
     //ask_if_faucet_twice(&bech32_address, &iota);
     ask_tanglekit_faucet_twice(&bech32_address).await;
 
     // wait for consensus on the ledger
-    let mut balance_response: BalanceForAddressResponse;
+    let mut balance_response;
     loop {
-        balance_response = iota.get_address().balance(&bech32_address.clone().into()).await.unwrap();
+        balance_response = iota.get_address().balance(&bech32_address).await.unwrap();
         if balance_response.balance == 20000000 {
             break;
         }
@@ -89,40 +83,6 @@ pub async fn ask_faucet() {
     println!("{}", prefunded_account_pretty);
 }
 
-async fn ask_if_faucet_twice(bech32_address: &String, iota: &Client) {
-    loop {
-        if let Ok(id) = get_funds_if_faucet(&bech32_address).await {
-            reattach_promote_until_confirmed(&id, &iota).await;
-            break id;
-        }
-    };
-    loop {
-        if let Ok(id) = get_funds_if_faucet(&bech32_address).await {
-            reattach_promote_until_confirmed(&id, &iota).await;
-            break id;
-        }
-    };
-}
-
-async fn get_funds_if_faucet(address: &String) -> Result<MessageId> {
-    // use the faucet to get funds on the address
-    let response = reqwest::get(&format!(
-        "https://faucet.testnet.chrysalis2.com/api?address={}",
-        address.to_string()
-    ))
-        .await
-        .unwrap()
-        .json::<FaucetResponse>()
-        .await
-        .map_err(|_| iota_wallet::Error::InsufficientFunds)?;
-
-    // todo: undo this?
-    // let faucet_message_id = MessageId::from_str(&response.data.id).expect("error: cannot talk to faucet!");
-    let faucet_message_id = MessageId::from_str(&response.data.id).map_err(|_| iota_wallet::Error::InsufficientFunds)?;
-
-    Ok(faucet_message_id)
-}
-
 async fn ask_tanglekit_faucet_twice(bech32_address: &String) {
     get_funds_tanglekit_faucet(&bech32_address).await;
     get_funds_tanglekit_faucet(&bech32_address).await;
@@ -133,20 +93,9 @@ async fn get_funds_tanglekit_faucet(address: &String) {
     map.insert("address", address.to_string());
 
     let client = reqwest::Client::new();
-    let response = client.post("https://faucet.tanglekit.de/api/enqueue")
+    let _ = client.post("https://faucet.tanglekit.de/api/enqueue")
         .json(&map)
         .send()
         .await
         .expect("could not send POST");
-}
-
-async fn reattach_promote_until_confirmed(message_id: &MessageId, iota: &Client) {
-    while let Ok(metadata) = iota.get_message().metadata(&message_id).await {
-        if metadata.referenced_by_milestone_index.is_some() {
-            break;
-        } else if let Ok(msg_id) = iota.reattach(&message_id).await {
-            println!("Reattached or promoted {}", msg_id.0);
-        }
-        sleep(Duration::from_secs(2)).await;
-    }
 }
