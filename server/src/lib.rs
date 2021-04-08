@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{error::ApiError, types::NetworkIdentifier};
+use crate::options::RosettaMode;
 
 pub use options::Options;
 
@@ -108,7 +109,7 @@ pub fn is_bad_network(options: &Options, network_identifier: &NetworkIdentifier)
 }
 
 pub fn require_online_mode(options: &Options) -> Result<(), ApiError> {
-    if options.mode == consts::ONLINE_MODE {
+    if options.mode == RosettaMode::Online {
         Ok(())
     } else {
         return Err(ApiError::UnavailableOffline);
@@ -116,7 +117,7 @@ pub fn require_online_mode(options: &Options) -> Result<(), ApiError> {
 }
 
 pub fn require_offline_mode(options: &Options) -> Result<(), ApiError> {
-    if options.mode == consts::OFFLINE_MODE {
+    if options.mode == RosettaMode::Offline {
         Ok(())
     } else {
         return Err(ApiError::UnavailableOnline);
