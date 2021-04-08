@@ -1,54 +1,44 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use rosetta_iota_server::types::{AccountIdentifier, Currency};
+
 use bee_common::packable::Packable;
 use bee_ledger::types::BalanceDiffs;
 use bee_message::{prelude::*, solid_entry_point::SolidEntryPoint};
 use bee_snapshot::{header::SnapshotHeader, milestone_diff::MilestoneDiff};
+
 use iota::Client;
-use log::{error, info, warn};
-use rosetta_iota_server::types::{AccountIdentifier, Currency};
+
 use serde::{Deserialize, Serialize};
+
 use std::{
-    collections::HashMap,
     fs,
     fs::{File, OpenOptions},
     io::{copy, BufReader},
     path::Path,
 };
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("")]
-    InvalidFilePath(String),
-    #[error("")]
-    NoDownloadSourceAvailable,
-    #[error("")]
-    UnsupportedOutputKind,
-}
 
 pub async fn bootstrap_balances_from_snapshot() {
+    let download_url = "https://dbfiles.testnet.chrysalis2.com/";
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
-    let url = "https://dbfiles.testnet.chrysalis2.com/";
 
     if !full_path.exists() {
-        println!("Downloading full snapshot...");
-        download_snapshot_file(full_path, &[String::from(url)]).await.unwrap();
+        println!("downloading full snapshot...");
+        download_snapshot_file(full_path, &[String::from(download_url)]).await;
     }
 
     if !delta_path.exists() {
-        println!("Downloading delta snapshot...");
-        download_snapshot_file(delta_path, &[String::from(url)]).await.unwrap();
+        println!("downloading delta snapshot...");
+        download_snapshot_file(delta_path, &[String::from(download_url)]).await;
     }
 
-    let balance_diffs = read_full_outputs(full_path).await;
+    let balance_diffs = read_full_snapshot(full_path).await;
+    let (sep_index, json_string) = read_delta_snapshot(delta_path, balance_diffs).await;
 
-    let sep_index = read_sep_index(delta_path).await;
-    let json_string = read_delta_diff(delta_path, balance_diffs).await;
-    fs::write("bootstrap_balances.json", json_string).expect("cannot write to file");
-    fs::write("sep_index", sep_index.to_string()).expect("cannot write to file");
+    fs::write("bootstrap_balances.json", json_string).expect("cannot write bootstrap_balances.json file");
+    fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -58,18 +48,22 @@ struct BootstrapBalanceEntry {
     value: String,
 }
 
-async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> String {
+async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> (MilestoneIndex, String) {
+    println!("reading delta snapshot...");
+
     let mut reader = BufReader::new(
         OpenOptions::new()
             .read(true)
             .open(delta_path)
-            .expect("cannot read buffer"),
+            .expect("cannot open delta snapshot"),
     );
 
     let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
     for _ in 0..header.sep_count() {
-        SolidEntryPoint::unpack(&mut reader).expect("cannot unpack sep");
+        SolidEntryPoint::unpack(&mut reader).expect("cannot unpack solid entry point");
     }
+
+    let sep_index = header.sep_index();
 
     for _ in 0..header.milestone_diff_count() {
         let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
@@ -86,13 +80,11 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
                     balance_diffs.amount_add(*output.address(), output.amount());
                     balance_diffs.dust_allowance_add(*output.address(), output.amount());
                 }
-                _ => panic!("unsuported output kind"),
+                _ => panic!("unsupported output type"),
             }
         }
 
-        let mut consumed = HashMap::new();
-
-        for (output_id, (created_output, consumed_output)) in diff.consumed().iter() {
+        for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
             match created_output.inner() {
                 Output::SignatureLockedSingle(output) => {
                     balance_diffs.amount_sub(*output.address(), output.amount());
@@ -105,9 +97,8 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
                     balance_diffs.amount_sub(*output.address(), output.amount());
                     balance_diffs.dust_allowance_sub(*output.address(), output.amount());
                 }
-                _ => panic!("unsuported output kind"),
+                _ => panic!("unsupported output type"),
             }
-            consumed.insert(*output_id, (*consumed_output).clone());
         }
     }
 
@@ -124,7 +115,6 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
     for (addr, balance_diff) in balance_diffs {
         let addr = addr.to_bech32(&bech32_hrp);
 
-        // is this correct?
         let balance = balance_diff.amount();
 
         if balance > 0 {
@@ -145,50 +135,31 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
 
     let json_string = serde_json::to_string_pretty(&json_entries).unwrap();
 
-    json_string
+    println!("delta snapshot successfully read...");
+
+    (sep_index, json_string)
 }
 
-async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {
-    println!("Reading delta snapshot...");
-    let mut reader = BufReader::new(
-        OpenOptions::new()
-            .read(true)
-            .open(delta_path)
-            .expect("could not open delta snapshot"),
-    );
-    let header = SnapshotHeader::unpack(&mut reader).unwrap();
-
-    for _ in 0..header.sep_count() {
-        let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
-    }
-
-    let sep_index = header.sep_index();
-
-    println!("Delta snapshot successfully read.");
-
-    sep_index
-}
-
-async fn read_full_outputs(full_path: &Path) -> BalanceDiffs {
-    println!("Reading full snapshot...");
+async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
+    println!("reading full snapshot...");
 
     let mut reader = BufReader::new(
         OpenOptions::new()
             .read(true)
             .open(full_path)
-            .expect("Could not open full snapshot."),
+            .expect("could not open full snapshot"),
     );
-    let header = SnapshotHeader::unpack(&mut reader).expect("Can not read snapshot header.");
+    let header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
 
     for _ in 0..header.sep_count() {
-        let _ = SolidEntryPoint::unpack(&mut reader).expect("Can not read solid entry point.");
+        let _ = SolidEntryPoint::unpack(&mut reader).expect("can not read solid entry point");
     }
 
     let mut balance_diffs = BalanceDiffs::new();
     for _ in 0..header.output_count() {
-        let _ = MessageId::unpack(&mut reader).expect("Can not read message id of output.");
-        let _ = OutputId::unpack(&mut reader).expect("Can not read output id.");
-        let output = Output::unpack(&mut reader).expect("Can not read output.");
+        let _ = MessageId::unpack(&mut reader).expect("can not read message id of output");
+        let _ = OutputId::unpack(&mut reader).expect("can not read output id");
+        let output = Output::unpack(&mut reader).expect("can not read output");
 
         match output {
             Output::SignatureLockedSingle(output) => {
@@ -202,48 +173,45 @@ async fn read_full_outputs(full_path: &Path) -> BalanceDiffs {
                 balance_diffs.amount_add(*output.address(), output.amount());
                 balance_diffs.dust_allowance_add(*output.address(), output.amount());
             }
-            _ => panic!("unsupported output kind"),
+            _ => panic!("unsupported output type"),
         }
     }
 
-    println!("Full snapshot successfully read.");
+    println!("full snapshot successfully read...");
 
     balance_diffs
 }
 
-async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> Result<(), Error> {
+async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) {
     let file_name = file_path
         .file_name()
-        .ok_or_else(|| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?;
+        .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()));
 
     std::fs::create_dir_all(
         file_path
             .parent()
-            .ok_or_else(|| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?,
+            .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()))
     )
-    .map_err(|_| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?;
+        .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()));
 
     for url in download_urls {
         let url = url.to_owned() + &file_name.to_string_lossy();
 
-        info!("Downloading snapshot file {}...", url);
+        println!("downloading snapshot file {}...", url);
         match reqwest::get(&url).await {
             Ok(res) => match File::create(file_path) {
                 // TODO unwrap
                 Ok(mut file) => match copy(&mut res.bytes().await.unwrap().as_ref(), &mut file) {
                     Ok(_) => break,
-                    Err(e) => warn!("Copying snapshot file failed: {:?}.", e),
+                    Err(e) => panic!("copying snapshot file failed: {:?}", e),
                 },
-                Err(e) => warn!("Creating snapshot file failed: {:?}.", e),
+                Err(e) => panic!("creating snapshot file failed: {:?}", e),
             },
-            Err(e) => warn!("Downloading snapshot file failed: {:?}.", e),
+            Err(e) => panic!("downloading snapshot file failed: {:?}", e),
         }
     }
 
     if !file_path.exists() {
-        error!("No working download source available.");
-        return Err(Error::NoDownloadSourceAvailable);
+        panic!("no working download source available");
     }
-
-    Ok(())
 }
