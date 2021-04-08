@@ -12,8 +12,8 @@
   "data": {
     "historical_balance_enabled": false,
     "reconciliation_disabled": false,
-    "inactive_discrepency_search_disabled": true,
     "active_reconciliation_concurrency": 32,
+    "inactive_reconciliation_concurrency": 32,
     "pruning_disabled": false,
     "bootstrap_balances": "bootstrap_balances.json",
     "end_conditions": {
