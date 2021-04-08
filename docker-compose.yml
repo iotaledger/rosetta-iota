@@ -22,7 +22,7 @@ services:
 
   rosetta:
     build: .
-    command: --bech32-hrp $ROSETTA_BECH32_HRP --iota-endpoint http://hornet:14265 --network $ROSETTA_NETWORK_NAME --indexation $ROSETTA_INDEXATION --mode $ROSETTA_MODE --port 3030
+    command: --bech32-hrp $ROSETTA_BECH32_HRP --iota-endpoint http://hornet:14265 --network $ROSETTA_NETWORK_NAME --indexation $ROSETTA_INDEXATION --mode $ROSETTA_MODE --bind-addr 0.0.0.0:3030
     restart: "always"
     environment:
       RUST_LOG: info

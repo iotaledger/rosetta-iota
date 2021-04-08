@@ -16,5 +16,5 @@ pub struct Options {
     #[structopt(long)]
     pub mode: String,
     #[structopt(long)]
-    pub port: u16,
+    pub bind_addr: String,
 }

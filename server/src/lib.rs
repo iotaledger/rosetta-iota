@@ -11,7 +11,8 @@ use core::future::Future;
 use log::{error, info};
 use warp::{http::StatusCode, Filter};
 
-use std::{convert::Infallible, net::SocketAddr};
+use std::{convert::Infallible};
+use std::net::SocketAddr;
 
 pub mod data;
 pub mod construction;
@@ -24,13 +25,14 @@ pub mod options;
 pub mod types;
 
 pub async fn run_server(
-    binding_addr: SocketAddr,
     options: Options,
     shutdown: impl Future<Output = ()> + Send + 'static,
 ) {
     env_logger::init();
 
-    info!("Listening on {}.", binding_addr.to_string());
+    let bind_addr = options.bind_addr.parse::<SocketAddr>().expect("unable to parse socket address");
+
+    info!("Listening on {}.", bind_addr.to_string());
 
     let routes = data::network::routes(options.clone())
         .or(data::block::routes(options.clone()))
@@ -38,7 +40,7 @@ pub async fn run_server(
         .or(construction::routes(options.clone()))
         .recover(handle_rejection);
 
-    let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(binding_addr, shutdown);
+    let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(bind_addr, shutdown);
 
     server.await;
 
