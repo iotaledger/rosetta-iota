@@ -1,3 +1,29 @@
+## Quick start
+
+Ensure `docker` and `docker-compose` are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
+
+**Following commands will start an IOTA fullnode ([Hornet](https://github.com/gohornet/hornet)) together with a Rosetta API instance.**
+Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+
+**Testnet:Online**
+```
+ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=online docker-compose up
+```
+
+**Testnet:Offline**
+```
+ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=offline docker-compose up
+```
+
+## Testing with rosetta-cli
+Ensure the IOTA node is running and an instance of the Rosetta API is available.
+To validate the correctness of `rosetta-iota` run the commands below:
+
+Testing the Data API **(Testnet)**:
+```
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
+```
+
 # Testing
 
 ## rosetta-cli
@@ -10,19 +36,18 @@ $ sudo apt-get install sed jq psmisc
 ```
 
 The script uses the following shell variables:
- - `NODE_URL`: specifies which IOTA Node will be used to enter the network.
- - `NETWORK`: specifies the network (e.g.: `mainnet` or `testnet6`).
- - `DATA_DIR`: specifies where `rosetta-cli` should write its files. 
- - `INSTALL`: enables installation of `rosetta-cli` via `curl`. Disabled by default.
- - `PRUNE`: enables pruning (useful when no Permanode is available). Disabled by default.
- - `RECONCILE`: enables reconciliation. Disabled by default.
- - `CLEAN`: enables deletion of `$DATA_DIR` everytime the script is executed. Disabled by default.
- - `DATA`: enables execution of `rosetta-cli check:data`. Disabled by default.
- - `CONSTRUCTION`: enables execution of `rosetta-cli check:construction`. Disabled by default.
+- `INSTALL_ROSETTA_CLI=1` ...installs rosetta-cli
+- `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
+- `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage
  
 For example, you could run the script with the following options:
 ```
-$ INSTALL=1 PRUNE=1 DATA=1 CONSTRUCTION=1 ./rosetta_cli.sh
+$ ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
+```
+
+Testing the Construction API **(Testnet)**:
+```
+./check_construction_testnet.sh
 ```
  
 ## curl
