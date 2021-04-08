@@ -1,7 +1,5 @@
 {
   "p2p": {
-    "peers": [
-      "/dns/lucamoser.ch/tcp/15602/p2p/12D3KooWLYW5WY31ccykhYdwU4XFEH3TaWnYYisao8D1PZSAfw4U"
-    ]
+    "peers": []
   }
 }
