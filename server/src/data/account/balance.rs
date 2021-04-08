@@ -5,7 +5,7 @@ use crate::{
     build_iota_client,
     currency::iota_currency,
     error::ApiError,
-    is_bad_network,
+    is_wrong_network,
     options::Options,
     require_online_mode,
     types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
@@ -37,7 +37,7 @@ pub async fn account_balance(
     debug!("/account/balance");
 
     let _ = require_online_mode(&options)?;
-    is_bad_network(&options, &account_balance_request.network_identifier)?;
+    is_wrong_network(&options, &account_balance_request.network_identifier)?;
 
     // historical balance lookup is not supported
     if account_balance_request.block_identifier.is_some() {

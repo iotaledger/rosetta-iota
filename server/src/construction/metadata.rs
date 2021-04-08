@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, error::ApiError, is_bad_network, require_online_mode, types::*, Options};
+use crate::{build_iota_client, error::ApiError, is_wrong_network, require_online_mode, types::*, Options};
 
 use bee_message::prelude::*;
 
@@ -28,7 +28,7 @@ pub(crate) async fn construction_metadata_request(
     debug!("/construction/metadata");
 
     let _ = require_online_mode(&options)?;
-    is_bad_network(&options, &construction_metadata_request.network_identifier)?;
+    is_wrong_network(&options, &construction_metadata_request.network_identifier)?;
 
     let iota_client = build_iota_client(&options).await?;
 

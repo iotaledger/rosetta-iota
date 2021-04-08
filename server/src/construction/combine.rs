@@ -4,7 +4,7 @@
 use crate::{
     construction::{deserialize_unsigned_transaction, serialize_signed_transaction},
     error::ApiError,
-    is_bad_network, require_offline_mode,
+    is_wrong_network, require_offline_mode,
     types::*,
     Options,
 };
@@ -36,7 +36,7 @@ pub(crate) async fn construction_combine_request(
 
     let _ = require_offline_mode(&options)?;
 
-    is_bad_network(&options, &construction_combine_request.network_identifier)?;
+    is_wrong_network(&options, &construction_combine_request.network_identifier)?;
 
     let unsigned_transaction = deserialize_unsigned_transaction(&construction_combine_request.unsigned_transaction);
 

@@ -4,7 +4,7 @@
 use crate::{
     consts,
     error::ApiError,
-    is_bad_network,
+    is_wrong_network,
     operations::*,
     options::Options,
     types::{NetworkIdentifier, *},
@@ -33,7 +33,7 @@ pub async fn network_options(
     // todo: double check if this is really necessary
     // let _ = require_offline_mode(&options)?;
 
-    is_bad_network(&options, &network_request.network_identifier)?;
+    is_wrong_network(&options, &network_request.network_identifier)?;
 
     let version = Version {
         rosetta_version: consts::ROSETTA_VERSION.to_string(),

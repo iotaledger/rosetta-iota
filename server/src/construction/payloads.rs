@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    construction::serialize_unsigned_transaction, error::ApiError, is_bad_network, require_offline_mode, types::*,
+    construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, require_offline_mode, types::*,
     Options,
 };
 
@@ -32,7 +32,7 @@ pub(crate) async fn construction_payloads_request(
     debug!("/construction/payloads");
 
     let _ = require_offline_mode(&options)?;
-    is_bad_network(&options, &construction_payloads_request.network_identifier)?;
+    is_wrong_network(&options, &construction_payloads_request.network_identifier)?;
 
     let mut inputs = vec![];
     let mut outputs = vec![];

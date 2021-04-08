@@ -99,7 +99,7 @@ pub async fn build_iota_client(options: &Options) -> Result<Client, ApiError> {
     Ok(builder.finish().await.map_err(|_| ApiError::UnableToBuildClient)?)
 }
 
-pub fn is_bad_network(options: &Options, network_identifier: &NetworkIdentifier) -> Result<(), ApiError> {
+pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifier) -> Result<(), ApiError> {
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         return Err(ApiError::BadNetwork);
     }

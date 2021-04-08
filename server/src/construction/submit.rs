@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_bad_network,
+    build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_wrong_network,
     require_online_mode, types::*, Options,
 };
 
@@ -31,7 +31,7 @@ pub(crate) async fn construction_submit_request(
 
     let _ = require_online_mode(&options)?;
 
-    is_bad_network(&options, &construction_submit_request.network_identifier)?;
+    is_wrong_network(&options, &construction_submit_request.network_identifier)?;
 
     let iota_client = build_iota_client(&options).await?;
 

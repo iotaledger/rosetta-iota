@@ -5,7 +5,7 @@ use crate::{
     build_iota_client,
     currency::iota_currency,
     error::ApiError,
-    is_bad_network,
+    is_wrong_network,
     options::Options,
     require_online_mode,
     types::{AccountIdentifier, NetworkIdentifier, *},
@@ -35,7 +35,7 @@ pub async fn account_coins(
     debug!("/account/coins");
 
     let _ = require_online_mode(&options)?;
-    is_bad_network(&options, &account_coins_request.network_identifier)?;
+    is_wrong_network(&options, &account_coins_request.network_identifier)?;
 
     let iota_client = build_iota_client(&options).await?;
 

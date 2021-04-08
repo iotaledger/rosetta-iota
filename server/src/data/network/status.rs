@@ -4,7 +4,7 @@
 use crate::{
     build_iota_client,
     error::ApiError,
-    is_bad_network,
+    is_wrong_network,
     options::Options,
     require_online_mode,
     types::{NetworkIdentifier, *},
@@ -38,7 +38,7 @@ pub async fn network_status(
 
     let _ = require_online_mode(&options)?;
 
-    is_bad_network(&options, &network_request.network_identifier)?;
+    is_wrong_network(&options, &network_request.network_identifier)?;
 
     let iota_client = build_iota_client(&options).await?;
 

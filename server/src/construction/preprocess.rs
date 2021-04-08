@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_bad_network, require_offline_mode, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, require_offline_mode, types::*, Options};
 
 use bee_message::prelude::*;
 
@@ -26,7 +26,7 @@ pub async fn construction_preprocess_request(
     debug!("/construction/preprocess");
 
     let _ = require_offline_mode(&options)?;
-    is_bad_network(&options, &construction_preprocess_request.network_identifier)?;
+    is_wrong_network(&options, &construction_preprocess_request.network_identifier)?;
 
     let mut transaction_inputs = Vec::new();
     for operation in construction_preprocess_request.operations {

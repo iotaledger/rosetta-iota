@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_bad_network, require_offline_mode, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, require_offline_mode, types::*, Options};
 
 use bee_message::prelude::{Address, Ed25519Address};
 
@@ -28,7 +28,7 @@ pub async fn construction_derive_request(
     debug!("/construction/derive");
 
     let _ = require_offline_mode(&options)?;
-    is_bad_network(&options, &construction_derive_request.network_identifier)?;
+    is_wrong_network(&options, &construction_derive_request.network_identifier)?;
 
     if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
         return Err(ApiError::UnsupportedCurve);
