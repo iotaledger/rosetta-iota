@@ -1,6 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#![warn(missing_docs)]
+
 use crate::{error::ApiError, options::RosettaMode, types::NetworkIdentifier};
 
 pub use options::Options;
