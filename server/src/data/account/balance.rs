@@ -105,13 +105,14 @@ async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneRespon
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::options::RosettaMode;
 
     #[tokio::test]
     async fn test_balance() {
         let request = AccountBalanceRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
-                network: "testnet6".to_string(),
+                network: "testnet7".to_string(),
                 sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
@@ -122,12 +123,12 @@ mod tests {
         };
 
         let server_options = Options {
-            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
+            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            network: "testnet7".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "online".to_string(),
-            port: 3030,
+            mode: RosettaMode::Online,
+            bind_addr: "0.0.0.0:3030".to_string(),
         };
 
         let response = account_balance(request, server_options).await.unwrap();

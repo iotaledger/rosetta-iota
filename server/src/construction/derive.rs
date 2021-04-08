@@ -51,6 +51,7 @@ pub async fn construction_derive_request(
 mod tests {
 
     use super::*;
+    use crate::options::RosettaMode;
 
     #[tokio::test]
     async fn test_address_from_public_key() {
@@ -67,12 +68,12 @@ mod tests {
         };
 
         let server_options = Options {
-            iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
+            node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "offline".to_string(),
-            port: 3030,
+            mode: RosettaMode::Offline,
+            bind_addr: "0.0.0.0:3030".to_string(),
         };
 
         let response = construction_derive_request(request, server_options).await.unwrap();
@@ -97,12 +98,12 @@ mod tests {
         };
 
         let server_options = Options {
-            iota_endpoint: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
+            node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "offline".to_string(),
-            port: 3030,
+            mode: RosettaMode::Offline,
+            bind_addr: "0.0.0.0:3030".to_string(),
         };
 
         if let Err(e) = construction_derive_request(request, server_options).await {

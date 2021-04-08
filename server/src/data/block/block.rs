@@ -307,6 +307,7 @@ async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address)
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::options::RosettaMode;
 
     #[tokio::test]
     async fn test_block() {
@@ -323,12 +324,12 @@ mod tests {
         };
 
         let server_options = Options {
-            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet7".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "online".to_string(),
-            port: 3030,
+            mode: RosettaMode::Online,
+            bind_addr: "0.0.0.0:3030".to_string(),
         };
         let response = block(request, server_options).await.unwrap();
         assert_eq!(252, response.block.block_identifier.index);

@@ -31,16 +31,17 @@ pub async fn network_list(_empty: EmptyRequest, options: Options) -> Result<Netw
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::options::RosettaMode;
 
     #[tokio::test]
     async fn test_network_list() {
         let server_options = Options {
-            iota_endpoint: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
             indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: "online".to_string(),
-            port: 3030,
+            mode: RosettaMode::Online,
+            bind_addr: "0.0.0.0:3030".to_string(),
         };
         let response = network_list(EmptyRequest, server_options).await.unwrap();
 
