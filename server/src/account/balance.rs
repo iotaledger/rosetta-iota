@@ -14,6 +14,9 @@ use crate::{
 use log::debug;
 use serde::{Deserialize, Serialize};
 
+use iota::Client;
+use iota::MilestoneResponse;
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
     pub network_identifier: NetworkIdentifier,
@@ -42,38 +45,68 @@ pub async fn account_balance(
         return Err(ApiError::HistoricalBalancesUnsupported);
     }
 
-    let iota_client = build_iota_client(&options).await?;
-
-    let node_info = match iota_client.get_info().await {
-        Ok(node_info) => node_info,
-        Err(_) => return Err(ApiError::UnableToGetNodeInfo),
-    };
-
-    let confirmed_milestone = match iota_client.get_milestone(node_info.confirmed_milestone_index).await {
-        Ok(confirmed_milestone) => confirmed_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone(node_info.confirmed_milestone_index)),
-    };
-
-    let address = account_balance_request.account_identifier.address;
-    let balance = match iota_client.get_address().balance(&address).await {
-        Ok(balance) => balance,
-        Err(_) => return Err(ApiError::UnableToGetBalance),
-    };
+    let (amount, confirmed_milestone) = balance_at_milestone(&account_balance_request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {
             index: confirmed_milestone.index,
             hash: confirmed_milestone.message_id.to_string(),
         },
-        balances: vec![Amount {
-            value: balance.balance.to_string(),
-            currency: iota_currency(),
-            metadata: None,
-        }],
+        balances: vec![amount],
     };
 
     Ok(response)
 }
+
+async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amount, MilestoneResponse), ApiError> {
+
+    let iota_client = build_iota_client(options).await?;
+
+    // to make sure the balance of an address does not change in the meantime, check the index of the confirmed milestone before and after fetching the balance
+
+    let index_before_balance_check = get_confirmed_milestone(&iota_client).await?;
+
+    let balance_response = match iota_client.get_address().balance(address).await {
+        Ok(balance) => balance,
+        Err(_) => return Err(ApiError::UnableToGetBalance),
+    };
+
+    let index_after_balance_check = get_confirmed_milestone(&iota_client).await?;
+
+    if index_before_balance_check.index != index_after_balance_check.index {
+        return Err(ApiError::UnableToGetBalance)
+    }
+
+    let amount = Amount {
+        value: balance_response.balance.to_string(),
+        currency: iota_currency(),
+        metadata: None,
+    };
+
+    Ok(
+        (amount, index_before_balance_check)
+    )
+}
+
+async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneResponse, ApiError> {
+    let confirmed_milestone_index =  {
+        let node_info = match iota_client.get_info().await {
+            Ok(node_info) => node_info,
+            Err(_) => return Err(ApiError::UnableToGetNodeInfo),
+        };
+
+        node_info.confirmed_milestone_index
+    };
+
+    match iota_client.get_milestone(confirmed_milestone_index).await {
+        Ok(confirmed_milestone) => Ok(confirmed_milestone),
+        Err(_) => return Err(ApiError::UnableToGetMilestone(confirmed_milestone_index)),
+    }
+}
+
+
+
+
 
 #[cfg(test)]
 mod tests {
