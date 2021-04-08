@@ -40,7 +40,7 @@ To validate the correctness of `rosetta-iota` run the commands below:
 
 Testing the Data API **(Testnet)**:
 ```
-./check_data_testnet.sh
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
 ```
 
 Testing the Construction API **(Testnet)**:
