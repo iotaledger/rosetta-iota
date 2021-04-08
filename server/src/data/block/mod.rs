@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    block::block::block,
+    data::block::block::block,
     filters::{handle, with_options},
     options::Options,
 };

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    account::{balance::account_balance, coins::account_coins},
+    data::account::{balance::account_balance, coins::account_coins},
     filters::{handle, with_options},
     options::Options,
 };
