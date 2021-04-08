@@ -91,7 +91,7 @@ async fn parse_signed_transaction(
                     _ => {
                         return Err(ApiError::BadConstructionRequest(
                             "signature type not supported".to_string(),
-                        ))
+                        ));
                     }
                 };
                 let bech32_addr =
@@ -121,7 +121,7 @@ async fn essence_to_operations(
         _ => {
             return Err(ApiError::BadConstructionRequest(
                 "essence type not supported".to_string(),
-            ))
+            ));
         }
     };
 
@@ -138,7 +138,7 @@ async fn essence_to_operations(
             None => {
                 return Err(ApiError::BadConstructionRequest(
                     "metadata for input missing".to_string(),
-                ))
+                ));
             }
         };
 

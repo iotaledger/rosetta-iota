@@ -1,9 +1,9 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use rosetta_iota_utils::{Options, consts, faucet::ask_faucet, snapshot::bootstrap_balances_from_snapshot};
-use structopt::StructOpt;
+use rosetta_iota_utils::{consts, faucet::ask_faucet, snapshot::bootstrap_balances_from_snapshot, Options};
 use std::process;
+use structopt::StructOpt;
 
 #[tokio::main]
 async fn main() {
@@ -16,5 +16,4 @@ async fn main() {
     } else if options.mode == consts::SNAPSHOT {
         bootstrap_balances_from_snapshot().await;
     }
-
 }

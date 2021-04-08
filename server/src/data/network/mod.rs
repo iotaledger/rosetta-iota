@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    filters::{handle, with_empty_request, with_options},
     data::network::{list::network_list, options::network_options, status::network_status},
+    filters::{handle, with_empty_request, with_options},
     Options,
 };
 

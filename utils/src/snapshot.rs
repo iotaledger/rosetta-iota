@@ -1,19 +1,22 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use rosetta_iota_server::types::{AccountIdentifier, Currency};
+use bee_common::packable::Packable;
+use bee_ledger::types::BalanceDiffs;
+use bee_message::{prelude::*, solid_entry_point::SolidEntryPoint};
+use bee_snapshot::{header::SnapshotHeader, milestone_diff::MilestoneDiff};
 use iota::Client;
 use log::{error, info, warn};
-use std::{fs, fs::File, io::copy, path::Path};
-use thiserror::Error;
-use bee_snapshot::{ header::SnapshotHeader, milestone_diff::MilestoneDiff};
-use bee_ledger::{types::BalanceDiffs};
-use bee_common::packable::Packable;
-use std::{io::BufReader, fs::OpenOptions};
-use bee_message::prelude::*;
-use std::collections::HashMap;
-use bee_message::solid_entry_point::SolidEntryPoint;
+use rosetta_iota_server::types::{AccountIdentifier, Currency};
 use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    fs,
+    fs::{File, OpenOptions},
+    io::{copy, BufReader},
+    path::Path,
+};
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -26,21 +29,18 @@ pub enum Error {
 }
 
 pub async fn bootstrap_balances_from_snapshot() {
-
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
     let url = "https://dbfiles.testnet.chrysalis2.com/";
 
     if !full_path.exists() {
         println!("Downloading full snapshot...");
-        download_snapshot_file(full_path,
-                               &[String::from(url)]).await.unwrap();
+        download_snapshot_file(full_path, &[String::from(url)]).await.unwrap();
     }
 
     if !delta_path.exists() {
         println!("Downloading delta snapshot...");
-        download_snapshot_file(delta_path,
-                               &[String::from(url)]).await.unwrap();
+        download_snapshot_file(delta_path, &[String::from(url)]).await.unwrap();
     }
 
     let balance_diffs = read_full_outputs(full_path).await;
@@ -51,16 +51,20 @@ pub async fn bootstrap_balances_from_snapshot() {
     fs::write("sep_index", sep_index.to_string()).expect("cannot write to file");
 }
 
-
 #[derive(Serialize, Deserialize, Debug)]
 struct BootstrapBalanceEntry {
     account_identifier: AccountIdentifier,
     currency: Currency,
-    value: String
+    value: String,
 }
 
 async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> String {
-    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("cannot read buffer"));
+    let mut reader = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .open(delta_path)
+            .expect("cannot read buffer"),
+    );
 
     let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
     for _ in 0..header.sep_count() {
@@ -127,14 +131,14 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
             json_entries.push(BootstrapBalanceEntry {
                 account_identifier: AccountIdentifier {
                     address: addr,
-                    sub_account: None
+                    sub_account: None,
                 },
                 currency: Currency {
                     symbol: "IOTA".to_string(),
                     decimals: 0,
-                    metadata: None
+                    metadata: None,
                 },
-                value: balance.to_string()
+                value: balance.to_string(),
             });
         }
     }
@@ -146,7 +150,12 @@ async fn read_delta_diff(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> 
 
 async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {
     println!("Reading delta snapshot...");
-    let mut reader = BufReader::new(OpenOptions::new().read(true).open(delta_path).expect("could not open delta snapshot"));
+    let mut reader = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .open(delta_path)
+            .expect("could not open delta snapshot"),
+    );
     let header = SnapshotHeader::unpack(&mut reader).unwrap();
 
     for _ in 0..header.sep_count() {
@@ -160,10 +169,15 @@ async fn read_sep_index(delta_path: &Path) -> MilestoneIndex {
     sep_index
 }
 
-async fn read_full_outputs(full_path: &Path) -> BalanceDiffs{
+async fn read_full_outputs(full_path: &Path) -> BalanceDiffs {
     println!("Reading full snapshot...");
 
-    let mut reader = BufReader::new(OpenOptions::new().read(true).open(full_path).expect("Could not open full snapshot."));
+    let mut reader = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .open(full_path)
+            .expect("Could not open full snapshot."),
+    );
     let header = SnapshotHeader::unpack(&mut reader).expect("Can not read snapshot header.");
 
     for _ in 0..header.sep_count() {
@@ -207,7 +221,7 @@ async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) -> R
             .parent()
             .ok_or_else(|| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?,
     )
-        .map_err(|_| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?;
+    .map_err(|_| Error::InvalidFilePath(file_path.to_string_lossy().to_string()))?;
 
     for url in download_urls {
         let url = url.to_owned() + &file_name.to_string_lossy();

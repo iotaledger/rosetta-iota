@@ -14,8 +14,7 @@ use crate::{
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use iota::Client;
-use iota::MilestoneResponse;
+use iota::{Client, MilestoneResponse};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
@@ -45,7 +44,8 @@ pub async fn account_balance(
         return Err(ApiError::HistoricalBalancesUnsupported);
     }
 
-    let (amount, confirmed_milestone) = balance_at_milestone(&account_balance_request.account_identifier.address, &options).await?;
+    let (amount, confirmed_milestone) =
+        balance_at_milestone(&account_balance_request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {
@@ -59,10 +59,10 @@ pub async fn account_balance(
 }
 
 async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amount, MilestoneResponse), ApiError> {
-
     let iota_client = build_iota_client(options).await?;
 
-    // to make sure the balance of an address does not change in the meantime, check the index of the confirmed milestone before and after fetching the balance
+    // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
+    // milestone before and after fetching the balance
 
     let index_before_balance_check = get_confirmed_milestone(&iota_client).await?;
 
@@ -74,7 +74,7 @@ async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amoun
     let index_after_balance_check = get_confirmed_milestone(&iota_client).await?;
 
     if index_before_balance_check.index != index_after_balance_check.index {
-        return Err(ApiError::UnableToGetBalance)
+        return Err(ApiError::UnableToGetBalance);
     }
 
     let amount = Amount {
@@ -83,13 +83,11 @@ async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amoun
         metadata: None,
     };
 
-    Ok(
-        (amount, index_before_balance_check)
-    )
+    Ok((amount, index_before_balance_check))
 }
 
 async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneResponse, ApiError> {
-    let confirmed_milestone_index =  {
+    let confirmed_milestone_index = {
         let node_info = match iota_client.get_info().await {
             Ok(node_info) => node_info,
             Err(_) => return Err(ApiError::UnableToGetNodeInfo),
@@ -103,10 +101,6 @@ async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneRespon
         Err(_) => return Err(ApiError::UnableToGetMilestone(confirmed_milestone_index)),
     }
 }
-
-
-
-
 
 #[cfg(test)]
 mod tests {

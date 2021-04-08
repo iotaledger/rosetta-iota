@@ -45,7 +45,7 @@ pub(crate) async fn construction_combine_request(
         _ => {
             return Err(ApiError::BadConstructionRequest(
                 "essence type not supported".to_string(),
-            ))
+            ));
         }
     };
 

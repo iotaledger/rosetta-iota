@@ -1,8 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, types::NetworkIdentifier};
-use crate::options::RosettaMode;
+use crate::{error::ApiError, options::RosettaMode, types::NetworkIdentifier};
 
 pub use options::Options;
 
@@ -12,26 +11,25 @@ use core::future::Future;
 use log::{error, info};
 use warp::{http::StatusCode, Filter};
 
-use std::{convert::Infallible};
-use std::net::SocketAddr;
+use std::{convert::Infallible, net::SocketAddr};
 
-pub mod data;
 pub mod construction;
 pub mod consts;
 pub mod currency;
+pub mod data;
 pub mod error;
 pub mod filters;
 pub mod operations;
 pub mod options;
 pub mod types;
 
-pub async fn run_server(
-    options: Options,
-    shutdown: impl Future<Output = ()> + Send + 'static,
-) {
+pub async fn run_server(options: Options, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
 
-    let bind_addr = options.bind_addr.parse::<SocketAddr>().expect("unable to parse socket address");
+    let bind_addr = options
+        .bind_addr
+        .parse::<SocketAddr>()
+        .expect("unable to parse socket address");
 
     info!("Listening on {}.", bind_addr.to_string());
 

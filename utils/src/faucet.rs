@@ -1,17 +1,16 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use iota::{Client};
 use bee_message::prelude::*;
 use crypto::{
     ed25519::SecretKey,
-    hashes::{blake2b::Blake2b256, Digest}
+    hashes::{blake2b::Blake2b256, Digest},
 };
-use serde::{Serialize, Deserialize};
+use iota::Client;
+use serde::{Deserialize, Serialize};
 use serde_json;
 
-use std::collections::HashMap;
-use std::convert::TryInto;
+use std::{collections::HashMap, convert::TryInto};
 
 #[derive(Deserialize)]
 struct FaucetMessageResponse {
@@ -29,11 +28,10 @@ struct PrefundedAccount {
     pk: String,
     pk_hash: String,
     bech32_addr: String,
-    balance: u64
+    balance: u64,
 }
 
 pub async fn ask_faucet() {
-
     // Create iota client
     let iota = Client::builder() // Crate a client instance builder
         .with_node("https://api.lb-0.testnet.chrysalis2.com/") // Insert the node here
@@ -57,7 +55,7 @@ pub async fn ask_faucet() {
     let bech32_address = Address::Ed25519(ed25519_address).to_bech32(&bech32_hrp);
 
     // ask for 10000000i twice (uncomment for IF or TangleKit faucet)
-    //ask_if_faucet_twice(&bech32_address, &iota);
+    // ask_if_faucet_twice(&bech32_address, &iota);
     ask_tanglekit_faucet_twice(&bech32_address).await;
 
     // wait for consensus on the ledger
@@ -78,7 +76,8 @@ pub async fn ask_faucet() {
         balance: balance_response.balance,
     };
 
-    let prefunded_account_pretty = serde_json::to_string_pretty(&prefunded_account).expect("error: could not pretty-print prefunded_account");
+    let prefunded_account_pretty =
+        serde_json::to_string_pretty(&prefunded_account).expect("error: could not pretty-print prefunded_account");
 
     println!("{}", prefunded_account_pretty);
 }
@@ -93,7 +92,8 @@ async fn get_funds_tanglekit_faucet(address: &String) {
     map.insert("address", address.to_string());
 
     let client = reqwest::Client::new();
-    let _ = client.post("https://faucet.tanglekit.de/api/enqueue")
+    let _ = client
+        .post("https://faucet.tanglekit.de/api/enqueue")
         .json(&map)
         .send()
         .await

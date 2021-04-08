@@ -15,9 +15,5 @@ async fn main() {
             .expect("failed to install CTRL+C signal handler");
     };
 
-    run_server(
-        options,
-        shutdown,
-    )
-    .await;
+    run_server(options, shutdown).await;
 }
