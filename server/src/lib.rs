@@ -95,7 +95,7 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
 pub async fn build_iota_client(options: &Options) -> Result<Client, ApiError> {
     let builder = iota::Client::builder()
         .with_network(&options.network)
-        .with_node(&options.iota_endpoint)
+        .with_node(&options.node)
         .map_err(|_| ApiError::UnableToBuildClient)?;
     Ok(builder.finish().await.map_err(|_| ApiError::UnableToBuildClient)?)
 }
