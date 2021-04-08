@@ -83,7 +83,7 @@ pub(crate) async fn construction_combine_request(
 
             // memorise the address and index of the Signature Unlock Block
             index_of_signature_unlock_block_with_address
-                .insert(bech32_addr, unlock_blocks.len() as u16);
+                .insert(bech32_addr, (unlock_blocks.len() -1) as u16);
         }
     }
 
