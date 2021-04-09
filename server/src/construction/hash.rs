@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, require_offline_mode, types::*,
+    construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*,
     Options,
 };
 
@@ -21,16 +21,16 @@ pub struct ConstructionHashResponse {
 }
 
 pub(crate) async fn construction_hash_request(
-    construction_hash_request: ConstructionHashRequest,
+    request: ConstructionHashRequest,
     options: Options,
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
 
-    let _ = require_offline_mode(&options)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
-    is_wrong_network(&options, &construction_hash_request.network_identifier)?;
-
-    let signed_transaction = deserialize_signed_transaction(&construction_hash_request.signed_transaction);
+    let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
 
     Ok(ConstructionHashResponse {
         transaction_identifier: TransactionIdentifier {

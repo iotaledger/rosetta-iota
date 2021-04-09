@@ -1,15 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    build_iota_client,
-    error::ApiError,
-    is_wrong_network,
-    operations::*,
-    options::Options,
-    require_online_mode,
-    types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier},
-};
+use crate::{build_iota_client, error::ApiError, is_wrong_network, operations::*, options::Options, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -39,15 +31,20 @@ pub struct BlockResponse {
     pub block: Block,
 }
 
-pub async fn block(block_request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
+pub async fn block(request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
-    let _ = require_online_mode(&options)?;
-    is_wrong_network(&options, &block_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
+
+    if is_offline_mode_enabled(&options) {
+        return Err(ApiError::UnavailableOffline)
+    }
 
     let iota_client = build_iota_client(&options).await?;
 
-    let milestone_index = block_request
+    let milestone_index = request
         .block_identifier
         .index
         .ok_or(ApiError::BadMilestoneRequest)?;
@@ -58,8 +55,8 @@ pub async fn block(block_request: BlockRequest, options: Options) -> Result<Bloc
     };
 
     // TODO: Do we really need this check?
-    if block_request.block_identifier.hash.is_some() {
-        let block_request_hash = block_request.block_identifier.hash.unwrap();
+    if request.block_identifier.hash.is_some() {
+        let block_request_hash = request.block_identifier.hash.unwrap();
         if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
             return Err(ApiError::BadMilestoneRequest);
         }

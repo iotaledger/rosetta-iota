@@ -1,14 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    construction::{deserialize_signed_transaction, deserialize_unsigned_transaction},
-    error::ApiError,
-    operations::{utxo_input_operation, utxo_output_operation},
-    require_offline_mode,
-    types::*,
-    Options,
-};
+use crate::{construction::{deserialize_signed_transaction, deserialize_unsigned_transaction}, error::ApiError, operations::{utxo_input_operation, utxo_output_operation}, types::*, Options, is_wrong_network};
 
 use bee_message::prelude::*;
 use bee_rest_api::types::{
@@ -38,17 +31,19 @@ pub struct ConstructionParseResponse {
 }
 
 pub(crate) async fn construction_parse_request(
-    construction_parse_request: ConstructionParseRequest,
+    request: ConstructionParseRequest,
     options: Options,
 ) -> Result<ConstructionParseResponse, ApiError> {
     debug!("/construction/parse");
 
-    let _ = require_offline_mode(&options)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
-    if construction_parse_request.signed {
-        parse_signed_transaction(construction_parse_request, &options).await
+    if request.signed {
+        parse_signed_transaction(request, &options).await
     } else {
-        parse_unsigned_transaction(construction_parse_request, &options).await
+        parse_unsigned_transaction(request, &options).await
     }
 }
 

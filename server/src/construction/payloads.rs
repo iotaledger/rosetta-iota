@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, require_offline_mode, types::*,
+    construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*,
     Options,
 };
 
@@ -26,19 +26,20 @@ pub struct ConstructionPayloadsResponse {
 }
 
 pub(crate) async fn construction_payloads_request(
-    construction_payloads_request: ConstructionPayloadsRequest,
+    request: ConstructionPayloadsRequest,
     options: Options,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
 
-    let _ = require_offline_mode(&options)?;
-    is_wrong_network(&options, &construction_payloads_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
     let mut inputs = vec![];
     let mut outputs = vec![];
     let mut signing_payloads = vec![];
 
-    for operation in construction_payloads_request.operations {
+    for operation in request.operations {
         let address = operation
             .account
             .ok_or(ApiError::BadConstructionRequest("account not populated".to_string()))?
@@ -97,7 +98,7 @@ pub(crate) async fn construction_payloads_request(
     let essence = Essence::Regular(transaction_payload_essence.finish().unwrap());
     let hash_to_sign = essence.hash();
     let unsigned_transaction =
-        UnsignedTransaction::new(essence, construction_payloads_request.metadata.inputs_metadata);
+        UnsignedTransaction::new(essence, request.metadata.inputs_metadata);
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {

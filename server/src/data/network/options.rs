@@ -1,14 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    consts,
-    error::ApiError,
-    is_wrong_network,
-    operations::*,
-    options::Options,
-    types::{NetworkIdentifier, *},
-};
+use crate::{consts, error::ApiError, is_wrong_network, operations::*, options::Options, types::{NetworkIdentifier, *}};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -25,15 +18,14 @@ pub struct NetworkOptionsResponse {
 }
 
 pub async fn network_options(
-    network_request: NetworkOptionsRequest,
+    request: NetworkOptionsRequest,
     options: Options,
 ) -> Result<NetworkOptionsResponse, ApiError> {
     debug!("/network/options");
 
-    // todo: double check if this is really necessary
-    // let _ = require_offline_mode(&options)?;
-
-    is_wrong_network(&options, &network_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
     let version = Version {
         rosetta_version: consts::ROSETTA_VERSION.to_string(),

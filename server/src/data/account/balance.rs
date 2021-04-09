@@ -1,15 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    build_iota_client,
-    currency::iota_currency,
-    error::ApiError,
-    is_wrong_network,
-    options::Options,
-    require_online_mode,
-    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
-};
+use crate::{build_iota_client, currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -31,21 +23,26 @@ pub struct AccountBalanceResponse {
 }
 
 pub async fn account_balance(
-    account_balance_request: AccountBalanceRequest,
+    request: AccountBalanceRequest,
     options: Options,
 ) -> Result<AccountBalanceResponse, ApiError> {
     debug!("/account/balance");
 
-    let _ = require_online_mode(&options)?;
-    is_wrong_network(&options, &account_balance_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
+
+    if is_offline_mode_enabled(&options) {
+        return Err(ApiError::UnavailableOffline)
+    }
 
     // historical balance lookup is not supported
-    if account_balance_request.block_identifier.is_some() {
+    if request.block_identifier.is_some() {
         return Err(ApiError::HistoricalBalancesUnsupported);
     }
 
     let (amount, confirmed_milestone) =
-        balance_at_milestone(&account_balance_request.account_identifier.address, &options).await?;
+        balance_at_milestone(&request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {

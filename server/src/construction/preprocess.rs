@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, require_offline_mode, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, types::*, Options};
 
 use bee_message::prelude::*;
 
@@ -20,16 +20,17 @@ pub struct ConstructionPreprocessResponse {
 }
 
 pub async fn construction_preprocess_request(
-    construction_preprocess_request: ConstructionPreprocessRequest,
+    request: ConstructionPreprocessRequest,
     options: Options,
 ) -> Result<ConstructionPreprocessResponse, ApiError> {
     debug!("/construction/preprocess");
 
-    let _ = require_offline_mode(&options)?;
-    is_wrong_network(&options, &construction_preprocess_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
     let mut transaction_inputs = Vec::new();
-    for operation in construction_preprocess_request.operations {
+    for operation in request.operations {
         match &operation.type_[..] {
             "UTXO_INPUT" => {
                 let coin_change = operation.coin_change.ok_or(ApiError::BadConstructionRequest(

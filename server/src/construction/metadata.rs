@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, error::ApiError, is_wrong_network, require_online_mode, types::*, Options};
+use crate::{build_iota_client, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
 
 use bee_message::prelude::*;
 
@@ -22,18 +22,23 @@ pub struct ConstructionMetadataResponse {
 }
 
 pub(crate) async fn construction_metadata_request(
-    construction_metadata_request: ConstructionMetadataRequest,
+    request: ConstructionMetadataRequest,
     options: Options,
 ) -> Result<ConstructionMetadataResponse, ApiError> {
     debug!("/construction/metadata");
 
-    let _ = require_online_mode(&options)?;
-    is_wrong_network(&options, &construction_metadata_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
+
+    if is_offline_mode_enabled(&options) {
+        return Err(ApiError::UnavailableOffline)
+    }
 
     let iota_client = build_iota_client(&options).await?;
 
     let mut utxo_inputs_metadata = HashMap::new();
-    for input_id in construction_metadata_request.options.inputs {
+    for input_id in request.options.inputs {
         let input = input_id
             .parse::<UtxoInput>()
             .map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;

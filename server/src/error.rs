@@ -8,6 +8,26 @@ use warp::{http::StatusCode, reply::Reply};
 
 #[derive(Debug, Error)]
 pub enum ApiError {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #[error("bad network")]
     BadNetwork,
     #[error("Unimplemented")]

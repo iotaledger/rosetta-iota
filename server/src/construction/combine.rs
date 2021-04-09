@@ -4,7 +4,7 @@
 use crate::{
     construction::{deserialize_unsigned_transaction, serialize_signed_transaction},
     error::ApiError,
-    is_wrong_network, require_offline_mode,
+    is_wrong_network,
     types::*,
     Options,
 };
@@ -29,16 +29,16 @@ pub struct ConstructionCombineResponse {
 }
 
 pub(crate) async fn construction_combine_request(
-    construction_combine_request: ConstructionCombineRequest,
+    request: ConstructionCombineRequest,
     options: Options,
 ) -> Result<ConstructionCombineResponse, ApiError> {
     debug!("/construction/combine");
 
-    let _ = require_offline_mode(&options)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
-    is_wrong_network(&options, &construction_combine_request.network_identifier)?;
-
-    let unsigned_transaction = deserialize_unsigned_transaction(&construction_combine_request.unsigned_transaction);
+    let unsigned_transaction = deserialize_unsigned_transaction(&request.unsigned_transaction);
 
     let regular_essence = match &unsigned_transaction.essence() {
         Essence::Regular(r) => r,
@@ -49,7 +49,7 @@ pub(crate) async fn construction_combine_request(
         }
     };
 
-    if regular_essence.inputs().len() != construction_combine_request.signatures.len() {
+    if regular_essence.inputs().len() != request.signatures.len() {
         return Err(ApiError::BadConstructionRequest(
             "for every input a signature must be provided".to_string(),
         ));
@@ -58,7 +58,7 @@ pub(crate) async fn construction_combine_request(
     let mut unlock_blocks = Vec::new();
     let mut index_of_signature_unlock_block_with_address: HashMap<String, u16> = HashMap::new();
 
-    for signature in construction_combine_request.signatures {
+    for signature in request.signatures {
 
         // get address for which the signature was produced
         let bech32_addr = signature

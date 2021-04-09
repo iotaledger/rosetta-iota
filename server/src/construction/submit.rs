@@ -1,10 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_wrong_network,
-    require_online_mode, types::*, Options,
-};
+use crate::{build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
 
 use bee_message::prelude::*;
 
@@ -24,18 +21,22 @@ pub struct ConstructionSubmitResponse {
 }
 
 pub(crate) async fn construction_submit_request(
-    construction_submit_request: ConstructionSubmitRequest,
+    request: ConstructionSubmitRequest,
     options: Options,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 
-    let _ = require_online_mode(&options)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
-    is_wrong_network(&options, &construction_submit_request.network_identifier)?;
+    if is_offline_mode_enabled(&options) {
+        return Err(ApiError::UnavailableOffline)
+    }
 
     let iota_client = build_iota_client(&options).await?;
 
-    let signed_transaction = deserialize_signed_transaction(&construction_submit_request.signed_transaction);
+    let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
     let transaction = signed_transaction.transaction();
     let transaction_id = transaction.id();
 

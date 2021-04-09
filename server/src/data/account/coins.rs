@@ -1,15 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    build_iota_client,
-    currency::iota_currency,
-    error::ApiError,
-    is_wrong_network,
-    options::Options,
-    require_online_mode,
-    types::{AccountIdentifier, NetworkIdentifier, *},
-};
+use crate::{build_iota_client, currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, NetworkIdentifier, *}, is_offline_mode_enabled};
 
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
 
@@ -29,13 +21,18 @@ pub struct AccountCoinsResponse {
 }
 
 pub async fn account_coins(
-    account_coins_request: AccountCoinsRequest,
+    request: AccountCoinsRequest,
     options: Options,
 ) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
-    let _ = require_online_mode(&options)?;
-    is_wrong_network(&options, &account_coins_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
+
+    if is_offline_mode_enabled(&options) {
+        return Err(ApiError::UnavailableOffline)
+    }
 
     let iota_client = build_iota_client(&options).await?;
 
@@ -49,7 +46,7 @@ pub async fn account_coins(
         Err(_) => return Err(ApiError::UnableToGetMilestone(node_info.confirmed_milestone_index)),
     };
 
-    let address = account_coins_request.account_identifier.address;
+    let address = request.account_identifier.address;
     let outputs = match iota_client.find_outputs(&[], &[address.clone()]).await {
         Ok(outputs) => outputs,
         Err(_) => return Err(ApiError::UnableToGetOutputsFromAddress),

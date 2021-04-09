@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, require_offline_mode, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, types::*, Options};
 
 use bee_message::prelude::{Address, Ed25519Address};
 
@@ -22,19 +22,20 @@ pub struct ConstructionDeriveResponse {
 }
 
 pub async fn construction_derive_request(
-    construction_derive_request: ConstructionDeriveRequest,
+    request: ConstructionDeriveRequest,
     options: Options,
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
-    let _ = require_offline_mode(&options)?;
-    is_wrong_network(&options, &construction_derive_request.network_identifier)?;
+    if is_wrong_network(&options, &request.network_identifier) {
+        return Err(ApiError::BadNetwork)
+    }
 
-    if construction_derive_request.public_key.curve_type != CurveType::Edwards25519 {
+    if request.public_key.curve_type != CurveType::Edwards25519 {
         return Err(ApiError::UnsupportedCurve);
     };
 
-    let public_key_bytes = hex::decode(construction_derive_request.public_key.hex_bytes)?;
+    let public_key_bytes = hex::decode(request.public_key.hex_bytes)?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
     let address = Address::Ed25519(Ed25519Address::new(public_key_hash.into()));

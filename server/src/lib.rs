@@ -99,25 +99,18 @@ pub async fn build_iota_client(options: &Options) -> Result<Client, ApiError> {
     Ok(builder.finish().await.map_err(|_| ApiError::UnableToBuildClient)?)
 }
 
-pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifier) -> Result<(), ApiError> {
+pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifier) -> bool {
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
-        return Err(ApiError::BadNetwork);
-    }
-    Ok(())
-}
-
-pub fn require_online_mode(options: &Options) -> Result<(), ApiError> {
-    if options.mode == RosettaMode::Online {
-        Ok(())
+        true
     } else {
-        return Err(ApiError::UnavailableOffline);
+        false
     }
 }
 
-pub fn require_offline_mode(options: &Options) -> Result<(), ApiError> {
+pub fn is_offline_mode_enabled(options: &Options) -> bool {
     if options.mode == RosettaMode::Offline {
-        Ok(())
+        true
     } else {
-        return Err(ApiError::UnavailableOnline);
+        false
     }
 }
