@@ -19,10 +19,7 @@ pub const UTXO_CONSUMED: &str = "coin_spent"; // UTXO Input, where coins are com
 pub const UTXO_CREATED: &str = "coin_created"; // UTXO Output, where coins are going out from the Transaction
 
 pub fn operation_type_list() -> Vec<String> {
-    let mut ret = vec![];
-    ret.push(UTXO_INPUT.into());
-    ret.push(UTXO_OUTPUT.into());
-    ret
+    vec![UTXO_INPUT.into(), UTXO_OUTPUT.into()]
 }
 
 pub fn operation_status_success() -> String {
