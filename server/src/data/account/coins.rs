@@ -27,29 +27,29 @@ pub async fn account_coins(
     debug!("/account/coins");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
     }
 
     let iota_client = build_iota_client(&options).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,
-        Err(_) => return Err(ApiError::UnableToGetNodeInfo),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
     };
 
     let confirmed_milestone = match iota_client.get_milestone(node_info.confirmed_milestone_index).await {
         Ok(confirmed_milestone) => confirmed_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone(node_info.confirmed_milestone_index)),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get milestone: {}", e))),
     };
 
     let address = request.account_identifier.address;
     let outputs = match iota_client.find_outputs(&[], &[address.clone()]).await {
         Ok(outputs) => outputs,
-        Err(_) => return Err(ApiError::UnableToGetOutputsFromAddress),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to outputs from address: {}", e))),
     };
 
     let mut coins = Vec::new();
@@ -64,9 +64,11 @@ pub async fn account_coins(
             },
         };
 
+        let output_id = format!("{}{}", output_info.transaction_id, hex::encode(output_info.output_index.to_le_bytes()));
+
         coins.push(Coin {
             coin_identifier: CoinIdentifier {
-                identifier: output_info.transaction_id,
+                identifier: output_id,
             },
             amount: Amount {
                 value: amount.to_string(),

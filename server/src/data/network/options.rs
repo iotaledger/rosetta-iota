@@ -24,7 +24,7 @@ pub async fn network_options(
     debug!("/network/options");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     let version = Version {

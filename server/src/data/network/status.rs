@@ -30,18 +30,18 @@ pub async fn network_status(
     debug!("/network/status");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
     }
 
     let iota_client = build_iota_client(&options).await?;
 
     let node_info = match iota_client.get_info().await {
         Ok(node_info) => node_info,
-        Err(_) => return Err(ApiError::UnableToGetNodeInfo),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
     };
 
     let genesis_milestone = match iota_client.get_milestone(1).await {
@@ -56,13 +56,13 @@ pub async fn network_status(
     let latest_milestone_index = node_info.latest_milestone_index;
     let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
         Ok(latest_milestone) => latest_milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone(latest_milestone_index)),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to milestone: {}", e))),
     };
 
     let current_block_timestamp = latest_milestone.timestamp * 1000;
     let peers_bee = match iota_client.get_peers().await {
         Ok(peers) => peers,
-        Err(_) => return Err(ApiError::UnableToGetPeers),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get peers: {}", e))),
     };
 
     let mut peers = vec![];

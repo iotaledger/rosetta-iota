@@ -35,11 +35,11 @@ pub async fn block(request: BlockRequest, options: Options) -> Result<BlockRespo
     debug!("/block");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
     }
 
     let iota_client = build_iota_client(&options).await?;
@@ -47,18 +47,16 @@ pub async fn block(request: BlockRequest, options: Options) -> Result<BlockRespo
     let milestone_index = request
         .block_identifier
         .index
-        .ok_or(ApiError::BadMilestoneRequest)?;
+        .ok_or(ApiError::NonRetriable("block index not set".to_string()))?;
 
     let milestone = match iota_client.get_milestone(milestone_index).await {
         Ok(milestone) => milestone,
-        Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index)),
+        Err(_) => return Err(ApiError::NonRetriable("can not get milestone".to_string())),
     };
 
-    // TODO: Do we really need this check?
-    if request.block_identifier.hash.is_some() {
-        let block_request_hash = request.block_identifier.hash.unwrap();
-        if (block_request_hash != "") && (block_request_hash != milestone.message_id.to_string()) {
-            return Err(ApiError::BadMilestoneRequest);
+    if let Some(hash) = request.block_identifier.hash {
+        if hash != milestone.message_id.to_string() {
+            return Err(ApiError::NonRetriable("invalid block hash, provided block hash does not relate to the provided block index".to_string()));
         }
     }
 
@@ -76,7 +74,7 @@ pub async fn block(request: BlockRequest, options: Options) -> Result<BlockRespo
     } else {
         let parent_milestone = match iota_client.get_milestone(milestone_index - 1).await {
             Ok(parent_milestone) => parent_milestone,
-            Err(_) => return Err(ApiError::UnableToGetMilestone(milestone_index - 1)),
+            Err(_) => return Err(ApiError::NonRetriable(format!("unable to get milestone {}", milestone_index - 1))),
         };
 
         parent_block_identifier = BlockIdentifier {
@@ -121,21 +119,23 @@ async fn messages_of_created_outputs(
 
     let created_outputs = match iota_client.get_milestone_utxo_changes(milestone_index).await {
         Ok(utxo_changes) => utxo_changes.created_outputs,
-        Err(_) => return Err(ApiError::UnableToGetMilestoneUTXOChanges),
+        Err(e) => return Err(ApiError::NonRetriable(format!("can not get uxto-changes: {}", e))),
     };
 
     for output_id_string in created_outputs {
         let output_id = output_id_string
             .parse::<OutputId>()
-            .map_err(|e| ApiError::BeeMessageError(e))?;
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
+
         let output_response = iota_client
             .get_output(&output_id.into())
             .await
-            .map_err(|e| ApiError::IotaClientError(e))?;
+            .map_err(|e| ApiError::NonRetriable(format!("can not get output information: {}", e)))?;
+
         let message_id = output_response
             .message_id
             .parse::<MessageId>()
-            .map_err(|e| ApiError::BeeMessageError(e))?;
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse message id: {}", e)))?;
 
         let created_output = CreatedOutput {
             output_id,
@@ -152,7 +152,7 @@ async fn messages_of_created_outputs(
                     .get_message()
                     .data(&message_id)
                     .await
-                    .map_err(|e| ApiError::IotaClientError(e))?;
+                    .map_err(|e| ApiError::NonRetriable(format!("can not get message id: {}", e)))?;
                 let created_outputs = vec![created_output];
                 let message_info = MessageInfo {
                     message,
@@ -177,7 +177,7 @@ async fn build_rosetta_transactions(
         let transaction = match message_info.message.payload() {
             Some(Payload::Transaction(t)) => from_transaction(t, iota_client, options).await?,
             Some(Payload::Milestone(m)) => from_milestone(m, &message_info.created_outputs, options).await?,
-            _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())), // NOT SUPPORTED
         };
         built_transactions.push(transaction);
     }
@@ -192,7 +192,7 @@ async fn from_transaction(
 ) -> Result<Transaction, ApiError> {
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
-        _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+        _ => return Err(ApiError::NonRetriable("essence type not supported".to_string())), // NOT SUPPORTED
     };
 
     let mut operations = Vec::new();
@@ -200,12 +200,12 @@ async fn from_transaction(
     for input in regular_essence.inputs() {
         let utxo_input = match input {
             Input::Utxo(i) => i,
-            _ => return Err(ApiError::NotImplemented), // NOT SUPPORTED
+            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())), // NOT SUPPORTED
         };
 
-        let output_info = iota_client.get_output(&utxo_input).await?;
+        let output_info = iota_client.get_output(&utxo_input).await.map_err(|e| ApiError::NonRetriable(format!("can not get input information: {}", e)))?;
 
-        let output = Output::try_from(&output_info.output).map_err(|_| ApiError::NotImplemented)?;
+        let output = Output::try_from(&output_info.output).map_err(|e| ApiError::NonRetriable(format!("can not parse output from output information: {}", e)))?;
 
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
@@ -252,13 +252,13 @@ async fn from_milestone(
     let mut operations = Vec::new();
 
     for created_output in created_outputs {
-        let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NotImplemented)?;
+        let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
         let transaction_id = created_output
             .output_response
             .transaction_id
             .parse::<TransactionId>()
-            .map_err(|e| ApiError::BeeMessageError(e))?;
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse transaction id: {}", e)))?;
         let output_index = created_output.output_response.output_index;
 
         let mint_operation = utxo_input_operation(

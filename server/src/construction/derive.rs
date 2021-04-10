@@ -28,21 +28,21 @@ pub async fn construction_derive_request(
     debug!("/construction/derive");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     if request.public_key.curve_type != CurveType::Edwards25519 {
-        return Err(ApiError::UnsupportedCurve);
-    };
+        return Err(ApiError::NonRetriable("invalid curve type: must be edwards25519".to_string()))
+    }
 
-    let public_key_bytes = hex::decode(request.public_key.hex_bytes)?;
+    let public_key_bytes = hex::decode(request.public_key.hex_bytes).map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
-    let address = Address::Ed25519(Ed25519Address::new(public_key_hash.into()));
+    let bech32_address = Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&options.bech32_hrp);
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier {
-            address: address.to_bech32(&options.bech32_hrp),
+            address: bech32_address,
             sub_account: None,
         },
     })
@@ -109,7 +109,7 @@ mod tests {
 
         if let Err(e) = construction_derive_request(request, server_options).await {
             match e {
-                ApiError::BadNetwork => (),
+                ApiError::WrongNetwork => (),
                 _ => panic!("expected bad network error"),
             }
         } else {

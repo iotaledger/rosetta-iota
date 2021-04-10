@@ -33,7 +33,7 @@ impl FromStr for RosettaMode {
         match value {
             "online" => Ok(RosettaMode::Online),
             "offline" => Ok(RosettaMode::Offline),
-            _ => Err("can not parse mode".to_string()),
+            _ => Err("invalid mode".to_string()),
         }
     }
 }

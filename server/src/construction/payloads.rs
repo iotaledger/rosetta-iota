@@ -32,7 +32,7 @@ pub(crate) async fn construction_payloads_request(
     debug!("/construction/payloads");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     let mut inputs = vec![];
@@ -42,43 +42,48 @@ pub(crate) async fn construction_payloads_request(
     for operation in request.operations {
         let address = operation
             .account
-            .ok_or(ApiError::BadConstructionRequest("account not populated".to_string()))?
+            .ok_or(ApiError::NonRetriable("account not populated".to_string()))?
             .address;
 
         match &operation.type_[..] {
+
             "UTXO_INPUT" => {
                 let output_id = operation
                     .coin_change
-                    .ok_or(ApiError::BadConstructionRequest(
-                        "coin_change not populated for UTXO_INPUT".to_string(),
+                    .ok_or(ApiError::NonRetriable(
+                        "coin change not populated".to_string(),
                     ))?
                     .coin_identifier
                     .identifier;
+
                 let utxo_input = output_id
                     .parse::<UtxoInput>()
-                    .map_err(|e| ApiError::BadConstructionRequest(e.to_string()))?;
-                let input = Input::Utxo(utxo_input);
+                    .map_err(|e| ApiError::NonRetriable(e.to_string()))?;
 
-                inputs.push((input, address));
+                inputs.push((Input::Utxo(utxo_input), address));
             }
+
             "UTXO_OUTPUT" => {
                 let address = Address::try_from_bech32(&address).unwrap();
+
                 let amount = operation
                     .amount
-                    .ok_or(ApiError::BadConstructionRequest("amount not populated".to_string()))?
+                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
                     .value
                     .parse::<u64>()
                     .unwrap();
+
                 // todo: tread Dust allowance
                 let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
                 outputs.push(output);
             }
-            _ => return Err(ApiError::UnknownOperationType),
+
+            _ => return Err(ApiError::NonRetriable("invalid operation type".to_string())),
         }
     }
 
     let index = options.indexation;
-    let indexation_payload = IndexationPayload::new(index.as_bytes(), &[])?;
+    let indexation_payload = IndexationPayload::new(index.as_bytes(), &[]).map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
 
     let mut transaction_payload_essence =
         RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
@@ -98,7 +103,7 @@ pub(crate) async fn construction_payloads_request(
     let essence = Essence::Regular(transaction_payload_essence.finish().unwrap());
     let hash_to_sign = essence.hash();
     let unsigned_transaction =
-        UnsignedTransaction::new(essence, request.metadata.inputs_metadata);
+        UnsignedTransaction::new(essence, request.metadata.utxo_inputs_metadata);
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {

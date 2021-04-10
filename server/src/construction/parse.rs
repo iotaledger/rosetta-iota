@@ -37,7 +37,7 @@ pub(crate) async fn construction_parse_request(
     debug!("/construction/parse");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     if request.signed {
@@ -84,7 +84,7 @@ async fn parse_signed_transaction(
                 let signature = match s {
                     SignatureUnlock::Ed25519(s) => s,
                     _ => {
-                        return Err(ApiError::BadConstructionRequest(
+                        return Err(ApiError::NonRetriable(
                             "signature type not supported".to_string(),
                         ));
                     }
@@ -114,7 +114,7 @@ async fn essence_to_operations(
     let regular_essence = match essence {
         Essence::Regular(r) => r,
         _ => {
-            return Err(ApiError::BadConstructionRequest(
+            return Err(ApiError::NonRetriable(
                 "essence type not supported".to_string(),
             ));
         }
@@ -125,13 +125,13 @@ async fn essence_to_operations(
     for input in regular_essence.inputs() {
         let utxo_input = match input {
             Input::Utxo(i) => i,
-            _ => return Err(ApiError::BadConstructionRequest("input type not supported".to_string())),
+            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())),
         };
 
         let input_metadata = match inputs_metadata.get(&utxo_input.to_string()) {
             Some(metadata) => metadata,
             None => {
-                return Err(ApiError::BadConstructionRequest(
+                return Err(ApiError::NonRetriable(
                     "metadata for input missing".to_string(),
                 ));
             }
@@ -141,11 +141,11 @@ async fn essence_to_operations(
         let output_index = input_metadata.output_index.clone();
 
         let (amount, ed25519_address) = match &input_metadata.output {
-            OutputDto::Treasury(_) => panic!("Can't be used as input"),
+            OutputDto::Treasury(_) => return Err(ApiError::NonRetriable("Can't be used as input".to_string())),
             OutputDto::SignatureLockedSingle(x) => match x.address.clone() {
                 AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address),
             },
-            OutputDto::SignatureLockedDustAllowance(_) => panic!("not implemented!"),
+            OutputDto::SignatureLockedDustAllowance(_) => unimplemented!(),
         };
 
         let bech32_address =
@@ -181,7 +181,7 @@ async fn essence_to_operations(
 }
 
 fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
-    let public_key_bytes = hex::decode(hex_string)?;
+    let public_key_bytes = hex::decode(hex_string).map_err(|e| ApiError::NonRetriable(format!("can not derive address from public key: {}", e)))?;
     let hash = Blake2b256::digest(&public_key_bytes);
     let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);

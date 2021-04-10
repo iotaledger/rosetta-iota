@@ -27,7 +27,7 @@ pub(crate) async fn construction_hash_request(
     debug!("/construction/hash");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);

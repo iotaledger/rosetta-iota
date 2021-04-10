@@ -29,16 +29,16 @@ pub async fn account_balance(
     debug!("/account/balance");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
     }
 
     // historical balance lookup is not supported
     if request.block_identifier.is_some() {
-        return Err(ApiError::HistoricalBalancesUnsupported);
+        return Err(ApiError::NonRetriable("historical balance lookup not supported".to_string()));
     }
 
     let (amount, confirmed_milestone) =
@@ -65,13 +65,13 @@ async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amoun
 
     let balance_response = match iota_client.get_address().balance(address).await {
         Ok(balance) => balance,
-        Err(_) => return Err(ApiError::UnableToGetBalance),
+        Err(_) => return Err(ApiError::NonRetriable("unable to get balance".to_string())),
     };
 
     let index_after_balance_check = get_confirmed_milestone(&iota_client).await?;
 
     if index_before_balance_check.index != index_after_balance_check.index {
-        return Err(ApiError::UnableToGetBalance);
+        return Err(ApiError::NonRetriable("milestone index changed while performing the request".to_string()));
     }
 
     let amount = Amount {
@@ -87,7 +87,7 @@ async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneRespon
     let confirmed_milestone_index = {
         let node_info = match iota_client.get_info().await {
             Ok(node_info) => node_info,
-            Err(_) => return Err(ApiError::UnableToGetNodeInfo),
+            Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
         };
 
         node_info.confirmed_milestone_index
@@ -95,7 +95,7 @@ async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneRespon
 
     match iota_client.get_milestone(confirmed_milestone_index).await {
         Ok(confirmed_milestone) => Ok(confirmed_milestone),
-        Err(_) => return Err(ApiError::UnableToGetMilestone(confirmed_milestone_index)),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get milestone: {}", e))),
     }
 }
 

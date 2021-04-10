@@ -27,33 +27,35 @@ pub(crate) async fn construction_submit_request(
     debug!("/construction/submit");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
     }
 
     let iota_client = build_iota_client(&options).await?;
 
     let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
     let transaction = signed_transaction.transaction();
-    let transaction_id = transaction.id();
 
     let message = iota_client
         .message()
         .finish_message(Some(Payload::Transaction(Box::new(transaction.clone()))))
-        .await?;
+        .await
+        .map_err(|e| ApiError::NonRetriable(format!("can not build message: {}", e)))?;
 
     match iota_client.post_message(&message).await {
         Ok(message_id) => Ok(ConstructionSubmitResponse {
             transaction_identifier: TransactionIdentifier {
-                hash: transaction_id.to_string(),
+                hash: transaction.id().to_string(),
             },
             metadata: ConstructionSubmitResponseMetadata {
                 message_id: message_id.to_string(),
             },
         }),
-        Err(_) => Err(ApiError::BadConstructionRequest("can not submit message".to_string())),
+
+        Err(e) => Err(ApiError::NonRetriable(format!("can not submit message: {}", e))),
     }
+
 }

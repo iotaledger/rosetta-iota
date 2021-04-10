@@ -332,12 +332,12 @@ impl SignedTransaction {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PreprocessOptions {
-    pub inputs: Vec<String>,
+    pub utxo_inputs: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadata {
-    pub inputs_metadata: HashMap<String, OutputResponse>,
+    pub utxo_inputs_metadata: HashMap<String, OutputResponse>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

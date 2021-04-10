@@ -28,30 +28,32 @@ pub(crate) async fn construction_metadata_request(
     debug!("/construction/metadata");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::BadNetwork)
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::UnavailableOffline)
+        return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
     }
 
     let iota_client = build_iota_client(&options).await?;
 
     let mut utxo_inputs_metadata = HashMap::new();
-    for input_id in request.options.inputs {
-        let input = input_id
-            .parse::<UtxoInput>()
-            .map_err(|_| ApiError::BadConstructionRequest("can not parse input".to_string()))?;
-        let input_metadata = iota_client
-            .get_output(&input)
+    for output_id_string in request.options.utxo_inputs {
+        let output_id = output_id_string
+            .parse::<OutputId>()
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
+
+        let output_metadata = iota_client
+            .get_output(&(output_id.into()))
             .await
-            .map_err(|e| ApiError::IotaClientError(e))?;
-        utxo_inputs_metadata.insert(input_id, input_metadata);
+            .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))?;
+
+        utxo_inputs_metadata.insert(output_id_string, output_metadata);
     }
 
     Ok(ConstructionMetadataResponse {
         metadata: ConstructionMetadata {
-            inputs_metadata: utxo_inputs_metadata,
+            utxo_inputs_metadata,
         },
     })
 }
