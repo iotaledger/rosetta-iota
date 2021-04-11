@@ -115,12 +115,11 @@ async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs,
         .unwrap()
         .finish()
         .await
-        .unwrap();
+        .expect("can not build client");
 
-    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
+    let bech32_hrp = iota.get_bech32_hrp().await.expect("can not get bech32 HRP");
 
     for (addr, balance_diff) in balance_diffs {
-
         let addr = addr.to_bech32(&bech32_hrp);
 
         let balance = balance_diff.amount();
