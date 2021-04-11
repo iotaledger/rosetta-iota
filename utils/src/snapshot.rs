@@ -1,14 +1,13 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::Config;
 use rosetta_iota_server::types::{AccountIdentifier, Currency};
 
 use bee_common::packable::Packable;
 use bee_ledger::types::BalanceDiffs;
 use bee_message::{prelude::*, solid_entry_point::SolidEntryPoint};
 use bee_snapshot::{header::SnapshotHeader, milestone_diff::MilestoneDiff};
-
-use iota::Client;
 
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +18,11 @@ use std::{
     path::Path,
 };
 
-pub async fn bootstrap_balances_from_snapshot() {
+use bee_snapshot::header::{FullSnapshotHeader, DeltaSnapshotHeader};
+
+pub async fn bootstrap_balances_from_snapshot(
+    config: &Config,
+) {
     let download_url = "https://dbfiles.testnet.chrysalis2.com/";
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
@@ -35,7 +38,7 @@ pub async fn bootstrap_balances_from_snapshot() {
     }
 
     let balance_diffs = read_full_snapshot(full_path).await;
-    let (sep_index, json_string) = read_delta_snapshot(delta_path, balance_diffs).await;
+    let (sep_index, json_string) = read_delta_snapshot(delta_path, balance_diffs, config).await;
 
     fs::write("bootstrap_balances.json", json_string).expect("cannot write bootstrap_balances.json file");
     fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
@@ -48,7 +51,7 @@ struct BootstrapBalanceEntry {
     value: String,
 }
 
-async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> (MilestoneIndex, String) {
+async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs, config: &Config) -> (MilestoneIndex, String) {
     println!("reading delta snapshot...");
 
     let mut reader = BufReader::new(
@@ -59,13 +62,14 @@ async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs)
     );
 
     let header = SnapshotHeader::unpack(&mut reader).expect("cannot unpack snapshot header");
-    for _ in 0..header.sep_count() {
+    let sep_index = header.sep_index();
+    let delta_header = DeltaSnapshotHeader::unpack(&mut reader).expect("can not read delta snapshot header");
+
+    for _ in 0..delta_header.sep_count() {
         SolidEntryPoint::unpack(&mut reader).expect("cannot unpack solid entry point");
     }
 
-    let sep_index = header.sep_index();
-
-    for _ in 0..header.milestone_diff_count() {
+    for _ in 0..delta_header.milestone_diff_count() {
         let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
         for (_, output) in diff.created().iter() {
             match output.inner() {
@@ -102,18 +106,10 @@ async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs)
         }
     }
 
-    let iota = Client::builder() // Crate a client instance builder
-        .with_node("https://api.hornet-rosetta.testnet.chrysalis2.com") // Insert the node here
-        .unwrap()
-        .finish()
-        .await
-        .unwrap();
-    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
-
     let mut json_entries = Vec::new();
 
     for (addr, balance_diff) in balance_diffs {
-        let addr = addr.to_bech32(&bech32_hrp);
+        let addr = addr.to_bech32(&config.bech32_hrp);
 
         let balance = balance_diff.amount();
 
@@ -149,14 +145,15 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
             .open(full_path)
             .expect("could not open full snapshot"),
     );
-    let header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
+    let _header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
+    let full_header = FullSnapshotHeader::unpack(&mut reader).expect("can not read full snapshot header");
 
-    for _ in 0..header.sep_count() {
+    for _ in 0..full_header.sep_count() {
         let _ = SolidEntryPoint::unpack(&mut reader).expect("can not read solid entry point");
     }
 
     let mut balance_diffs = BalanceDiffs::new();
-    for _ in 0..header.output_count() {
+    for _ in 0..full_header.output_count() {
         let _ = MessageId::unpack(&mut reader).expect("can not read message id of output");
         let _ = OutputId::unpack(&mut reader).expect("can not read output id");
         let output = Output::unpack(&mut reader).expect("can not read output");

@@ -4,7 +4,9 @@
 use structopt::StructOpt;
 
 #[derive(Clone, Debug, StructOpt)]
-pub struct Options {
+pub struct Config {
     #[structopt(long)]
     pub mode: String,
+    #[structopt(long)]
+    pub bech32_hrp: String,
 }
