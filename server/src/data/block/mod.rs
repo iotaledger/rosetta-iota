@@ -4,14 +4,14 @@
 use crate::{
     data::block::block::block,
     filters::{handle, with_options},
-    options::Options,
+    config::Config,
 };
 
 use warp::Filter;
 
 mod block;
 
-pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post().and(
         warp::path!("block")
             .and(warp::body::json())

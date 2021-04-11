@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, operations::*, options::Options, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
+use crate::{error::ApiError, is_wrong_network, operations::*, config::Config, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -32,7 +32,7 @@ pub struct BlockResponse {
     pub block: Block,
 }
 
-pub async fn block(request: BlockRequest, options: Options) -> Result<BlockResponse, ApiError> {
+pub async fn block(request: BlockRequest, options: Config) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
     if is_wrong_network(&options, &request.network_identifier) {
@@ -159,7 +159,7 @@ async fn messages_of_created_outputs(
 async fn build_rosetta_transactions(
     messages: HashMap<MessageId, MessageInfo>,
     iota_client: &Client,
-    options: &Options,
+    options: &Config,
 ) -> Result<Vec<Transaction>, ApiError> {
     let mut built_transactions = Vec::new();
 
@@ -178,7 +178,7 @@ async fn build_rosetta_transactions(
 async fn from_transaction(
     transaction_payload: &TransactionPayload,
     iota_client: &Client,
-    options: &Options,
+    options: &Config,
 ) -> Result<Transaction, ApiError> {
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
@@ -237,7 +237,7 @@ async fn from_transaction(
 async fn from_milestone(
     milestone_payload: &MilestonePayload,
     created_outputs: &Vec<CreatedOutput>,
-    options: &Options,
+    options: &Config,
 ) -> Result<Transaction, ApiError> {
     let mut operations = Vec::new();
 
@@ -294,7 +294,7 @@ async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::options::RosettaMode;
+    use crate::config::RosettaMode;
 
     #[tokio::test]
     async fn test_block() {
@@ -310,10 +310,10 @@ mod tests {
             },
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet7".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),

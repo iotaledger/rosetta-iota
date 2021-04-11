@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
+use crate::{currency::iota_currency, error::ApiError, is_wrong_network, config::Config, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub struct AccountBalanceResponse {
 
 pub async fn account_balance(
     request: AccountBalanceRequest,
-    options: Options,
+    options: Config,
 ) -> Result<AccountBalanceResponse, ApiError> {
     debug!("/account/balance");
 
@@ -56,7 +56,7 @@ pub async fn account_balance(
     Ok(response)
 }
 
-async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amount, iota::MilestoneResponse), ApiError> {
+async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount, iota::MilestoneResponse), ApiError> {
     let client = build_client(options).await?;
 
     // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
@@ -84,7 +84,7 @@ async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amoun
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::options::RosettaMode;
+    use crate::config::RosettaMode;
 
     #[tokio::test]
     async fn test_balance() {
@@ -101,10 +101,10 @@ mod tests {
             block_identifier: None,
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet7".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),

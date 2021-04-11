@@ -4,7 +4,7 @@
 use crate::{
     data::account::{balance::account_balance, coins::account_coins},
     filters::{handle, with_options},
-    options::Options,
+    config::Config,
 };
 
 use warp::Filter;
@@ -12,7 +12,7 @@ use warp::Filter;
 mod balance;
 mod coins;
 
-pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("account" / "balance")

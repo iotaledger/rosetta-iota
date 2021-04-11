@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, NetworkIdentifier, *}, is_offline_mode_enabled};
+use crate::{currency::iota_currency, error::ApiError, is_wrong_network, config::Config, types::{AccountIdentifier, NetworkIdentifier, *}, is_offline_mode_enabled};
 
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
 
@@ -24,7 +24,7 @@ pub struct AccountCoinsResponse {
 
 pub async fn account_coins(
     request: AccountCoinsRequest,
-    options: Options,
+    options: Config,
 ) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
@@ -75,7 +75,7 @@ pub async fn account_coins(
     Ok(response)
 }
 
-async fn outputs_of_address_at_milestone(address: &str, options: &Options) -> Result<(Vec<OutputResponse>, iota::MilestoneResponse), ApiError> {
+async fn outputs_of_address_at_milestone(address: &str, options: &Config) -> Result<(Vec<OutputResponse>, iota::MilestoneResponse), ApiError> {
     let client = build_client(options).await?;
 
     // to make sure the outputs of an address do not change in the meantime, check the index of the confirmed
@@ -97,7 +97,7 @@ async fn outputs_of_address_at_milestone(address: &str, options: &Options) -> Re
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::options::RosettaMode;
+    use crate::config::RosettaMode;
 
     #[tokio::test]
     async fn test_coins() {
@@ -113,10 +113,10 @@ mod tests {
             },
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet7".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),

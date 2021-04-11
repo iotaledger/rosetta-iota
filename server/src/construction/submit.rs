@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
+use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Config, is_offline_mode_enabled};
 
 use bee_message::prelude::*;
 
@@ -23,7 +23,7 @@ pub struct ConstructionSubmitResponse {
 
 pub(crate) async fn construction_submit_request(
     request: ConstructionSubmitRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 

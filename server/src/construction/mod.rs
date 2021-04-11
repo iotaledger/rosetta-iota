@@ -10,7 +10,7 @@ use crate::{
     },
     filters::{handle, with_options},
     types::{SignedTransaction, UnsignedTransaction},
-    Options,
+    Config,
 };
 
 use warp::Filter;
@@ -24,7 +24,7 @@ pub mod payloads;
 pub mod preprocess;
 pub mod submit;
 
-pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("construction" / "derive")

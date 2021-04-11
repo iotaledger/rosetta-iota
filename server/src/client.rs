@@ -1,4 +1,4 @@
-use crate::Options;
+use crate::Config;
 use crate::error::ApiError;
 
 use bee_message::prelude::*;
@@ -9,11 +9,11 @@ use bee_rest_api::types::dtos::PeerDto;
 
 
 pub async fn build_client(
-    options: &Options
+    options: &Config
 ) -> Result<Client, ApiError> {
     let builder = iota::Client::builder()
         .with_network(&options.network)
-        .with_node(&options.node)
+        .with_node(&options.node_url)
         .map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?;
     Ok(builder.finish().await.map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?)
 }

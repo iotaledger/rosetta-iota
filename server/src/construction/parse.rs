@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::{deserialize_signed_transaction, deserialize_unsigned_transaction}, error::ApiError, operations::{utxo_input_operation, utxo_output_operation}, types::*, Options, is_wrong_network};
+use crate::{construction::{deserialize_signed_transaction, deserialize_unsigned_transaction}, error::ApiError, operations::{utxo_input_operation, utxo_output_operation}, types::*, Config, is_wrong_network};
 
 use bee_message::prelude::*;
 use bee_rest_api::types::{
@@ -32,7 +32,7 @@ pub struct ConstructionParseResponse {
 
 pub(crate) async fn construction_parse_request(
     request: ConstructionParseRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionParseResponse, ApiError> {
     debug!("/construction/parse");
 
@@ -49,7 +49,7 @@ pub(crate) async fn construction_parse_request(
 
 async fn parse_unsigned_transaction(
     construction_parse_request: ConstructionParseRequest,
-    options: &Options,
+    options: &Config,
 ) -> Result<ConstructionParseResponse, ApiError> {
     let unsigned_transaction = deserialize_unsigned_transaction(&construction_parse_request.transaction);
 
@@ -68,7 +68,7 @@ async fn parse_unsigned_transaction(
 
 async fn parse_signed_transaction(
     construction_parse_request: ConstructionParseRequest,
-    options: &Options,
+    options: &Config,
 ) -> Result<ConstructionParseResponse, ApiError> {
     let signed_transaction = deserialize_signed_transaction(&construction_parse_request.transaction);
 
@@ -109,7 +109,7 @@ async fn parse_signed_transaction(
 async fn essence_to_operations(
     essence: &Essence,
     inputs_metadata: &HashMap<String, OutputResponse>,
-    options: &Options,
+    options: &Config,
 ) -> Result<Vec<Operation>, ApiError> {
     let regular_essence = match essence {
         Essence::Regular(r) => r,

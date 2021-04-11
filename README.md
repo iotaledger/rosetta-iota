@@ -26,12 +26,12 @@ Once the IOTA node has synced with the network, the Rosetta API will be availabl
 
 **Testnet:Online**
 ```
-ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=online docker-compose up
+$ NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
 ```
 
 **Testnet:Offline**
 ```
-ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=offline docker-compose up
+$ NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
 ```
 
 ## Testing with rosetta-cli
@@ -40,7 +40,7 @@ To validate the correctness of `rosetta-iota` run the commands below:
 
 Testing the Data API **(Testnet)**:
 ```
-ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://127.0.0.1:3030 ./check_data_testnet.sh
 ```
 
 Testing the Construction API **(Testnet)**:

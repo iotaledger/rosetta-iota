@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{ error::ApiError, is_wrong_network, options::Options, types::{NetworkIdentifier, *}, is_offline_mode_enabled};
+use crate::{error::ApiError, is_wrong_network, config::Config, types::{NetworkIdentifier, *}, is_offline_mode_enabled};
 use crate::client::{build_client, get_latest_milestone, get_peers, get_genesis_milestone};
 
 use log::debug;
@@ -22,7 +22,7 @@ pub struct NetworkStatusResponse {
 
 pub async fn network_status(
     request: NetworkStatusRequest,
-    options: Options,
+    options: Config,
 ) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
@@ -77,7 +77,7 @@ pub async fn network_status(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::options::RosettaMode;
+    use crate::config::RosettaMode;
 
     #[tokio::test]
     async fn test_network_status() {
@@ -89,10 +89,10 @@ mod tests {
             },
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
             network: "testnet7".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),

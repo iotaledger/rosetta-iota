@@ -6,19 +6,19 @@ use structopt::StructOpt;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, StructOpt)]
-pub struct Options {
+pub struct Config {
     #[structopt(long)]
-    pub node: String,
+    pub bind_addr: String,
     #[structopt(long)]
     pub network: String,
     #[structopt(long)]
     pub bech32_hrp: String,
+    #[structopt(long, default_value = "Rosetta")]
+    pub tx_tag: String,
     #[structopt(long)]
-    pub indexation: String,
-    #[structopt(long = "mode", default_value = "online")]
+    pub node_url: String,
+    #[structopt(long, default_value = "online")]
     pub mode: RosettaMode,
-    #[structopt(long)]
-    pub bind_addr: String,
 }
 
 #[derive(Clone, Debug, StructOpt, PartialEq)]

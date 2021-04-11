@@ -4,7 +4,7 @@
 use crate::{
     data::network::{list::network_list, options::network_options, status::network_status},
     filters::{handle, with_empty_request, with_options},
-    Options,
+    Config,
 };
 
 use warp::Filter;
@@ -13,7 +13,7 @@ mod list;
 mod options;
 mod status;
 
-pub fn routes(options: Options) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("network" / "list")

@@ -19,6 +19,7 @@ use std::{
 };
 
 use bee_snapshot::header::{FullSnapshotHeader, DeltaSnapshotHeader};
+use iota::Client;
 
 pub async fn bootstrap_balances_from_snapshot(
     config: &Config,
@@ -108,8 +109,19 @@ async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs,
 
     let mut json_entries = Vec::new();
 
+    // Create iota client
+    let iota = Client::builder() // Crate a client instance builder
+        .with_node(&config.node_url) // Insert the node here
+        .unwrap()
+        .finish()
+        .await
+        .unwrap();
+
+    let bech32_hrp = iota.get_bech32_hrp().await.unwrap();
+
     for (addr, balance_diff) in balance_diffs {
-        let addr = addr.to_bech32(&config.bech32_hrp);
+
+        let addr = addr.to_bech32(&bech32_hrp);
 
         let balance = balance_diff.amount();
 

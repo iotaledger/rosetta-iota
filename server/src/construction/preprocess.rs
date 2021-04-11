@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, types::*, Config};
 
 use bee_message::prelude::*;
 
@@ -21,7 +21,7 @@ pub struct ConstructionPreprocessResponse {
 
 pub async fn construction_preprocess_request(
     request: ConstructionPreprocessRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionPreprocessResponse, ApiError> {
     debug!("/construction/preprocess");
 

@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, types::*, Options};
+use crate::{error::ApiError, is_wrong_network, types::*, Config};
 
 use bee_message::prelude::{Address, Ed25519Address};
 
@@ -23,7 +23,7 @@ pub struct ConstructionDeriveResponse {
 
 pub async fn construction_derive_request(
     request: ConstructionDeriveRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
@@ -52,7 +52,7 @@ pub async fn construction_derive_request(
 mod tests {
 
     use super::*;
-    use crate::options::RosettaMode;
+    use crate::config::RosettaMode;
 
     #[tokio::test]
     async fn test_address_from_public_key() {
@@ -68,10 +68,10 @@ mod tests {
             },
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Offline,
             bind_addr: "0.0.0.0:3030".to_string(),
@@ -98,10 +98,10 @@ mod tests {
             },
         };
 
-        let server_options = Options {
+        let server_options = Config {
             node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
-            indexation: "rosetta".to_string(),
+            tx_indexation: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Offline,
             bind_addr: "0.0.0.0:3030".to_string(),

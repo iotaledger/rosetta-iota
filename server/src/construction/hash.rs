@@ -3,7 +3,7 @@
 
 use crate::{
     construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*,
-    Options,
+    Config,
 };
 
 use log::debug;
@@ -22,7 +22,7 @@ pub struct ConstructionHashResponse {
 
 pub(crate) async fn construction_hash_request(
     request: ConstructionHashRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
 

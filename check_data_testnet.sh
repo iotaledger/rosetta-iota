@@ -9,6 +9,7 @@ DATA_DIR=".rosetta-cli-testnet-data"
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
 # BOOTSTRAP_BALANCES=1 ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
 # NO_BOOTSTRAP=1 ...keeps the rosetta-cli storage
+# NODE_URL= ...the IOTA node that is connected with the Rosetta API implementation
 
 if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
   echo "bootstrapping method not specified..."
@@ -17,12 +18,18 @@ fi
 
 # bootstrap balances
 if [ $BOOTSTRAP_BALANCES ]; then
+
+  if [ -z "NODE_URL" ]; then
+    echo "node url not specified..."
+    exit 1
+  fi
+
   # remove the data directory
   rm -rf $DATA_DIR
 
   # download latest snapshot and create the bootstrap_balances.json
   echo "running rosetta-iota-utils to download latest snapshot..."
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils -- --mode snapshot
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --mode snapshot --node-url $NODE_URL
 
   # move generated file to $CONF_DIR
   mv bootstrap_balances.json $CONF_DIR

@@ -8,5 +8,5 @@ pub struct Config {
     #[structopt(long)]
     pub mode: String,
     #[structopt(long)]
-    pub bech32_hrp: String,
+    pub node_url: String,
 }

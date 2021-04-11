@@ -1,9 +1,9 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, options::RosettaMode, types::NetworkIdentifier};
+use crate::{error::ApiError, config::RosettaMode, types::NetworkIdentifier};
 
-pub use options::Options;
+pub use config::Config;
 
 use core::future::Future;
 use log::{error, info};
@@ -19,24 +19,24 @@ pub mod data;
 pub mod error;
 pub mod filters;
 pub mod operations;
-pub mod options;
+pub mod config;
 pub mod types;
 
 
-pub async fn run_server(options: Options, shutdown: impl Future<Output = ()> + Send + 'static) {
+pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
 
-    let bind_addr = options
+    let bind_addr = config
         .bind_addr
         .parse::<SocketAddr>()
         .expect("unable to parse socket address");
 
     info!("Listening on {}.", bind_addr.to_string());
 
-    let routes = data::network::routes(options.clone())
-        .or(data::block::routes(options.clone()))
-        .or(data::account::routes(options.clone()))
-        .or(construction::routes(options.clone()))
+    let routes = data::network::routes(config.clone())
+        .or(data::block::routes(config.clone()))
+        .or(data::account::routes(config.clone()))
+        .or(construction::routes(config.clone()))
         .recover(handle_rejection);
 
     let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(bind_addr, shutdown);
@@ -91,7 +91,7 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     Ok(warp::reply::with_status(json, status))
 }
 
-pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifier) -> bool {
+pub fn is_wrong_network(options: &Config, network_identifier: &NetworkIdentifier) -> bool {
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         true
     } else {
@@ -99,7 +99,7 @@ pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifie
     }
 }
 
-pub fn is_offline_mode_enabled(options: &Options) -> bool {
+pub fn is_offline_mode_enabled(options: &Config) -> bool {
     if options.mode == RosettaMode::Offline {
         true
     } else {

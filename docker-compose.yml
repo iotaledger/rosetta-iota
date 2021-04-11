@@ -6,7 +6,7 @@ services:
     restart: "no"
     working_dir: /app
     expose:
-      # http rest api
+      # Node API
       - "14265"
       # libp2p/gossip protocol
       - "15600"
@@ -22,12 +22,12 @@ services:
 
   rosetta:
     build: .
-    command: --bech32-hrp $ROSETTA_BECH32_HRP --node http://hornet:14265 --network $ROSETTA_NETWORK_NAME --indexation $ROSETTA_INDEXATION --mode $ROSETTA_MODE --bind-addr 0.0.0.0:3030
+    command: --bind-addr 0.0.0.0:3030 --network $NETWORK --bech32-hrp $BECH32_HRP --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
     restart: "always"
     environment:
       RUST_LOG: info
     expose:
-      # API port
+      # Rosetta API
       - "3030"
     ports:
       - "0.0.0.0:3030:3030/tcp"

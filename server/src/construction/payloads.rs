@@ -3,7 +3,7 @@
 
 use crate::{
     construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*,
-    Options,
+    Config,
 };
 
 use bee_common::packable::Packable;
@@ -27,7 +27,7 @@ pub struct ConstructionPayloadsResponse {
 
 pub(crate) async fn construction_payloads_request(
     request: ConstructionPayloadsRequest,
-    options: Options,
+    options: Config,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
 
@@ -82,7 +82,7 @@ pub(crate) async fn construction_payloads_request(
         }
     }
 
-    let index = options.indexation;
+    let index = options.tx_tag;
     let indexation_payload = IndexationPayload::new(index.as_bytes(), &[]).map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
 
     let mut transaction_payload_essence =
