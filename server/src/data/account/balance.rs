@@ -1,12 +1,13 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
+use crate::{currency::iota_currency, error::ApiError, is_wrong_network, options::Options, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use iota::{Client, MilestoneResponse};
+
+use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index, get_milestone};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
@@ -41,7 +42,7 @@ pub async fn account_balance(
         return Err(ApiError::NonRetriable("historical balance lookup not supported".to_string()));
     }
 
-    let (amount, confirmed_milestone) =
+    let (balance, confirmed_milestone) =
         balance_at_milestone(&request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
@@ -49,30 +50,27 @@ pub async fn account_balance(
             index: confirmed_milestone.index,
             hash: confirmed_milestone.message_id.to_string(),
         },
-        balances: vec![amount],
+        balances: vec![balance],
     };
 
     Ok(response)
 }
 
-async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amount, MilestoneResponse), ApiError> {
-    let iota_client = build_iota_client(options).await?;
+async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amount, iota::MilestoneResponse), ApiError> {
+    let client = build_client(options).await?;
 
     // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
     // milestone before and after fetching the balance
 
-    let index_before_balance_check = get_confirmed_milestone(&iota_client).await?;
+    let index_before = get_confirmed_milestone_index(&client).await?;
+    let balance_response = get_balance_of_address(address, &client).await?;
+    let index_after = get_confirmed_milestone_index(&client).await?;
 
-    let balance_response = match iota_client.get_address().balance(address).await {
-        Ok(balance) => balance,
-        Err(_) => return Err(ApiError::NonRetriable("unable to get balance".to_string())),
-    };
-
-    let index_after_balance_check = get_confirmed_milestone(&iota_client).await?;
-
-    if index_before_balance_check.index != index_after_balance_check.index {
-        return Err(ApiError::NonRetriable("milestone index changed while performing the request".to_string()));
+    if index_before != index_after {
+        return Err(ApiError::Retriable("confirmed milestone changed while performing the request".to_string()));
     }
+
+    let milestone = get_milestone(index_before, &client).await?;
 
     let amount = Amount {
         value: balance_response.balance.to_string(),
@@ -80,23 +78,7 @@ async fn balance_at_milestone(address: &str, options: &Options) -> Result<(Amoun
         metadata: None,
     };
 
-    Ok((amount, index_before_balance_check))
-}
-
-async fn get_confirmed_milestone(iota_client: &Client) -> Result<MilestoneResponse, ApiError> {
-    let confirmed_milestone_index = {
-        let node_info = match iota_client.get_info().await {
-            Ok(node_info) => node_info,
-            Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
-        };
-
-        node_info.confirmed_milestone_index
-    };
-
-    match iota_client.get_milestone(confirmed_milestone_index).await {
-        Ok(confirmed_milestone) => Ok(confirmed_milestone),
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get milestone: {}", e))),
-    }
+    Ok((amount, milestone))
 }
 
 #[cfg(test)]

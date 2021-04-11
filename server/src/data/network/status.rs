@@ -1,11 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, error::ApiError, is_wrong_network, options::Options, types::{NetworkIdentifier, *}, is_offline_mode_enabled};
-
-use bee_message::prelude::MESSAGE_ID_LENGTH;
-
-use iota::{self, client::MilestoneResponse, MessageId};
+use crate::{ error::ApiError, is_wrong_network, options::Options, types::{NetworkIdentifier, *}, is_offline_mode_enabled};
+use crate::client::{build_client, get_latest_milestone, get_peers, get_genesis_milestone};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -37,42 +34,22 @@ pub async fn network_status(
         return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
     }
 
-    let iota_client = build_iota_client(&options).await?;
+    let client = build_client(&options).await?;
 
-    let node_info = match iota_client.get_info().await {
-        Ok(node_info) => node_info,
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
-    };
+    let genesis_milestone = get_genesis_milestone( &client).await?;
 
-    let genesis_milestone = match iota_client.get_milestone(1).await {
-        Ok(genesis_milestone) => genesis_milestone,
-        Err(_) => MilestoneResponse {
-            index: 1,
-            message_id: MessageId::new([0; MESSAGE_ID_LENGTH]),
-            timestamp: 0,
-        },
-    };
-
-    let latest_milestone_index = node_info.latest_milestone_index;
-    let latest_milestone = match iota_client.get_milestone(latest_milestone_index).await {
-        Ok(latest_milestone) => latest_milestone,
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to milestone: {}", e))),
-    };
+    let latest_milestone = get_latest_milestone(&client).await?;
 
     let current_block_timestamp = latest_milestone.timestamp * 1000;
-    let peers_bee = match iota_client.get_peers().await {
-        Ok(peers) => peers,
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get peers: {}", e))),
-    };
 
     let mut peers = vec![];
-    for peer_bee in peers_bee {
+    for peer in get_peers(&client).await? {
         peers.push(Peer {
-            peer_id: peer_bee.id,
+            peer_id: peer.id,
             metadata: PeerMetadata {
-                multi_addresses: peer_bee.multi_addresses,
-                alias: peer_bee.alias,
-                connected: peer_bee.connected,
+                multi_addresses: peer.multi_addresses,
+                alias: peer.alias,
+                connected: peer.connected,
             },
         });
     }

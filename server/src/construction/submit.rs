@@ -1,12 +1,13 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
+use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
 
 use bee_message::prelude::*;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
+use crate::client::build_client;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitRequest {
@@ -34,18 +35,18 @@ pub(crate) async fn construction_submit_request(
         return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
     }
 
-    let iota_client = build_iota_client(&options).await?;
+    let client = build_client(&options).await?;
 
     let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
     let transaction = signed_transaction.transaction();
 
-    let message = iota_client
+    let message = client
         .message()
         .finish_message(Some(Payload::Transaction(Box::new(transaction.clone()))))
         .await
         .map_err(|e| ApiError::NonRetriable(format!("can not build message: {}", e)))?;
 
-    match iota_client.post_message(&message).await {
+    match client.post_message(&message).await {
         Ok(message_id) => Ok(ConstructionSubmitResponse {
             transaction_identifier: TransactionIdentifier {
                 hash: transaction.id().to_string(),

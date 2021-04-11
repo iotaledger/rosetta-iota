@@ -5,14 +5,13 @@ use crate::{error::ApiError, options::RosettaMode, types::NetworkIdentifier};
 
 pub use options::Options;
 
-use iota::Client;
-
 use core::future::Future;
 use log::{error, info};
 use warp::{http::StatusCode, Filter};
 
 use std::{convert::Infallible, net::SocketAddr};
 
+pub mod client;
 pub mod construction;
 pub mod consts;
 pub mod currency;
@@ -22,6 +21,7 @@ pub mod filters;
 pub mod operations;
 pub mod options;
 pub mod types;
+
 
 pub async fn run_server(options: Options, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
@@ -89,14 +89,6 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     let json = warp::reply::json(&error);
 
     Ok(warp::reply::with_status(json, status))
-}
-
-pub async fn build_iota_client(options: &Options) -> Result<Client, ApiError> {
-    let builder = iota::Client::builder()
-        .with_network(&options.network)
-        .with_node(&options.node)
-        .map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?;
-    Ok(builder.finish().await.map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?)
 }
 
 pub fn is_wrong_network(options: &Options, network_identifier: &NetworkIdentifier) -> bool {

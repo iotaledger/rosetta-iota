@@ -242,7 +242,7 @@ dependencies = [
 [[package]]
 name = "bee-ledger"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-trait",
  "bee-common",
@@ -268,7 +268,7 @@ dependencies = [
 [[package]]
 name = "bee-message"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "bech32",
  "bee-common",
@@ -286,7 +286,7 @@ dependencies = [
 [[package]]
 name = "bee-network"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-trait",
  "bee-runtime",
@@ -303,7 +303,7 @@ dependencies = [
 [[package]]
 name = "bee-pow"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "bee-crypto 0.2.1-alpha",
  "bee-ternary 0.4.2-alpha",
@@ -314,7 +314,7 @@ dependencies = [
 [[package]]
 name = "bee-protocol"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-channel",
  "async-priority-queue",
@@ -350,7 +350,7 @@ dependencies = [
 [[package]]
 name = "bee-rest-api"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-trait",
  "bech32",
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "bee-snapshot"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-trait",
  "bee-common",
@@ -420,7 +420,7 @@ dependencies = [
 [[package]]
 name = "bee-tangle"
 version = "0.1.0-alpha"
-source = "git+https://github.com/iotaledger/bee.git?rev=e8cafb6591ec0c29f80705ae51fb8cb890fa98b0#e8cafb6591ec0c29f80705ae51fb8cb890fa98b0"
+source = "git+https://github.com/iotaledger/bee.git?rev=6ae5d7a8582187294aa55b6cbee7c3d968a6c41f#6ae5d7a8582187294aa55b6cbee7c3d968a6c41f"
 dependencies = [
  "async-trait",
  "bee-common",
@@ -1364,7 +1364,7 @@ dependencies = [
 [[package]]
 name = "iota-client"
 version = "0.5.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#a5321ea39f0aff337d50327020848d9fbdbadf9f"
+source = "git+https://github.com/iotaledger/iota.rs?rev=cb3118d3de32df1272690e98508bf0afc9c9cf2c#cb3118d3de32df1272690e98508bf0afc9c9cf2c"
 dependencies = [
  "async-trait",
  "bee-common",
@@ -1372,10 +1372,12 @@ dependencies = [
  "bee-message",
  "bee-pow",
  "bee-rest-api",
+ "futures",
  "hex",
  "iota-crypto 0.3.0 (git+https://github.com/iotaledger/crypto.rs.git?rev=b849861b86c3f7357b7477de4253b7352b363627)",
  "log",
  "num_cpus",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
@@ -1387,7 +1389,7 @@ dependencies = [
 [[package]]
 name = "iota-core"
 version = "0.2.0-alpha.3"
-source = "git+https://github.com/iotaledger/iota.rs?branch=dev#a5321ea39f0aff337d50327020848d9fbdbadf9f"
+source = "git+https://github.com/iotaledger/iota.rs?rev=cb3118d3de32df1272690e98508bf0afc9c9cf2c#cb3118d3de32df1272690e98508bf0afc9c9cf2c"
 dependencies = [
  "iota-client",
 ]

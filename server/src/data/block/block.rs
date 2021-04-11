@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, error::ApiError, is_wrong_network, operations::*, options::Options, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
+use crate::{error::ApiError, is_wrong_network, operations::*, options::Options, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -19,6 +19,7 @@ use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
 };
+use crate::client::{build_client, get_milestone};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -42,21 +43,18 @@ pub async fn block(request: BlockRequest, options: Options) -> Result<BlockRespo
         return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
     }
 
-    let iota_client = build_iota_client(&options).await?;
+    let client = build_client(&options).await?;
 
     let milestone_index = request
         .block_identifier
         .index
         .ok_or(ApiError::NonRetriable("block index not set".to_string()))?;
 
-    let milestone = match iota_client.get_milestone(milestone_index).await {
-        Ok(milestone) => milestone,
-        Err(_) => return Err(ApiError::NonRetriable("can not get milestone".to_string())),
-    };
+    let milestone = get_milestone(milestone_index, &client).await?;
 
     if let Some(hash) = request.block_identifier.hash {
         if hash != milestone.message_id.to_string() {
-            return Err(ApiError::NonRetriable("invalid block hash, provided block hash does not relate to the provided block index".to_string()));
+            return Err(ApiError::NonRetriable("provided block hash does not relate to the provided block index".to_string()));
         }
     }
 
@@ -65,28 +63,20 @@ pub async fn block(request: BlockRequest, options: Options) -> Result<BlockRespo
         hash: milestone.message_id.to_string(),
     };
 
-    let parent_block_identifier;
-    if milestone_index == 1 {
-        parent_block_identifier = BlockIdentifier {
-            index: milestone.index,
-            hash: milestone.message_id.to_string(),
+    let parent_block_identifier = {
+        let (index, hash) = if milestone_index == 1 {
+            (milestone_index, milestone.message_id.to_string())
+        } else {
+            let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
+            (parent_milestone.index, parent_milestone.message_id.to_string())
         };
-    } else {
-        let parent_milestone = match iota_client.get_milestone(milestone_index - 1).await {
-            Ok(parent_milestone) => parent_milestone,
-            Err(_) => return Err(ApiError::NonRetriable(format!("unable to get milestone {}", milestone_index - 1))),
-        };
-
-        parent_block_identifier = BlockIdentifier {
-            index: parent_milestone.index,
-            hash: parent_milestone.message_id.to_string(),
-        };
-    }
+        BlockIdentifier { index, hash }
+    };
 
     let timestamp = milestone.timestamp * 1000;
 
-    let messages = messages_of_created_outputs(milestone_index, &iota_client).await?;
-    let transactions = build_rosetta_transactions(messages, &iota_client, &options).await?;
+    let messages = messages_of_created_outputs(milestone_index, &client).await?;
+    let transactions = build_rosetta_transactions(messages, &client, &options).await?;
 
     let block = Block {
         block_identifier,

@@ -7,10 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iota-core = { git = "https://github.com/iotaledger/iota.rs", branch = "dev" }
+iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "cb3118d3de32df1272690e98508bf0afc9c9cf2c" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
-bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "e8cafb6591ec0c29f80705ae51fb8cb890fa98b0", features = ["endpoints"] }
-bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "e8cafb6591ec0c29f80705ae51fb8cb890fa98b0" }
+bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f", features = ["endpoints"] }
+bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f" }
 iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
 digest = "0.9"
 log = "0.4"

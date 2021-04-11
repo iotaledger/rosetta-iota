@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{build_iota_client, error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
+use crate::{error::ApiError, is_wrong_network, types::*, Options, is_offline_mode_enabled};
 
 use bee_message::prelude::*;
 
@@ -9,6 +9,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
+use crate::client::{build_client, get_output};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionMetadataRequest {
@@ -35,7 +36,7 @@ pub(crate) async fn construction_metadata_request(
         return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
     }
 
-    let iota_client = build_iota_client(&options).await?;
+    let client = build_client(&options).await?;
 
     let mut utxo_inputs_metadata = HashMap::new();
     for output_id_string in request.options.utxo_inputs {
@@ -43,12 +44,9 @@ pub(crate) async fn construction_metadata_request(
             .parse::<OutputId>()
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
-        let output_metadata = iota_client
-            .get_output(&(output_id.into()))
-            .await
-            .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))?;
+        let output = get_output(output_id, &client).await?;
 
-        utxo_inputs_metadata.insert(output_id_string, output_metadata);
+        utxo_inputs_metadata.insert(output_id_string, output);
     }
 
     Ok(ConstructionMetadataResponse {
