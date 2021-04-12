@@ -119,4 +119,15 @@ pub async fn get_peers(
     client.get_peers().await.map_err(|e| ApiError::NonRetriable(format!("unable to get peers: {}", e)))
 }
 
+pub async fn get_utxo_changes(
+    milestone_index: u32,
+    client: &Client,
+) -> Result<UtxoChangesResponse, ApiError> {
+    let confirmed_index = get_confirmed_milestone_index(client).await?;
+    if milestone_index > confirmed_index {
+        return Err(ApiError::Retriable(format!("milestone with index {} not available yet", milestone_index)))
+    } else {
+        client.get_milestone_utxo_changes(milestone_index).await.map_err(|e| ApiError::NonRetriable(format!("can not get uxto-changes: {}", e)))
+    }
+}
 

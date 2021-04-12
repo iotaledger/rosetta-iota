@@ -19,7 +19,7 @@ use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
 };
-use crate::client::{build_client, get_milestone};
+use crate::client::{build_client, get_milestone, get_utxo_changes};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -107,10 +107,7 @@ async fn messages_of_created_outputs(
 ) -> Result<HashMap<MessageId, MessageInfo>, ApiError> {
     let mut messages_of_created_outputs = HashMap::new();
 
-    let created_outputs = match iota_client.get_milestone_utxo_changes(milestone_index).await {
-        Ok(utxo_changes) => utxo_changes.created_outputs,
-        Err(e) => return Err(ApiError::NonRetriable(format!("can not get uxto-changes: {}", e))),
-    };
+    let created_outputs = get_utxo_changes(milestone_index, iota_client).await?.created_outputs;
 
     for output_id_string in created_outputs {
         let output_id = output_id_string
