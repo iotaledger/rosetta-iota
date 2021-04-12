@@ -50,9 +50,10 @@ transfer(1){
     // Find sender
     sender = find_balance({
       "minimum_balance":{
-        "value": "1000000",
+        "value": "10000000",
         "currency": {{currency}}
-      }
+      },
+      "require_coin":true
     });
 
     sender_amount = math({
@@ -72,7 +73,7 @@ transfer(1){
       "create_probability": 50
     });
 
-    receiver_amount = {{sender.balance.value}}
+    receiver_amount = {{sender.balance.value}};
 
     print_message({"sender":{{sender}}});
     print_message({"receiver":{{receiver}}});
