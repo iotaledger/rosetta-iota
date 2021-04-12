@@ -27,8 +27,8 @@ if [ $BOOTSTRAP_BALANCES ]; then
   # remove the data directory
   rm -rf $DATA_DIR
 
-  # download the latest available IOTA snapshot and create the bootstrap_balances.json file
-  echo "running rosetta-iota-utils to download the latest available IOTA snapshot and to create the bootstrap_balances.json file..."
+  # download the latest available IOTA snapshot to create the bootstrap_balances.json file
+  echo "download the latest available IOTA snapshot to create the bootstrap_balances.json file..."
   RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --mode snapshot --node-url $NODE_URL
   ROSETTA_UTILS_EXIT=$?
 
