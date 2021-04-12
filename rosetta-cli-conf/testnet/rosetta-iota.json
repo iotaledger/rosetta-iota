@@ -21,5 +21,11 @@
         "coverage": 0.95
       }
     }
+  },
+  "construction": {
+    "constructor_dsl_file": "iota.ros",
+    "end_conditions": {
+      "transfer": 10
+    }
   }
 }

@@ -102,7 +102,7 @@ transfer(1){
           "index":2
         },
         "type":"UTXO_OUTPUT",
-        "account":{{recipient.account_identifier}},
+        "account":{{receiver.account_identifier}},
         "amount":{
           "value":{{receiver_amount}},
           "currency":{{currency}}
