@@ -79,7 +79,7 @@ pub fn utxo_input_operation(
     }
 }
 
-pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool) -> Operation {
+pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool, output_id: Option<String>) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -104,7 +104,15 @@ pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usiz
         },
         account: Some(account),
         amount: Some(amount),
-        coin_change: None,
+        coin_change: match output_id {
+            Some(output_id) => {
+                Some(CoinChange {
+                    coin_identifier: CoinIdentifier { identifier: output_id },
+                    coin_action: CoinAction::CoinCreated,
+                })
+            }
+            None => None
+        },
         metadata: None,
     }
 }

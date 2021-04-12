@@ -174,7 +174,7 @@ async fn essence_to_operations(
         let bech32_address =
             Address::Ed25519(Ed25519Address::from_str(&ed25519_address).unwrap()).to_bech32(&options.bech32_hrp);
 
-        operations.push(utxo_output_operation(bech32_address, amount, operations.len(), false));
+        operations.push(utxo_output_operation(bech32_address, amount, operations.len(), false, None));
     }
 
     Ok(operations)

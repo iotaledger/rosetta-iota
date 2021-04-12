@@ -207,9 +207,10 @@ async fn from_transaction(
         ));
     }
 
+    let mut output_index: u16 = 0;
     for output in regular_essence.outputs() {
-        let output: Output = output.clone();
 
+        let output_id = format!("{}{}", transaction_payload.id().to_string(), hex::encode(output_index.to_le_bytes()));
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
         operations.push(utxo_output_operation(
@@ -217,7 +218,10 @@ async fn from_transaction(
             amount,
             operations.len(),
             true,
+            Some(output_id),
         ));
+
+        output_index += 1;
     }
 
     let transaction = Transaction {
