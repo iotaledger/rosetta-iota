@@ -44,10 +44,14 @@ create_account(1){
 
 transfer(1){
   transfer{
+
+    // This example shows how to send funds from an account A to an account B.
+    // Furthermore it shows how to send dust to an account C.
+
     transfer.network = {"network":"testnet7", "blockchain":"iota"};
     currency = {"symbol":"IOTA", "decimals":0};
 
-    // Find sender
+    // find sender
     sender = find_balance({
       "minimum_balance":{
         "value": "10000000",
@@ -63,7 +67,7 @@ transfer(1){
       "right_value": {{available_balance}}
     });
 
-    // Find dust receiver
+    // find dust receiver
     dust_receiver = find_balance({
       "not_account_identifier":[{{sender.account_identifier}}],
       "minimum_balance":{
@@ -74,16 +78,17 @@ transfer(1){
       "create_probability": 50
     });
 
-    dust_threshold = 1000000;
+    dust_threshold = "1000000";
     dust_receiver_amount = random_number({
-      "minimum": 0,
+      "minimum": "0",
       "maximum": {{dust_threshold}}
     });
+    dust_allowance = "1000000";
 
     available_balance = {{available_balance}} - {{dust_receiver_amount}};
+    available_balance = {{available_balance}} - {{dust_allowance}};
 
-    // Find receiver
-
+    // find receiver
     receiver = find_balance({
       "not_account_identifier":[{{sender.account_identifier}}, {{dust_receiver.account_identifier}}],
       "minimum_balance":{
@@ -98,6 +103,7 @@ transfer(1){
 
     print_message({"sender":{{sender}}});
     print_message({"receiver":{{receiver}}});
+    print_message({"dust receiver":{{dust_receiver}}});
 
     transfer.confirmation_depth = "1";
     transfer.operations = [
@@ -119,7 +125,7 @@ transfer(1){
       },
       {
         "operation_identifier":{
-          "index":2
+          "index":1
         },
         "type":"UTXO_OUTPUT",
         "account":{{receiver.account_identifier}},
@@ -130,12 +136,23 @@ transfer(1){
       },
       {
         "operation_identifier":{
-          "index":3
+          "index":2
         },
         "type":"UTXO_OUTPUT",
         "account":{{dust_receiver.account_identifier}},
         "amount":{
           "value":{{dust_receiver_amount}},
+          "currency":{{currency}}
+        }
+      },
+      {
+        "operation_identifier":{
+          "index":3
+        },
+        "type":"DUST_ALLOWANCE_OUTPUT",
+        "account":{{dust_receiver.account_identifier}},
+        "amount":{
+          "value":{{dust_allowance}},
           "currency":{{currency}}
         }
       }
