@@ -15,6 +15,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 use std::{collections::HashMap, convert::TryInto, str::FromStr};
+use crate::operations::dust_allowance_output_operation;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseRequest {
@@ -145,7 +146,9 @@ async fn essence_to_operations(
             OutputDto::SignatureLockedSingle(x) => match x.address.clone() {
                 AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address),
             },
-            OutputDto::SignatureLockedDustAllowance(_) => unimplemented!(),
+            OutputDto::SignatureLockedDustAllowance(x) => match x.address.clone() {
+                AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address),
+            },
         };
 
         let bech32_address =
@@ -163,18 +166,24 @@ async fn essence_to_operations(
     }
 
     for output in regular_essence.outputs() {
-        let (amount, ed25519_address) = match output {
-            Output::SignatureLockedSingle(x) => match x.address() {
-                Address::Ed25519(ed25519) => (x.amount(), ed25519.clone().to_string()),
-                _ => panic!("not implemented!"),
+        let output_operation = match output {
+            Output::SignatureLockedSingle(o) => match o.address() {
+                Address::Ed25519(addr) => {
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
+                },
+                _ => unimplemented!()
             },
-            _ => panic!("not implemented!"),
+            Output::SignatureLockedDustAllowance(o) => match o.address() {
+                Address::Ed25519(addr) => {
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
+                },
+                _ => unimplemented!()
+            },
+            _ => unimplemented!()
         };
-
-        let bech32_address =
-            Address::Ed25519(Ed25519Address::from_str(&ed25519_address).unwrap()).to_bech32(&options.bech32_hrp);
-
-        operations.push(utxo_output_operation(bech32_address, amount, operations.len(), false, None));
+        operations.push(output_operation);
     }
 
     Ok(operations)

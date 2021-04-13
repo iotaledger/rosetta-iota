@@ -56,14 +56,15 @@ transfer(1){
       "require_coin":true
     });
 
+    available_balance = {{sender.balance.value}};
     sender_amount = math({
       "operation": "subtraction",
       "left_value": "0",
-      "right_value": {{sender.balance.value}}
+      "right_value": {{available_balance}}
     });
 
-    // Find recipient
-    receiver = find_balance({
+    // Find dust receiver
+    dust_receiver = find_balance({
       "not_account_identifier":[{{sender.account_identifier}}],
       "minimum_balance":{
         "value": "0",
@@ -73,7 +74,27 @@ transfer(1){
       "create_probability": 50
     });
 
-    receiver_amount = {{sender.balance.value}};
+    dust_threshold = 1000000;
+    dust_receiver_amount = random_number({
+      "minimum": 0,
+      "maximum": {{dust_threshold}}
+    });
+
+    available_balance = {{available_balance}} - {{dust_receiver_amount}};
+
+    // Find receiver
+
+    receiver = find_balance({
+      "not_account_identifier":[{{sender.account_identifier}}, {{dust_receiver.account_identifier}}],
+      "minimum_balance":{
+        "value": "0",
+        "currency": {{currency}}
+      },
+      "create_limit": 100,
+      "create_probability": 50
+    });
+
+    receiver_amount = {{available_balance}};
 
     print_message({"sender":{{sender}}});
     print_message({"receiver":{{receiver}}});
@@ -104,6 +125,17 @@ transfer(1){
         "account":{{receiver.account_identifier}},
         "amount":{
           "value":{{receiver_amount}},
+          "currency":{{currency}}
+        }
+      },
+      {
+        "operation_identifier":{
+          "index":3
+        },
+        "type":"UTXO_OUTPUT",
+        "account":{{dust_receiver.account_identifier}},
+        "amount":{
+          "value":{{dust_receiver_amount}},
           "currency":{{currency}}
         }
       }

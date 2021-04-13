@@ -36,7 +36,7 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
     debug!("/block");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
     }
 
     if is_offline_mode_enabled(&options) {
@@ -58,37 +58,29 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
         }
     }
 
-    let block_identifier = BlockIdentifier {
-        index: milestone_index,
-        hash: milestone.message_id.to_string(),
-    };
-
-    let parent_block_identifier = {
-        let (index, hash) = if milestone_index == 1 {
-            (milestone_index, milestone.message_id.to_string())
-        } else {
-            let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
-            (parent_milestone.index, parent_milestone.message_id.to_string())
-        };
-        BlockIdentifier { index, hash }
-    };
-
-    let timestamp = milestone.timestamp * 1000;
-
     let messages = messages_of_created_outputs(milestone_index, &client).await?;
     let transactions = build_rosetta_transactions(messages, &client, &options).await?;
 
     let block = Block {
-        block_identifier,
-        parent_block_identifier,
-        timestamp,
+        block_identifier: BlockIdentifier {
+            index: milestone_index,
+            hash: milestone.message_id.to_string(),
+        },
+        parent_block_identifier: {
+            let (index, hash) = if milestone_index == 1 {
+                (milestone_index, milestone.message_id.to_string())
+            } else {
+                let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
+                (parent_milestone.index, parent_milestone.message_id.to_string())
+            };
+            BlockIdentifier { index, hash }
+        },
+        timestamp: milestone.timestamp * 1000,
         transactions,
         metadata: None,
     };
 
-    let response = BlockResponse { block };
-
-    Ok(response)
+    Ok(BlockResponse { block })
 }
 
 struct MessageInfo {
@@ -163,7 +155,7 @@ async fn build_rosetta_transactions(
     for (_message_id, message_info) in messages {
         let transaction = match message_info.message.payload() {
             Some(Payload::Transaction(t)) => from_transaction(t, iota_client, options).await?,
-            Some(Payload::Milestone(m)) => from_milestone(m, &message_info.created_outputs, options).await?,
+            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, options).await?,
             _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())), // NOT SUPPORTED
         };
         built_transactions.push(transaction);
@@ -210,16 +202,30 @@ async fn from_transaction(
     let mut output_index: u16 = 0;
     for output in regular_essence.outputs() {
 
-        let output_id = format!("{}{}", transaction_payload.id().to_string(), hex::encode(output_index.to_le_bytes()));
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+        let output_id = {
+            let s = format!("{}{}", transaction_payload.id().to_string(), hex::encode(output_index.to_le_bytes()));
+            s.parse::<OutputId>().map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?
+        };
 
-        operations.push(utxo_output_operation(
-            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
-            amount,
-            operations.len(),
-            true,
-            Some(output_id),
-        ));
+        let output_operation = match output {
+            Output::SignatureLockedSingle(o) => match o.address() {
+                Address::Ed25519(addr) => {
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
+                },
+                _ => unimplemented!()
+            },
+            Output::SignatureLockedDustAllowance(o) => match o.address() {
+                Address::Ed25519(addr) => {
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
+                },
+                _ => unimplemented!()
+            },
+            _ => unimplemented!()
+        };
+
+        operations.push(output_operation);
 
         output_index += 1;
     }
@@ -236,7 +242,6 @@ async fn from_transaction(
 }
 
 async fn from_milestone(
-    milestone_payload: &MilestonePayload,
     created_outputs: &Vec<CreatedOutput>,
     options: &Config,
 ) -> Result<Transaction, ApiError> {
@@ -244,22 +249,15 @@ async fn from_milestone(
 
     for created_output in created_outputs {
         let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
-        let transaction_id = created_output
-            .output_response
-            .transaction_id
-            .parse::<TransactionId>()
-            .map_err(|e| ApiError::NonRetriable(format!("can not parse transaction id: {}", e)))?;
-        let output_index = created_output.output_response.output_index;
 
-        let mint_operation = utxo_input_operation(
-            transaction_id.to_string(),
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+
+        let mint_operation = utxo_output_operation(
             Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
             amount,
-            output_index,
             operations.len(),
             false,
-            true,
+            Some(created_output.output_id),
         );
 
         operations.push(mint_operation);
@@ -267,7 +265,7 @@ async fn from_milestone(
 
     let transaction = Transaction {
         transaction_identifier: TransactionIdentifier {
-            hash: milestone_payload.id().to_string(),
+            hash: created_outputs.first().unwrap().output_id.transaction_id().to_string()
         },
         operations,
         metadata: None,

@@ -73,24 +73,34 @@ pub(crate) async fn construction_payloads_request(
                     .parse::<u64>()
                     .unwrap();
 
-                // todo: tread Dust allowance
-                let output: Output = SignatureLockedSingleOutput::new(address, amount).unwrap().into();
-                outputs.push(output);
+                outputs.push(Output::SignatureLockedSingle(SignatureLockedSingleOutput::new(address, amount).unwrap().into()));
+            }
+
+            "DUST_ALLOWANCE_OUTPUT" => {
+                let address = Address::try_from_bech32(&address).unwrap();
+
+                let amount = operation
+                    .amount
+                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
+                    .value
+                    .parse::<u64>()
+                    .unwrap();
+
+                outputs.push(Output::SignatureLockedDustAllowance(SignatureLockedDustAllowanceOutput::new(address, amount).unwrap().into()));
             }
 
             _ => return Err(ApiError::NonRetriable("invalid operation type".to_string())),
         }
     }
 
-    let index = options.tx_tag;
-    let indexation_payload = IndexationPayload::new(index.as_bytes(), &[]).map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
-
-    let mut transaction_payload_essence =
-        RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
-
     // sort inputs and outputs
     inputs.sort_unstable_by_key(|i| i.0.pack_new());
     outputs.sort_unstable_by_key(|o| o.pack_new());
+
+    let indexation_payload = IndexationPayload::new(options.tx_tag.as_bytes(), &[]).map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
+
+    let mut transaction_payload_essence =
+        RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
 
     for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);
