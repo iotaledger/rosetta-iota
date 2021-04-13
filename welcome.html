@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="welcome.html" class="active"><strong aria-hidden="true">1.</strong> Welcome</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="welcome.html" class="active"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="rosetta-iota/index.html"><strong aria-hidden="true">2.</strong> Rosetta IOTA</a></li><li class="chapter-item expanded "><a href="testing/index.html"><strong aria-hidden="true">3.</strong> Testing</a></li><li class="chapter-item expanded "><a href="utils/index.html"><strong aria-hidden="true">4.</strong> Utils</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -167,21 +167,43 @@
 
                 <div id="content" class="content">
                     <main>
-                        <p align="center">
-  <a href="https://www.rosetta-api.org">
-    <img width="90%" alt="Rosetta" src="https://www.rosetta-api.org/img/rosetta_header.png">
-  </a>
+                        <h1 id="welcome-to-the-iota-rosetta-api-docs--"><a class="header" href="#welcome-to-the-iota-rosetta-api-docs--">Welcome to the IOTA Rosetta API Docs  📖</a></h1>
+<pre><code>&lt;img width=&quot;90%&quot; alt=&quot;Rosetta&quot; src=&quot;https://www.rosetta-api.org/img/rosetta_header.png&quot;&gt;
+</code></pre>
+</a>
 </p>
 <h3 align="center">
    Rosetta IOTA
 </h3>
 <h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
-<p><code>rosetta-iota</code> provides a reference implementation of the <a href="https://www.rosetta-api.org/">Rosetta API</a> for IOTA in Rust.</p>
+<p><code>rosetta-iota</code> provides a reference implementation of the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information <a href="https://www.rosetta-api.org/">here</a>.</p>
 <h2 id="features"><a class="header" href="#features">Features</a></h2>
 <ul>
-<li>Rosetta API implementation (both Data API and Construction API)</li>
-<li>Stateless, offline transaction construction for any Ed25519-Bech32 Address.</li>
+<li>Implementation of both Data API and Construction API</li>
+<li>Stateless, offline, curve-based transaction construction</li>
+<li><a href="https://www.rosetta-api.org/docs/storage_pruning.html#docsNav">Storage Pruning</a> using a block height-based configuration setting</li>
 </ul>
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick start</a></h2>
+<p>Ensure <code>docker</code> and <code>docker-compose</code> are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.</p>
+<p><strong>Following commands will start an IOTA fullnode (<a href="https://github.com/gohornet/hornet">Hornet</a>) together with a Rosetta API instance.</strong>
+Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
+<p><strong>Testnet:Online</strong></p>
+<pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
+</code></pre>
+<p><strong>Testnet:Offline</strong></p>
+<pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
+</code></pre>
+<h2 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h2>
+<p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
+To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
+<p>Testing the Data API <strong>(Testnet)</strong>:</p>
+<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
+</code></pre>
+<p>Testing the Construction API <strong>(Testnet)</strong>:</p>
+<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
+</code></pre>
+<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
+<p>Please refer to <a href="https://rosetta-api.docs.iota.org">https://rosetta-api.docs.iota.org</a> for further documentation.</p>
 
                     </main>
 
@@ -189,6 +211,10 @@
                         <!-- Mobile navigation buttons -->
                         
 
+                        
+                            <a rel="next" href="rosetta-iota/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -199,6 +225,10 @@
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
 
+                
+                    <a rel="next" href="rosetta-iota/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 

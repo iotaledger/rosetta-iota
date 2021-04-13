@@ -3,9 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>IOTA rosetta-api</title>
-        
-        <meta name="robots" content="noindex" />
+        <title>Testing - IOTA rosetta-api</title>
         
         
 
@@ -20,28 +18,28 @@
         <meta name="theme-color" content="#ffffff" />
 
         
-        <link rel="icon" href="favicon.svg">
+        <link rel="icon" href="../favicon.svg">
         
         
-        <link rel="shortcut icon" href="favicon.png">
+        <link rel="shortcut icon" href="../favicon.png">
         
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
         
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="stylesheet" href="../css/print.css" media="print">
         
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
         
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
         
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
         
@@ -51,7 +49,7 @@
     <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
-            var path_to_root = "";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
@@ -97,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="rosetta-iota/index.html"><strong aria-hidden="true">2.</strong> Rosetta IOTA</a></li><li class="chapter-item expanded "><a href="testing/index.html"><strong aria-hidden="true">3.</strong> Testing</a></li><li class="chapter-item expanded "><a href="utils/index.html"><strong aria-hidden="true">4.</strong> Utils</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../rosetta-iota/index.html"><strong aria-hidden="true">2.</strong> Rosetta IOTA</a></li><li class="chapter-item expanded "><a href="../testing/index.html" class="active"><strong aria-hidden="true">3.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../utils/index.html"><strong aria-hidden="true">4.</strong> Utils</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -133,7 +131,7 @@
 
                     <div class="right-buttons">
                         
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         
@@ -169,204 +167,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="welcome-to-the-iota-rosetta-api-docs--"><a class="header" href="#welcome-to-the-iota-rosetta-api-docs--">Welcome to the IOTA Rosetta API Docs  📖</a></h1>
-<pre><code>&lt;img width=&quot;90%&quot; alt=&quot;Rosetta&quot; src=&quot;https://www.rosetta-api.org/img/rosetta_header.png&quot;&gt;
-</code></pre>
-</a>
-</p>
-<h3 align="center">
-   Rosetta IOTA
-</h3>
-<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
-<p><code>rosetta-iota</code> provides a reference implementation of the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information <a href="https://www.rosetta-api.org/">here</a>.</p>
-<h2 id="features"><a class="header" href="#features">Features</a></h2>
-<ul>
-<li>Implementation of both Data API and Construction API</li>
-<li>Stateless, offline, curve-based transaction construction</li>
-<li><a href="https://www.rosetta-api.org/docs/storage_pruning.html#docsNav">Storage Pruning</a> using a block height-based configuration setting</li>
-</ul>
-<h2 id="quick-start"><a class="header" href="#quick-start">Quick start</a></h2>
-<p>Ensure <code>docker</code> and <code>docker-compose</code> are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.</p>
-<p><strong>Following commands will start an IOTA fullnode (<a href="https://github.com/gohornet/hornet">Hornet</a>) together with a Rosetta API instance.</strong>
-Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
-<p><strong>Testnet:Online</strong></p>
-<pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
-</code></pre>
-<p><strong>Testnet:Offline</strong></p>
-<pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
-</code></pre>
-<h2 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h2>
-<p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
-<p>Testing the Data API <strong>(Testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
-</code></pre>
-<p>Testing the Construction API <strong>(Testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
-</code></pre>
-<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
-<p>Please refer to <a href="https://rosetta-api.docs.iota.org">https://rosetta-api.docs.iota.org</a> for further documentation.</p>
-<h1 id="iota-protocol"><a class="header" href="#iota-protocol">IOTA protocol</a></h1>
-<p>The IOTA protocol differs from most DLT technologies in the sense that it is not a Blockchain, but a Directed Acyclic Graph (DAG), popularly known as <a href="https://assets.ctfassets.net/r1dr6vzfxhev/2t4uxvsIqk0EUau6g2sw0g/45eae33637ca92f85dd9f4a3a218e1ec/iota1_4_3.pdf">the Tangle</a>.</p>
-<p>For that reason, a few concepts have been adapted in relation to the Rosetta API.</p>
-<h2 id="messages-and-transactions"><a class="header" href="#messages-and-transactions">Messages and Transactions</a></h2>
-<p>IOTA uses messages as a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a utxo-based model for transfering value.</p>
-<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
-<p>Being a DAG, IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, nodes settle the current ledger state by creating a special message that defines a new Milestone.</p>
-<p>IOTA Fullnodes (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">BEE</a>) don't contain the entire history of the Tangle. They have a parameter called <code>pruningIndex</code> which represents the oldest Milestone available on the node.</p>
-<p>Only Permanodes (such as <a href="https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node">Chronicle</a>) have the ability of holding the entire Tangle history.</p>
-<h2 id="node-endpoints"><a class="header" href="#node-endpoints">Node Endpoints</a></h2>
-<p>The following IOTA Node endpoints are necessary for the <code>rosetta-iota</code> implementation:</p>
-<ul>
-<li><code>/api/v1/info</code></li>
-<li><code>/api/v1/milestones</code></li>
-<li><code>/api/v1/milestones/{milestoneId}/utxo-changes</code></li>
-<li><code>/api/v1/address</code></li>
-<li><code>/api/v1/peers</code></li>
-<li><code>/api/v1/outputs</code></li>
-<li><code>/api/v1/messages</code></li>
-</ul>
-<h1 id="iota-and-rosetta"><a class="header" href="#iota-and-rosetta">IOTA and Rosetta</a></h1>
-<p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
-<h2 id="genesis-milestone"><a class="header" href="#genesis-milestone">Genesis Milestone</a></h2>
-<p>The genesis milestone is not available on Fullnodes, but the <code>/network/status</code> endpoint response contains a <code>genesis_block_identifier</code> field. Therefore, whenever a Fullnode is used by the <code>rosetta-iota</code> server, the <code>genesis_block_identifier</code> is populated as such:</p>
-<pre><code>&quot;genesis_block_identifier&quot;: {
-  &quot;index&quot;: 1,
-  &quot;hash&quot;: &quot;0000000000000000000000000000000000000000000000000000000000000000&quot;
-}
-</code></pre>
-<p>Technically speaking, that is not 100% accurate, as the genesis milestone identifier is not a series of <code>0</code>s. However, a dummy value is used as a compromise in order not to render the <code>/network/status</code> endpoint unavailable. </p>
-<p>Nevertheless, the correct value is returned when a Permanode with full Tangle history is used.</p>
-<p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
-<h2 id="transactions-and-operations"><a class="header" href="#transactions-and-operations">Transactions and Operations</a></h2>
-<p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
-<p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
-<p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
-<p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
-<p>The <code>UTXO Operation</code> <code>operation_identifier</code> Object (<a href="https://www.rosetta-api.org/docs/models/OperationIdentifier.html">OperationIdentifier</a> type) is defined as:</p>
-<ul>
-<li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
-<li><code>network_index</code>: <code>output_index</code></li>
-</ul>
-<p>The <code>UTXO Operation</code> <code>type</code> field can be either:</p>
-<ul>
-<li><code>&quot;UTXO_INPUT&quot;</code>, which describes the funds to spend</li>
-<li><code>&quot;UTXO_OUTPUT&quot;</code>, which describes where the funds should be transfered to</li>
-</ul>
-<p>The <code>UTXO Operation</code> <code>status</code> field is defined as:</p>
-<ul>
-<li><code>&quot;SUCCESS&quot;</code>, meaning that the transaction was included in the ledger.</li>
-<li><code>&quot;SKIPPED&quot;</code>, meaning that the UTXO Output has not been included in the ledger (e.g. already spent by another Transaction).</li>
-</ul>
-<p>Note, that the status field will not get populated when constructing a transaction by the Construction API.</p>
-<p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
-<p>The <code>UTXO Operation</code> <code>coin_change</code> Object (<a href="https://www.rosetta-api.org/docs/models/CoinChange.html">CoinChange</a> type) is defined as:</p>
-<ul>
-<li><code>coin_identifier</code>: <code>output_id</code></li>
-<li><code>coin_action</code>: either
-<ul>
-<li><code>&quot;coin_spent&quot;</code>, where coins are coming from into the Transaction</li>
-<li><code>&quot;coin_created&quot;</code>, where coins are going out from the Transaction</li>
-</ul>
-</li>
-</ul>
-<p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to IOTA's <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with IOTA's <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
-<p>Here's an example of two Transaction Objects in the same Milestone:</p>
-<pre><code>{
-  &quot;transactions&quot;: [
-    {
-      &quot;transaction_identifier&quot;: {
-        &quot;hash&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636&quot;
-      },
-      &quot;operations&quot;: [
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 0,
-            &quot;network_index&quot;: 2
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-20000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 1,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-10000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 2,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_OUTPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;30000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_created&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_SPENT&quot;
-          }
-        }
-      ]
-    }
-  ]
-}
-</code></pre>
-<h2 id="quick-start-1"><a class="header" href="#quick-start-1">Quick start</a></h2>
+                        <h2 id="quick-start"><a class="header" href="#quick-start">Quick start</a></h2>
 <p>Ensure <code>docker</code> and <code>docker-compose</code> are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.</p>
 <p><strong>Following commands will start an IOTA fullnode (<a href="https://github.com/gohornet/hornet">Hornet</a>) together with a Rosetta API instance.</strong>
 Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
@@ -376,7 +177,7 @@ Once the IOTA node has synced with the network, the Rosetta API will be availabl
 <p><strong>Testnet:Offline</strong></p>
 <pre><code>ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=offline docker-compose up
 </code></pre>
-<h2 id="testing-with-rosetta-cli-1"><a class="header" href="#testing-with-rosetta-cli-1">Testing with rosetta-cli</a></h2>
+<h2 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h2>
 <p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
 To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
 <p>Testing the Data API <strong>(Testnet)</strong>:</p>
@@ -470,19 +271,21 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 </ul>
 <pre><code>$ curl --request POST 'http://localhost:3030/construction/combine' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet6&quot;},&quot;unsigned_transaction&quot;:&quot;0001000063aa5b2476105ad4ebbb995968216cef0d940791d900afd1180a8df4e527b3460000010000005eec99d6ee4ba21aa536c3364bbf2b587cb98a7f2565b75d948b10083e2143f8050000000000000000000000&quot;,&quot;signatures&quot;:[{&quot;signing_payload&quot;:{&quot;account_identifier&quot;:{&quot;address&quot;:&quot;ae98475c63cfebc918b57193a4183f4374f67974971aff9034699793d331d7de&quot;},&quot;hex_bytes&quot;:&quot;c8be532dd8f351c28b6cdb7903d076b356129189d11ad50c46feb25ca472b984&quot;,&quot;signature_type&quot;:&quot;ed25519&quot;},&quot;public_key&quot;:{&quot;hex_bytes&quot;:&quot;b7a3c12dc0c8c748ab07525b701122b88bd78f600c76342d27f25e5f92444cde&quot;,&quot;curve_type&quot;:&quot;edwards25519&quot;},&quot;signature_type&quot;:&quot;ed25519&quot;,&quot;hex_bytes&quot;:&quot;59057634a166d84edebb88ab17a33394c0ccf1d46adffc3a0095c0f5e7e9dbe766ab05cb0244486d272e61f1e09db1bdb6e4fbb3a0398013415769e484606a02&quot;}]}' | jq
 </code></pre>
-<h1 id="utils"><a class="header" href="#utils">Utils</a></h1>
-<p>A subcrate called <code>utils</code> provides extra tools to help automation of <code>rosetta-cli</code> checks.</p>
-<h2 id="faucet"><a class="header" href="#faucet">Faucet</a></h2>
-<p>Interacts with the testnet Faucet to make sure that a prefunded account can be used during <code>check:construction</code>.</p>
-<h2 id="snapshot"><a class="header" href="#snapshot">Snapshot</a></h2>
-<p>Fetches a snapshot to be used to create a <code>bootstrap_balances.json</code> file with the balances of every single address in the ledger. Used when running <code>check:data</code> with pruning enabled.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
+                            <a rel="prev" href="../rosetta-iota/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
 
+                        
+                            <a rel="next" href="../utils/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -492,7 +295,15 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
+                    <a rel="prev" href="../rosetta-iota/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
 
+                
+                    <a rel="next" href="../utils/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 
@@ -513,26 +324,18 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
         
 
         
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
         
 
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
         
 
-        
-        
-        <script type="text/javascript">
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
-        
         
 
     </body>
