@@ -69,9 +69,9 @@ fi
 echo "--------------------------------------------------------------------------------"
 echo "running rosetta-cli check:construction"
 ./rosetta-cli check:construction --configuration-file $CONF_DIR/rosetta-iota.json
-DATA_EXIT=$?
+CONSTRUCTION_EXIT=$?
 
-if [ $DATA_EXIT -ne 0 ]; then
+if [ $CONSTRUCTION_EXIT -ne 0 ]; then
   echo "rosetta-cli check:construction unsuccessful..."
   exit 1
 fi

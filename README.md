@@ -45,7 +45,7 @@ ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./che
 
 Testing the Construction API **(Testnet)**:
 ```
-./check_construction_testnet.sh
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
 ```
  
 ## Documentation
