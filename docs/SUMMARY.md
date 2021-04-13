@@ -1,6 +1,8 @@
 # Summary
 
-- [Welcome](./welcome.md)
-- [Rosetta IOTA](./rosetta-iota/README.md)
-- [Testing](./testing/README.md)
-- [Utils](./utils/README.md)
+- [Welcome](pages/welcome.md)
+- [Relation between IOTA and Rosetta](pages/relation.md)
+- [Deployment](pages/deployment.md)
+- [Testing](pages/testing.md)
+- [API Reference](pages/api_reference.md)
+- [Utils](pages/utils.md)

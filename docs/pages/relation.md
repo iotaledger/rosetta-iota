@@ -1,27 +1,24 @@
-# IOTA protocol
-The IOTA protocol differs from most DLT technologies in the sense that it is not a Blockchain, but a Directed Acyclic Graph (DAG), popularly known as [the Tangle](https://assets.ctfassets.net/r1dr6vzfxhev/2t4uxvsIqk0EUau6g2sw0g/45eae33637ca92f85dd9f4a3a218e1ec/iota1_4_3.pdf).
+# Relation between IOTA and Rosetta
 
-For that reason, a few concepts have been adapted in relation to the Rosetta API.
-
-## Messages and Transactions
-IOTA uses messages as a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a utxo-based model for transfering value.
+The IOTA protocol differs from most DLT technologies in the sense that it uses a directed acyclic graph (DAG) data structure that allows transactions to be added in parallel.
 
 ## Blocks and Milestones
-Being a DAG, IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, nodes settle the current ledger state by creating a special message that defines a new Milestone.
 
-IOTA Fullnodes (such as [HORNET](https://github.com/gohornet/hornet.git) and [BEE](https://github.com/iotaledger/bee.git)) don't contain the entire history of the Tangle. They have a parameter called `pruningIndex` which represents the oldest Milestone available on the node.
+IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.
 
-Only Permanodes (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) have the ability of holding the entire Tangle history.
+## Messages and Transactions
+IOTA nodes gossip messages. A message is a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a UTXO-based model to transfer value.
+You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md).
 
-## Node Endpoints
-The following IOTA Node endpoints are necessary for the `rosetta-iota` implementation:
- - `/api/v1/info`
- - `/api/v1/milestones`
- - `/api/v1/milestones/{milestoneId}/utxo-changes`
- - `/api/v1/address`
- - `/api/v1/peers`
- - `/api/v1/outputs`
- - `/api/v1/messages`
+## IOTA nodes
+
+**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet.git) and [Bee](https://github.com/iotaledger/bee.git)) are able to start up securely from a recent block instead of having to synchronize from genesis.
+Also, they are able to prune history from time to time in a safe way.
+**IOTA full-nodes per default don't hold the entire Tangle history.**
+
+Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) **are designed to hold the entire Tangle history.**
+
+`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. For this reasons **the Rosetta API implementation will be deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
 
 # IOTA and Rosetta
 
@@ -29,7 +26,7 @@ Here we describe how concepts from the IOTA protocol were adapted for the Rosett
 
 ## Genesis Milestone
 
-The genesis milestone is not available on Fullnodes, but the `/network/status` endpoint response contains a `genesis_block_identifier` field. Therefore, whenever a Fullnode is used by the `rosetta-iota` server, the `genesis_block_identifier` is populated as such:
+Per default, the genesis milestone is not available on full-nodes, but the `/network/status` endpoint response contains a required `genesis_block_identifier` field. The `genesis_block_identifier` is populated as such:
 ```
 "genesis_block_identifier": {
   "index": 1,
@@ -37,9 +34,7 @@ The genesis milestone is not available on Fullnodes, but the `/network/status` e
 }
 ```
 
-Technically speaking, that is not 100% accurate, as the genesis milestone identifier is not a series of `0`s. However, a dummy value is used as a compromise in order not to render the `/network/status` endpoint unavailable. 
-
-Nevertheless, the correct value is returned when a Permanode with full Tangle history is used.
+Technically speaking, that is not accurate, as the genesis milestone identifier is not a series of `0`s. However, a dummy value is used as a compromise in order not to render the `/network/status` endpoint unavailable. 
 
 Syncing `rosetta-cli` is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the `test.sh` shows how to use the Fullnode's `pruningIndex` as the `start_index` for the configuration `JSON`.
 

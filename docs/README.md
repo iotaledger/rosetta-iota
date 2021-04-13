@@ -1,5 +1,5 @@
-# Documentation Area
-Everything related to the IOTA Rosetta API Implementation.
+# Welcome to the documentation for rosetta-iota  📖
+Everything related to the IOTA Rosetta API implementation.
 
 See a rendered version of the documentation on [https://rosetta-api.docs.iota.org](https://rosetta-api.docs.iota.org)
 
