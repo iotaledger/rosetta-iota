@@ -92,9 +92,7 @@ transfer(1){
           "currency":{{currency}}
         },
         "coin_change": {
-          "coin_identifier": {
-            "identifier": {{sender.coin}}
-          },
+          "coin_identifier": {{sender.coin}},
           "coin_action": "coin_spent"
         }
       },
