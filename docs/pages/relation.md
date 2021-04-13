@@ -7,18 +7,8 @@ The IOTA protocol differs from most DLT technologies in the sense that it uses a
 IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.
 
 ## Messages and Transactions
-IOTA nodes gossip messages. A message is a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a UTXO-based model to transfer value.
+IOTA nodes gossip messages. A message is a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a **UTXO-based** model to transfer value.
 You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md).
-
-## IOTA nodes
-
-**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet.git) and [Bee](https://github.com/iotaledger/bee.git)) are able to start up securely from a recent block instead of having to synchronize from genesis.
-Also, they are able to prune history from time to time in a safe way.
-**IOTA full-nodes per default don't hold the entire Tangle history.**
-
-Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) **are designed to hold the entire Tangle history.**
-
-`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. For this reasons **the Rosetta API implementation will be deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
 
 # IOTA and Rosetta
 

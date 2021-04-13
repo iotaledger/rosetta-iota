@@ -3,7 +3,7 @@ authors = [""]
 language = "en"
 multilingual = false
 src = "./docs"
-title = "IOTA rosetta-api"
+title = "rosetta-iota"
 
 [output.html]
 git-repository-url = "https://github.com/iotaledger/rosetta-iota"

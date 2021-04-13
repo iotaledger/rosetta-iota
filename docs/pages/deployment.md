@@ -1,3 +1,14 @@
+## IOTA nodes
+
+**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet.git) and [Bee](https://github.com/iotaledger/bee.git)) are able to start up securely from a recent block instead of having to synchronize from genesis.
+Also, they are able to prune history from time to time in a safe way.
+**IOTA full-nodes per default don't hold the entire Tangle history - they are not designed for it.**
+
+Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node)) **are designed to hold the entire Tangle history.**
+
+`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. For this reasons **the Rosetta API implementation will be deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
+
+
 ## Quick start
 
 Ensure `docker` and `docker-compose` are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
