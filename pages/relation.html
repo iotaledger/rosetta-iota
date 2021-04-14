@@ -172,9 +172,9 @@
 <h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
 <p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
 <h2 id="messages-and-transactions"><a class="header" href="#messages-and-transactions">Messages and Transactions</a></h2>
-<p>IOTA nodes gossip messages. A message is a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a <strong>UTXO-based</strong> model to transfer value.
-You can find more information about the message format <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">here</a>.</p>
-<h1 id="iota-and-rosetta"><a class="header" href="#iota-and-rosetta">IOTA and Rosetta</a></h1>
+<p>IOTA nodes gossip &quot;messages&quot;. A message is an envelope that may contain a payload. You can find more information about the message format <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">here</a>. There are different types of payloads for different purposes. To transfer value, a &quot;transaction payload&quot; will be used.
+Furthermore, transactions of funds are carried out in <strong>UTXO</strong> style. To learn more about the transaction payload click <a href="https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md">here</a>.</p>
+<h1 id="design-choices"><a class="header" href="#design-choices">Design choices</a></h1>
 <p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
 <h2 id="genesis-milestone"><a class="header" href="#genesis-milestone">Genesis Milestone</a></h2>
 <p>Per default, the genesis milestone is not available on full-nodes, but the <code>/network/status</code> endpoint response contains a required <code>genesis_block_identifier</code> field. The <code>genesis_block_identifier</code> is populated as such:</p>
