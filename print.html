@@ -190,25 +190,17 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <h2 id="testnet-deployment"><a class="header" href="#testnet-deployment">Testnet deployment</a></h2>
 <p><strong>Following instructions will start a HORNET node together with a Rosetta API instance:</strong></p>
 <ol>
-<li>
-<p>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</p>
-</li>
-<li>
-<p>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
-</li>
-<li>
-<p>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering.json</code>. If you don't have any peers, please contact us and we will help you.</p>
-</li>
-<li>
-<p>Run the implementation in the desired mode:</p>
+<li>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</li>
+<li>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</li>
+<li>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering.json</code>. If you don't have any peers, please contact us and we will help you.</li>
+<li>Run the implementation in the desired mode:</li>
+</ol>
 <p><strong>Testnet: online mode</strong></p>
 <pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
 </code></pre>
 <p><strong>Testnet: offline mode</strong></p>
 <pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
 </code></pre>
-</li>
-</ol>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
 <p>The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
 <p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/testnet</code> directory.</strong></p>
