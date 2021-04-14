@@ -180,24 +180,14 @@
 </ul>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
 <p><code>rosetta-iota</code> is released under the Apache License 2.0.</p>
-<h1 id="relation-between-iota-and-rosetta"><a class="header" href="#relation-between-iota-and-rosetta">Relation between IOTA and Rosetta</a></h1>
+<h1 id="introduction-to-iota"><a class="header" href="#introduction-to-iota">Introduction to IOTA</a></h1>
 <p>The IOTA protocol differs from most DLT technologies in the sense that it uses a directed acyclic graph (DAG) data structure that allows transactions to be added in parallel.</p>
-<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
-<p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
-<h2 id="messages-and-transactions"><a class="header" href="#messages-and-transactions">Messages and Transactions</a></h2>
 <p>IOTA nodes gossip &quot;messages&quot;. A message is an envelope that may contain a payload. You can find more information about the message format <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">here</a>. There are different types of payloads for different purposes. To transfer value, a &quot;transaction payload&quot; will be used.
 Furthermore, transactions of funds are carried out in <strong>UTXO</strong> style. To learn more about the transaction payload click <a href="https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md">here</a>.</p>
+<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
+<p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
 <h1 id="design-choices"><a class="header" href="#design-choices">Design choices</a></h1>
 <p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
-<h2 id="genesis-milestone"><a class="header" href="#genesis-milestone">Genesis Milestone</a></h2>
-<p>Per default, the genesis milestone is not available on full-nodes, but the <code>/network/status</code> endpoint response contains a required <code>genesis_block_identifier</code> field. The <code>genesis_block_identifier</code> is populated as such:</p>
-<pre><code>&quot;genesis_block_identifier&quot;: {
-  &quot;index&quot;: 1,
-  &quot;hash&quot;: &quot;0000000000000000000000000000000000000000000000000000000000000000&quot;
-}
-</code></pre>
-<p>Technically speaking, that is not accurate, as the genesis milestone identifier is not a series of <code>0</code>s. However, a dummy value is used as a compromise in order not to render the <code>/network/status</code> endpoint unavailable. </p>
-<p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
 <h2 id="transactions-and-operations"><a class="header" href="#transactions-and-operations">Transactions and Operations</a></h2>
 <p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
 That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
@@ -233,98 +223,7 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 </ul>
 <p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to IOTA's <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with IOTA's <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
 <p>Here's an example of two Transaction Objects in the same Milestone:</p>
-<pre><code>{
-  &quot;transactions&quot;: [
-    {
-      &quot;transaction_identifier&quot;: {
-        &quot;hash&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636&quot;
-      },
-      &quot;operations&quot;: [
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 0,
-            &quot;network_index&quot;: 2
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-20000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 1,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-10000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 2,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_OUTPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;30000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_created&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_SPENT&quot;
-          }
-        }
-      ]
-    }
-  ]
-}
+<pre><code>
 </code></pre>
 <h2 id="iota-nodes"><a class="header" href="#iota-nodes">IOTA nodes</a></h2>
 <p><strong>IOTA full-nodes</strong> (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">Bee</a>) are able to start up from a recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the node with recent <a href="https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md">snapshots</a>. 
@@ -341,7 +240,7 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <p>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
 </li>
 <li>
-<p>Add peers for the HORNET node to the <code>hornet/peering.json</code> file.</p>
+<p>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering.json</code>. If you don't have any peers, please contact us and we will help you.</p>
 </li>
 <li>
 <p><strong>Run following commands to start a HORNET node together with a Rosetta API instance:</strong></p>
@@ -355,9 +254,9 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 </ol>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with a custom snapshots, you can put them in the <code>data/snapshots/</code> directory.</strong></p>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/</code> directory.</strong></p>
 <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
-<p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is run with the correct configuration values.</p>
+<p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.</p>
 <ol>
 <li>
 <p>To be able to run the testing scripts, install following dependencies:</p>
@@ -383,7 +282,7 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
 <li><code>NODE_URL=1</code> ...the URL to the REST API of the started IOTA node.  </li>
 </ul>
-<h2 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h2>
+<h1 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h1>
 <p>Curl commands can be used for manual inspection of each API endpoint.</p>
 <ol>
 <li>
@@ -466,8 +365,15 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 <pre><code>curl --request POST 'http://localhost:3030/construction/hash' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet7&quot;},&quot;signed_transaction&quot;:&quot;7b227472616e73616374696f6e223a7b22657373656e6365223a7b2274797065223a22526567756c6172222c2264617461223a7b22696e70757473223a5b7b2274797065223a225574786f222c2264617461223a223862656337666430613966646333353161646161663037663539356166656661373834346561666431383336323539343965353164636233623936333262383930303030227d5d2c226f757470757473223a5b7b2274797065223a225369676e61747572654c6f636b656453696e676c65222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2235653732303736303964323336333162373266333734663730303361626239373863326139303631633835613365356563633638393934653531366563323632227d2c22616d6f756e74223a3339353236347d7d2c7b2274797065223a225369676e61747572654c6f636b656453696e676c65222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2237363130613736633737643134303461636536396465376165333337376537366564313061386361303362636332366136333037666565313339303965333537227d2c22616d6f756e74223a383630343733367d7d2c7b2274797065223a225369676e61747572654c6f636b656444757374416c6c6f77616e6365222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2235653732303736303964323336333162373266333734663730303361626239373863326139303631633835613365356563633638393934653531366563323632227d2c22616d6f756e74223a313030303030307d7d5d2c227061796c6f6164223a7b2274797065223a22496e6465786174696f6e222c2264617461223a7b22696e646578223a5b38322c3131312c3131352c3130312c3131362c3131362c39375d2c2264617461223a5b5d7d7d7d7d2c22756e6c6f636b5f626c6f636b73223a5b7b2274797065223a225369676e6174757265222c2264617461223a7b2274797065223a2245643235353139222c2264617461223a7b227075626c69635f6b6579223a5b31312c3230372c362c3233332c3139312c3234312c3131332c3234302c3134332c3132342c3138342c3136382c3139372c38312c3137312c3233342c3231372c3135392c38332c3134382c33332c3138342c37342c36332c3230372c3231312c39362c3135342c38332c36372c3137392c35325d2c227369676e6174757265223a5b3132382c36342c3137392c3130352c3132322c3131302c3134302c39332c3232342c38312c3139362c3232342c36332c3231312c3234332c3138382c3230362c3230312c3135392c36312c3138362c36322c3139352c332c3133302c32352c32352c3133352c3132352c3230382c3233372c3135352c31342c33332c3234372c36352c3138382c3136382c3231362c3130372c3134322c3138302c3231342c31372c3131372c37392c3134382c3234352c32372c3131352c3136352c3231382c3134362c3134302c3137352c3137362c33312c3230342c3233322c3230342c3134332c35372c3136372c31305d7d7d7d5d7d2c22696e707574735f6d65746164617461223a7b223862656337666430613966646333353161646161663037663539356166656661373834346561666431383336323539343965353164636233623936333262383930303030223a7b226d6573736167654964223a2232663265346632643739636165353061656366396132363239326636393362313333356136393264316533653435323938336165656331363539363864616438222c227472616e73616374696f6e4964223a2238626563376664306139666463333531616461616630376635393561666566613738343465616664313833363235393439653531646362336239363332623839222c226f7574707574496e646578223a302c2269735370656e74223a66616c73652c226f7574707574223a7b2274797065223a302c2261646472657373223a7b2274797065223a302c2261646472657373223a2265613531346639643038663963386136656563323562353634303061323437616666393663373136333431363662623666336431356262346232303164323335227d2c22616d6f756e74223a31303030303030307d7d7d7d&quot;}' | jq
 </code></pre>
 <h1 id="explorer-and-faucet"><a class="header" href="#explorer-and-faucet">Explorer and Faucet</a></h1>
-<p>To view transactions you can use: https://explorer.iota.org/chrysalis</p>
-<p>To fund an address you can use https://faucet.testnet.chrysalis2.com or https://faucet.tanglekit.de</p>
+<p>To view transactions you can use:</p>
+<ul>
+<li>https://explorer.iota.org/chrysalis</li>
+</ul>
+<p>To fund an address you can use: </p>
+<ul>
+<li>https://faucet.testnet.chrysalis2.com</li>
+<li>https://faucet.tanglekit.de</li>
+</ul>
 
                     </main>
 

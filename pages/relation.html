@@ -167,24 +167,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="relation-between-iota-and-rosetta"><a class="header" href="#relation-between-iota-and-rosetta">Relation between IOTA and Rosetta</a></h1>
+                        <h1 id="introduction-to-iota"><a class="header" href="#introduction-to-iota">Introduction to IOTA</a></h1>
 <p>The IOTA protocol differs from most DLT technologies in the sense that it uses a directed acyclic graph (DAG) data structure that allows transactions to be added in parallel.</p>
-<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
-<p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
-<h2 id="messages-and-transactions"><a class="header" href="#messages-and-transactions">Messages and Transactions</a></h2>
 <p>IOTA nodes gossip &quot;messages&quot;. A message is an envelope that may contain a payload. You can find more information about the message format <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">here</a>. There are different types of payloads for different purposes. To transfer value, a &quot;transaction payload&quot; will be used.
 Furthermore, transactions of funds are carried out in <strong>UTXO</strong> style. To learn more about the transaction payload click <a href="https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md">here</a>.</p>
+<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
+<p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
 <h1 id="design-choices"><a class="header" href="#design-choices">Design choices</a></h1>
 <p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
-<h2 id="genesis-milestone"><a class="header" href="#genesis-milestone">Genesis Milestone</a></h2>
-<p>Per default, the genesis milestone is not available on full-nodes, but the <code>/network/status</code> endpoint response contains a required <code>genesis_block_identifier</code> field. The <code>genesis_block_identifier</code> is populated as such:</p>
-<pre><code>&quot;genesis_block_identifier&quot;: {
-  &quot;index&quot;: 1,
-  &quot;hash&quot;: &quot;0000000000000000000000000000000000000000000000000000000000000000&quot;
-}
-</code></pre>
-<p>Technically speaking, that is not accurate, as the genesis milestone identifier is not a series of <code>0</code>s. However, a dummy value is used as a compromise in order not to render the <code>/network/status</code> endpoint unavailable. </p>
-<p>Syncing <code>rosetta-cli</code> is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the <code>test.sh</code> shows how to use the Fullnode's <code>pruningIndex</code> as the <code>start_index</code> for the configuration <code>JSON</code>.</p>
 <h2 id="transactions-and-operations"><a class="header" href="#transactions-and-operations">Transactions and Operations</a></h2>
 <p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
 That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
@@ -220,98 +210,7 @@ That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</cod
 </ul>
 <p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to IOTA's <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with IOTA's <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
 <p>Here's an example of two Transaction Objects in the same Milestone:</p>
-<pre><code>{
-  &quot;transactions&quot;: [
-    {
-      &quot;transaction_identifier&quot;: {
-        &quot;hash&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636&quot;
-      },
-      &quot;operations&quot;: [
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 0,
-            &quot;network_index&quot;: 2
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-20000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 1,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_INPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;-10000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_spent&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_UNSPENT&quot;
-          }
-        },
-        {
-          &quot;operation_identifier&quot;: {
-            &quot;index&quot;: 2,
-            &quot;network_index&quot;: 0
-          },
-          &quot;type&quot;: &quot;UTXO_OUTPUT&quot;,
-          &quot;status&quot;: &quot;SUCCESS&quot;,
-          &quot;account&quot;: {
-            &quot;address&quot;: &quot;atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j&quot;
-          },
-          &quot;amount&quot;: {
-            &quot;value&quot;: &quot;30000000&quot;,
-            &quot;currency&quot;: {
-              &quot;symbol&quot;: &quot;IOTA&quot;,
-              &quot;decimals&quot;: 0
-            }
-          },
-          &quot;coin_change&quot;: {
-            &quot;coin_identifier&quot;: {
-              &quot;identifier&quot;: &quot;9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000&quot;
-            },
-            &quot;coin_action&quot;: &quot;coin_created&quot;
-          },
-          &quot;metadata&quot;: {
-            &quot;is_spent&quot;: &quot;UTXO_SPENT&quot;
-          }
-        }
-      ]
-    }
-  ]
-}
+<pre><code>
 </code></pre>
 
                     </main>

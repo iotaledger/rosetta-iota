@@ -182,7 +182,7 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <p>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
 </li>
 <li>
-<p>Add peers for the HORNET node to the <code>hornet/peering.json</code> file.</p>
+<p>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering.json</code>. If you don't have any peers, please contact us and we will help you.</p>
 </li>
 <li>
 <p><strong>Run following commands to start a HORNET node together with a Rosetta API instance:</strong></p>
@@ -196,7 +196,7 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 </ol>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with a custom snapshots, you can put them in the <code>data/snapshots/</code> directory.</strong></p>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/</code> directory.</strong></p>
 
                     </main>
 
