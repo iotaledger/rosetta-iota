@@ -19,15 +19,15 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering.json`. If you don't have any peers, please contact us and we will help you.
 4) Run the implementation in the desired mode:
 
-    **Testnet: online mode**
-    ```
-    NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
-    ```
+**Testnet: online mode**
+```
+NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
+```
 
-    **Testnet: offline mode**
-    ```
-    NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
-    ```
+**Testnet: offline mode**
+```
+NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
+```
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info
