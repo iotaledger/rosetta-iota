@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="pages/testing_cli.html"><strong aria-hidden="true">4.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="pages/testing_curl.html"><strong aria-hidden="true">5.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="pages/explorer_faucet.html"><strong aria-hidden="true">6.</strong> Explorer and Faucet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="pages/deployment.html"><strong aria-hidden="true">2.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="pages/testing_cli.html"><strong aria-hidden="true">3.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="pages/testing_curl.html"><strong aria-hidden="true">4.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="pages/explorer_faucet.html"><strong aria-hidden="true">5.</strong> Explorer and Faucet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -180,51 +180,6 @@
 </ul>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
 <p><code>rosetta-iota</code> is released under the Apache License 2.0.</p>
-<h1 id="introduction-to-iota"><a class="header" href="#introduction-to-iota">Introduction to IOTA</a></h1>
-<p>The IOTA protocol differs from most DLT technologies in the sense that it uses a directed acyclic graph (DAG) data structure that allows transactions to be added in parallel.</p>
-<p>IOTA nodes gossip &quot;messages&quot;. A message is an envelope that may contain a payload. You can find more information about the message format <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">here</a>. There are different types of payloads for different purposes. To transfer value, a &quot;transaction payload&quot; will be used.
-Furthermore, transactions of funds are carried out in <strong>UTXO</strong> style. To learn more about the transaction payload click <a href="https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md">here</a>.</p>
-<h2 id="blocks-and-milestones"><a class="header" href="#blocks-and-milestones">Blocks and Milestones</a></h2>
-<p>IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.</p>
-<h1 id="design-choices"><a class="header" href="#design-choices">Design choices</a></h1>
-<p>Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.</p>
-<h2 id="transactions-and-operations"><a class="header" href="#transactions-and-operations">Transactions and Operations</a></h2>
-<p>The <code>/block</code> endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the <code>/api/v1/milestones/:milestoneId/utxo-changes</code> IOTA Fullnode endpoint, where a list of <strong>Created</strong> and <strong>Consumed</strong> UTXO Outputs is returned.</p>
-<p>Each UTXO Output contains a <code>output_id</code>, a <code>transaction_id</code> and a <code>output_index</code>, where <code>output_id = transaction_id + output_index</code>.</p>
-<p>In terms of Rosetta Models, the <code>TransactionIdentifier</code> of a <code>Transaction</code> Object is defined by an IOTA <code>transaction_id</code>.</p>
-<p>Each <a href="https://www.rosetta-api.org/docs/models/Transaction.html">Transaction</a> Object has an array of <a href="https://www.rosetta-api.org/docs/models/Operation.html">Operations</a>, each one representing a UTXO Output.</p>
-<p>The <code>UTXO Operation</code> <code>operation_identifier</code> Object (<a href="https://www.rosetta-api.org/docs/models/OperationIdentifier.html">OperationIdentifier</a> type) is defined as:</p>
-<ul>
-<li><code>index</code>: incremented from <code>0</code> for each <code>Operation</code> Object in the <code>Transaction</code></li>
-<li><code>network_index</code>: <code>output_index</code></li>
-</ul>
-<p>The <code>UTXO Operation</code> <code>type</code> field can be either:</p>
-<ul>
-<li><code>&quot;UTXO_INPUT&quot;</code>, which describes the funds to spend</li>
-<li><code>&quot;UTXO_OUTPUT&quot;</code>, which describes where the funds should be transfered to</li>
-</ul>
-<p>The <code>UTXO Operation</code> <code>status</code> field is defined as:</p>
-<ul>
-<li><code>&quot;SUCCESS&quot;</code>, meaning that the transaction was included in the ledger.</li>
-<li><code>&quot;SKIPPED&quot;</code>, meaning that the UTXO Output has not been included in the ledger (e.g. already spent by another Transaction).</li>
-</ul>
-<p>Note, that the status field will not get populated when constructing a transaction by the Construction API.</p>
-<p>The <code>UTXO Operation</code> <code>account</code> field is defined as the <code>address</code> value from the UTXO.</p>
-<p>The <code>UTXO Operation</code> <code>coin_change</code> Object (<a href="https://www.rosetta-api.org/docs/models/CoinChange.html">CoinChange</a> type) is defined as:</p>
-<ul>
-<li><code>coin_identifier</code>: <code>output_id</code></li>
-<li><code>coin_action</code>: either
-<ul>
-<li><code>&quot;coin_spent&quot;</code>, where coins are coming from into the Transaction</li>
-<li><code>&quot;coin_created&quot;</code>, where coins are going out from the Transaction</li>
-</ul>
-</li>
-</ul>
-<p><strong>Note:</strong> Rosetta's definition of <a href="https://www.rosetta-api.org/docs/models/CoinAction.html">CoinAction</a> is an <code>enum</code> valued with <code>&quot;coin_spent&quot;</code> and <code>&quot;coin_created&quot;</code>. These terms are analogous to IOTA's <code>&quot;UTXO_CONSUMED&quot;</code> and <code>&quot;UTXO_CREATED&quot;</code>, and <strong>must not be confused</strong> with IOTA's <code>&quot;UTXO_SPENT&quot;</code> and <code>&quot;UTXO_UNSPENT&quot;</code>.</p>
-<p>Here's an example of two Transaction Objects in the same Milestone:</p>
-<pre><code>
-</code></pre>
 <h2 id="iota-nodes"><a class="header" href="#iota-nodes">IOTA nodes</a></h2>
 <p><strong>IOTA full-nodes</strong> (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">Bee</a>) are able to start up from a recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the node with recent <a href="https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md">snapshots</a>. 
 Also, IOTA full-nodes are able to prune history from time to time in a safe way.
@@ -252,8 +207,8 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 </code></pre>
 </li>
 </ol>
-<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
-The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
+<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
+<p>The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
 <p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/</code> directory.</strong></p>
 <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
 <p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.</p>
@@ -280,7 +235,7 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 <li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
 <li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances</li>
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
-<li><code>NODE_URL=1</code> ...the URL to the REST API of the started IOTA node.  </li>
+<li><code>NODE_URL=http://localhost:14265</code> ...the URL of the REST API from the IOTA node.  </li>
 </ul>
 <h1 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h1>
 <p>Curl commands can be used for manual inspection of each API endpoint.</p>
@@ -292,7 +247,7 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 <p>From a new terminal, you can test each endpoint via <code>curl</code>:</p>
 </li>
 </ol>
-<h3 id="data-api"><a class="header" href="#data-api">Data API</a></h3>
+<h2 id="data-api"><a class="header" href="#data-api">Data API</a></h2>
 <ul>
 <li><code>/network/list</code></li>
 </ul>
@@ -323,7 +278,7 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 </ul>
 <pre><code>curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet7&quot;},&quot;account_identifier&quot;:{&quot;address&quot;:&quot;atoi1qzpe9s3w9q2y2pkt2pd6c4w5a7ntrm95nz8vnnjzdw3t04wg33n6w3tk40e&quot;}}' | jq
 </code></pre>
-<h3 id="construction-api"><a class="header" href="#construction-api">Construction API</a></h3>
+<h2 id="construction-api"><a class="header" href="#construction-api">Construction API</a></h2>
 <ul>
 <li><code>/construction/derive</code></li>
 </ul>

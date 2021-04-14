@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="../pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="../pages/testing_cli.html"><strong aria-hidden="true">4.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="../pages/testing_curl.html" class="active"><strong aria-hidden="true">5.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="../pages/explorer_faucet.html"><strong aria-hidden="true">6.</strong> Explorer and Faucet</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../pages/deployment.html"><strong aria-hidden="true">2.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="../pages/testing_cli.html"><strong aria-hidden="true">3.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="../pages/testing_curl.html" class="active"><strong aria-hidden="true">4.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="../pages/explorer_faucet.html"><strong aria-hidden="true">5.</strong> Explorer and Faucet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -177,7 +177,7 @@
 <p>From a new terminal, you can test each endpoint via <code>curl</code>:</p>
 </li>
 </ol>
-<h3 id="data-api"><a class="header" href="#data-api">Data API</a></h3>
+<h2 id="data-api"><a class="header" href="#data-api">Data API</a></h2>
 <ul>
 <li><code>/network/list</code></li>
 </ul>
@@ -208,7 +208,7 @@
 </ul>
 <pre><code>curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet7&quot;},&quot;account_identifier&quot;:{&quot;address&quot;:&quot;atoi1qzpe9s3w9q2y2pkt2pd6c4w5a7ntrm95nz8vnnjzdw3t04wg33n6w3tk40e&quot;}}' | jq
 </code></pre>
-<h3 id="construction-api"><a class="header" href="#construction-api">Construction API</a></h3>
+<h2 id="construction-api"><a class="header" href="#construction-api">Construction API</a></h2>
 <ul>
 <li><code>/construction/derive</code></li>
 </ul>
