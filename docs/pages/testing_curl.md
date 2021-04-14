@@ -1,29 +1,3 @@
-# Testing with rosetta-cli
-
-1) Install following dependencies:
-    ```
-    sudo apt-get install sed jq psmisc
-    ```
-
-2) Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of `rosetta-iota` run the commands below:
-
-    Testing the Data API **(Testnet)**:
-    ```
-    ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
-    ```
-
-    Testing the Construction API **(Testnet)**:
-    ```
-    ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
-    ```
-
-The scripts do uses the following environment variables:
-- `ROSETTA_CLI_INSTALL=1` ...installs rosetta-cli
-- `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
-- `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage
-- `NODE_URL=1` ...the local
-
 ## Testing with curl
 
 Curl commands can be used for manual inspection of each API endpoint.
