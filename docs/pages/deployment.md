@@ -12,7 +12,7 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add peers for the HORNET node to the `hornet/peering.json` file.
+3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering.json`. If you don't have any peers, please contact us and we will help you.
 4) **Run following commands to start a HORNET node together with a Rosetta API instance:**
 
     **Testnet:Online**
@@ -27,5 +27,5 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info
 
-The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. **If you want to bootstrap the HORNET node yourself with a custom snapshots, you can put them in the `data/snapshots/` directory.**
+The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. **If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the `data/snapshots/` directory.**
 

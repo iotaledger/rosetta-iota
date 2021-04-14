@@ -1,6 +1,6 @@
 # Testing with rosetta-cli
 
-The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is run with the correct configuration values.
+The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.
 
 1) To be able to run the testing scripts, install following dependencies:
     ```

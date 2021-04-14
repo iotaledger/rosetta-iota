@@ -23,7 +23,7 @@
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add peers for the HORNET node to the `hornet/peering.json` file.
+3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering.json`. If you don't have any peers, please contact us and we will help you.
 4) **Run following commands to start a HORNET node together with a Rosetta API instance:**
 
     **Testnet:Online**
@@ -36,16 +36,21 @@
     NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
     ```
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info
 
-## Testing with rosetta-cli
+### Testing with rosetta-cli
 
-1) Install following dependencies:
+The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.
+
+1) To be able to run the testing scripts, install following dependencies:
     ```
-    $ sudo apt-get install sed jq psmisc
+    sudo apt-get install sed jq psmisc
     ```
 
 2) Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of `rosetta-iota` run the commands below:
+Also ensure that the REST API of the IOTA is available at http://localhost:14265/api/v1/info.
+
+    To validate the correctness of `rosetta-iota` run the commands below:
 
     Testing the Data API **(Testnet)**:
     ```

@@ -1,4 +1,4 @@
-## Testing with curl
+# Testing with curl
 
 Curl commands can be used for manual inspection of each API endpoint.
 

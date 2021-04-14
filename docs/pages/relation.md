@@ -1,32 +1,17 @@
-# Relation between IOTA and Rosetta
+# Introduction to IOTA
 
 The IOTA protocol differs from most DLT technologies in the sense that it uses a directed acyclic graph (DAG) data structure that allows transactions to be added in parallel.
+
+IOTA nodes gossip "messages". A message is an envelope that may contain a payload. You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md). There are different types of payloads for different purposes. To transfer value, a "transaction payload" will be used.
+Furthermore, transactions of funds are carried out in **UTXO** style. To learn more about the transaction payload click [here](https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md).
 
 ## Blocks and Milestones
 
 IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.
 
-## Messages and Transactions
-IOTA nodes gossip "messages". A message is an envelope that may contain a payload. You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md). There are different types of payloads for different purposes. To transfer value, a "transaction payload" will be used.
-Furthermore, transactions of funds are carried out in **UTXO** style. To learn more about the transaction payload click [here](https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md).
-
 # Design choices
 
 Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.
-
-## Genesis Milestone
-
-Per default, the genesis milestone is not available on full-nodes, but the `/network/status` endpoint response contains a required `genesis_block_identifier` field. The `genesis_block_identifier` is populated as such:
-```
-"genesis_block_identifier": {
-  "index": 1,
-  "hash": "0000000000000000000000000000000000000000000000000000000000000000"
-}
-```
-
-Technically speaking, that is not accurate, as the genesis milestone identifier is not a series of `0`s. However, a dummy value is used as a compromise in order not to render the `/network/status` endpoint unavailable. 
-
-Syncing `rosetta-cli` is also affected by this. Syncing from genesis is only possible with a Permanode, as well. Otherwise, the `test.sh` shows how to use the Fullnode's `pruningIndex` as the `start_index` for the configuration `JSON`.
 
 ## Transactions and Operations
 The `/block` endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
@@ -64,96 +49,5 @@ The `UTXO Operation` `coin_change` Object ([CoinChange](https://www.rosetta-api.
 
 Here's an example of two Transaction Objects in the same Milestone:
 ```
-{
-  "transactions": [
-    {
-      "transaction_identifier": {
-        "hash": "586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c03636"
-      },
-      "operations": [
-        {
-          "operation_identifier": {
-            "index": 0,
-            "network_index": 2
-          },
-          "type": "UTXO_INPUT",
-          "status": "SUCCESS",
-          "account": {
-            "address": "atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
-          },
-          "amount": {
-            "value": "-20000000",
-            "currency": {
-              "symbol": "IOTA",
-              "decimals": 0
-            }
-          },
-          "coin_change": {
-            "coin_identifier": {
-              "identifier": "9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
-            },
-            "coin_action": "coin_spent"
-          },
-          "metadata": {
-            "is_spent": "UTXO_UNSPENT"
-          }
-        },
-        {
-          "operation_identifier": {
-            "index": 1,
-            "network_index": 0
-          },
-          "type": "UTXO_INPUT",
-          "status": "SUCCESS",
-          "account": {
-            "address": "atoi1q86v9cgc8d9ue9nd9k4z8rp2dn29mcwf2y9jhm59u8dg25aukhq3jqwwfvf"
-          },
-          "amount": {
-            "value": "-10000000",
-            "currency": {
-              "symbol": "IOTA",
-              "decimals": 0
-            }
-          },
-          "coin_change": {
-            "coin_identifier": {
-              "identifier": "586d11477a48a25b4a554686ce8d6cf711be3a85cf07a0dc2d07d4e0f4c036360100"
-            },
-            "coin_action": "coin_spent"
-          },
-          "metadata": {
-            "is_spent": "UTXO_UNSPENT"
-          }
-        },
-        {
-          "operation_identifier": {
-            "index": 2,
-            "network_index": 0
-          },
-          "type": "UTXO_OUTPUT",
-          "status": "SUCCESS",
-          "account": {
-            "address": "atoi1q8k69lxuxljdgeqt7tucvtdfk3hrvrly7rzz65w57te6drf3expsjth4u2j"
-          },
-          "amount": {
-            "value": "30000000",
-            "currency": {
-              "symbol": "IOTA",
-              "decimals": 0
-            }
-          },
-          "coin_change": {
-            "coin_identifier": {
-              "identifier": "9ce415875aa9ed67c4a3b97cb598861be11444e880fad604ec2a96ee65590da80000"
-            },
-            "coin_action": "coin_created"
-          },
-          "metadata": {
-            "is_spent": "UTXO_SPENT"
-          }
-        }
-      ]
-    }
-  ]
-}
+
 ```
