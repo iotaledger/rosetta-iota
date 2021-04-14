@@ -20,3 +20,6 @@
 ## Documentation
 
 Please refer to [https://rosetta-api.docs.iota.org](https://rosetta-api.docs.iota.org) for documentation.
+
+## License
+`rosetta-iota` is released under the Apache License 2.0.

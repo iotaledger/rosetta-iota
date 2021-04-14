@@ -1,3 +1,5 @@
+# Deployment
+
 ## IOTA nodes
 
 **IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet.git) and [Bee](https://github.com/iotaledger/bee.git)) are able to start up from a recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
@@ -28,5 +30,5 @@ Once the HORNET node has synced with the network, the Rosetta API will be availa
 
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info
 
-The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. **If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the `data/snapshots/` directory.**
+The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. **The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the `data/snapshots/testnet` directory.**
 
