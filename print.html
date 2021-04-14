@@ -356,9 +356,13 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
 <p>The HORNET node will be bootstrapped automatically with a recent snapshot to start synchronizing from a recent block. The snapshot will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with some custom snapshots, you can put them in the <code>data/snapshots/</code> directory.</strong></p>
 <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
-<p>Make sure you have installed following dependencies:</p>
+<ol>
+<li>
+<p>Install following dependencies:</p>
 <pre><code>$ sudo apt-get install sed jq psmisc
 </code></pre>
+</li>
+<li>
 <p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
 To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
 <p>Testing the Data API <strong>(Testnet)</strong>:</p>
@@ -367,12 +371,14 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 <p>Testing the Construction API <strong>(Testnet)</strong>:</p>
 <pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
 </code></pre>
-<p>The script uses the following shell variables:</p>
+</li>
+</ol>
+<p>The scripts do uses the following environment variables:</p>
 <ul>
 <li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
 <li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances</li>
-<li><code>NODE_URL=1</code> ...the local</li>
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
+<li><code>NODE_URL=1</code> ...the local</li>
 </ul>
 <h2 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h2>
 <p>Curl commands can also be used for manual inspection of each API endpoint.</p>
