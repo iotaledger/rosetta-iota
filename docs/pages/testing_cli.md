@@ -14,12 +14,12 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 
     To validate the correctness of `rosetta-iota` run the commands below:
 
-    Testing the Data API **(Testnet)**:
+    Testing the Data API **(testnet)**:
     ```
     ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
     ```
 
-    Testing the Construction API **(Testnet)**:
+    Testing the Construction API **(testnet)**:
     ```
     ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
     ```

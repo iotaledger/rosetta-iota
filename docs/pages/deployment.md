@@ -12,17 +12,19 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 
 ## Testnet deployment
 
+**Following instructions will start a HORNET node together with a Rosetta API instance:**
+
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
 3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering.json`. If you don't have any peers, please contact us and we will help you.
-4) **Run following commands to start a HORNET node together with a Rosetta API instance:**
+4) Run the implementation in the desired mode:
 
-    **Testnet:Online**
+    **Testnet: online mode**
     ```
     NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
     ```
 
-    **Testnet:Offline**
+    **Testnet: offline mode**
     ```
     NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
     ```
