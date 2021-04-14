@@ -7,10 +7,10 @@ The IOTA protocol differs from most DLT technologies in the sense that it uses a
 IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.
 
 ## Messages and Transactions
-IOTA nodes gossip messages. A message is a envelope around a payload that can consist of data (indexation), value (transactions) or a combination of both (a indexation payload embedded in a transaction). Transactions use a **UTXO-based** model to transfer value.
-You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md).
+IOTA nodes gossip "messages". A message is an envelope that may contain a payload. You can find more information about the message format [here](https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md). There are different types of payloads for different purposes. To transfer value, a "transaction payload" will be used.
+Furthermore, transactions of funds are carried out in **UTXO** style. To learn more about the transaction payload click [here](https://github.com/luca-moser/protocol-rfcs/blob/signed-tx-payload/text/0000-transaction-payload/0000-transaction-payload.md).
 
-# IOTA and Rosetta
+# Design choices
 
 Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.
 

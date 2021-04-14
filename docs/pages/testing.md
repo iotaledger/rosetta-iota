@@ -1,56 +1,30 @@
-## Quick start
+# Testing with rosetta-cli
 
-Ensure `docker` and `docker-compose` are installed. As specified in the Rosetta API documentation, all Rosetta implementations must be deployable via Docker and support running via either an online or offline mode.
-
-**Following commands will start an IOTA fullnode ([Hornet](https://github.com/gohornet/hornet)) together with a Rosetta API instance.**
-Once the IOTA node has synced with the network, the Rosetta API will be available at: http://localhost:3030
-
-**Testnet:Online**
+Make sure you have installed following dependencies:
 ```
-ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=online docker-compose up
+$ sudo apt-get install sed jq psmisc
 ```
 
-**Testnet:Offline**
-```
-ROSETTA_BECH32_HRP=atoi ROSETTA_NETWORK_NAME=testnet7 ROSETTA_INDEXATION=Rosetta ROSETTA_MODE=offline docker-compose up
-```
-
-## Testing with rosetta-cli
 Ensure the IOTA node is running and an instance of the Rosetta API is available.
 To validate the correctness of `rosetta-iota` run the commands below:
 
 Testing the Data API **(Testnet)**:
 ```
-ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
-```
-
-# Testing
-
-## rosetta-cli
-
-The `rosetta_cli.sh` shell script automates testing via `rosetta-cli`.
-
-Make sure you have run the following (on a Debian-based Linux) to install dependencies:
-```
-$ sudo apt-get install sed jq psmisc
-```
-
-The script uses the following shell variables:
-- `INSTALL_ROSETTA_CLI=1` ...installs rosetta-cli
-- `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
-- `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage
- 
-For example, you could run the script with the following options:
-```
-$ ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
 ```
 
 Testing the Construction API **(Testnet)**:
 ```
-./check_construction_testnet.sh
+ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
 ```
+
+The script uses the following shell variables:
+- `ROSETTA_CLI_INSTALL=1` ...installs rosetta-cli
+- `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
+- `NODE_URL=1` ...the local
+- `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage
  
-## curl
+## Testing with curl
 
 Curl commands can also be used for manual inspection of each API endpoint.
 
