@@ -175,6 +175,7 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <p>Only <strong>IOTA Permanodes</strong> (such as <a href="https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node">Chronicle</a>) <strong>are designed to hold the entire Tangle history.</strong></p>
 <p><code>rosetta-iota</code> aims for a more reliable integration and better performance with limiting state storage. For these reasons <strong>the Rosetta API implementation will be deployed with an IOTA full-node</strong> (<a href="https://github.com/gohornet/hornet.git">HORNET</a>).</p>
 <h2 id="testnet-deployment"><a class="header" href="#testnet-deployment">Testnet deployment</a></h2>
+<p><strong>Following instructions will start a HORNET node together with a Rosetta API instance:</strong></p>
 <ol>
 <li>
 <p>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</p>
@@ -186,11 +187,11 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <p>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering.json</code>. If you don't have any peers, please contact us and we will help you.</p>
 </li>
 <li>
-<p><strong>Run following commands to start a HORNET node together with a Rosetta API instance:</strong></p>
-<p><strong>Testnet:Online</strong></p>
+<p>Run the implementation in the desired mode:</p>
+<p><strong>Testnet: online mode</strong></p>
 <pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
 </code></pre>
-<p><strong>Testnet:Offline</strong></p>
+<p><strong>Testnet: offline mode</strong></p>
 <pre><code>NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
 </code></pre>
 </li>
