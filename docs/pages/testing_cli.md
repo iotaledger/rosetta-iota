@@ -26,4 +26,4 @@ The testing scripts make use of following environment variables:
 - `ROSETTA_CLI_INSTALL=1` ...installs rosetta-cli
 - `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances
 - `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage
-- `NODE_URL=1` ...the URL to the REST API of the started IOTA node.  
+- `NODE_URL=http://localhost:14265` ...the URL of the REST API from the IOTA node.  

@@ -9,19 +9,16 @@ Furthermore, transactions of funds are carried out in **UTXO** style. To learn m
 
 IOTA has the concept of Milestones as the closest analogy for Blocks. Periodically, an authorized entity issues a milestone (imagine as checkpoint) to the network to settle the ledger state.
 
-# Design choices
+## /block
+The `/block` endpoint returns all transactions that happened on a specific Milestone.
+To get all the balance changes from the IOTA node, `/block` will call the `http://localhost:14265/api/v1/milestones/:index/utxo-changes` endpoint which responds with a list of **created** and **consumed** output ids.
+An output id is composed of: `transaction_id + output_index`.
 
-Here we describe how concepts from the IOTA protocol were adapted for the Rosetta Endpoints.
+### Rosetta::Transaction
+The `Rosetta::TransactionIdentifier` of a `Rosetta::Transaction` gets populated by `IOTA::TransactionIdentifier`.
+An `IOTA::TransactionIdentifier` describes the id of an `IOTA::TransactionPayload`.
 
-## Transactions and Operations
-The `/block` endpoint responds with information about balance changing Transactions that happened on a specific Milestone.
-That is achieved via the `/api/v1/milestones/:milestoneId/utxo-changes` IOTA Fullnode endpoint, where a list of **Created** and **Consumed** UTXO Outputs is returned.
-
-Each UTXO Output contains a `output_id`, a `transaction_id` and a `output_index`, where `output_id = transaction_id + output_index`.
-
-In terms of Rosetta Models, the `TransactionIdentifier` of a `Transaction` Object is defined by an IOTA `transaction_id`.
-
-Each [Transaction](https://www.rosetta-api.org/docs/models/Transaction.html) Object has an array of [Operations](https://www.rosetta-api.org/docs/models/Operation.html), each one representing a UTXO Output.
+Each Rosetta::Transaction has an array of [Operations](https://www.rosetta-api.org/docs/models/Operation.html), each one representing a UTXO Output.
 
 The `UTXO Operation` `operation_identifier` Object ([OperationIdentifier](https://www.rosetta-api.org/docs/models/OperationIdentifier.html) type) is defined as:
 * `index`: incremented from `0` for each `Operation` Object in the `Transaction`

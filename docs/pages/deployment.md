@@ -25,6 +25,7 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
     NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
     ```
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+
 The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info
 
 The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. **If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the `data/snapshots/` directory.**

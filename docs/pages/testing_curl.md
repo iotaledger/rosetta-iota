@@ -6,7 +6,7 @@ Curl commands can be used for manual inspection of each API endpoint.
 
 2. From a new terminal, you can test each endpoint via `curl`:
 
-### Data API
+## Data API
 
 - `/network/list`
 ```
@@ -38,7 +38,7 @@ curl --request POST 'http://localhost:3030/account/balance' \--header 'Accept: a
 curl --request POST 'http://localhost:3030/account/coins' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{"network_identifier":{"blockchain":"iota","network":"testnet7"},"account_identifier":{"address":"atoi1qzpe9s3w9q2y2pkt2pd6c4w5a7ntrm95nz8vnnjzdw3t04wg33n6w3tk40e"}}' | jq
 ```
 
-### Construction API
+## Construction API
 
 - `/construction/derive`
 ```
