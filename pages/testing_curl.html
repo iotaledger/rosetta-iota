@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Testing - rosetta-iota</title>
+        <title>Testing with curl - rosetta-iota</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="../pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="../pages/testing.html" class="active"><strong aria-hidden="true">4.</strong> Testing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="../pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="../pages/testing_cli.html"><strong aria-hidden="true">4.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="../pages/testing_curl.html" class="active"><strong aria-hidden="true">5.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="../pages/explorer_faucet.html"><strong aria-hidden="true">6.</strong> Explorer and Faucet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -167,32 +167,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
-<ol>
-<li>
-<p>Install following dependencies:</p>
-<pre><code>sudo apt-get install sed jq psmisc
-</code></pre>
-</li>
-<li>
-<p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
-<p>Testing the Data API <strong>(Testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
-</code></pre>
-<p>Testing the Construction API <strong>(Testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
-</code></pre>
-</li>
-</ol>
-<p>The scripts do uses the following environment variables:</p>
-<ul>
-<li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
-<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances</li>
-<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
-<li><code>NODE_URL=1</code> ...the local</li>
-</ul>
-<h2 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h2>
+                        <h2 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h2>
 <p>Curl commands can be used for manual inspection of each API endpoint.</p>
 <ol>
 <li>
@@ -280,11 +255,15 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="../pages/deployment.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../pages/testing_cli.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
+                        
+                            <a rel="next" href="../pages/explorer_faucet.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -294,11 +273,15 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="../pages/deployment.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../pages/testing_cli.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
+                
+                    <a rel="next" href="../pages/explorer_faucet.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 

@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="pages/testing.html"><strong aria-hidden="true">4.</strong> Testing</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="pages/welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="pages/relation.html"><strong aria-hidden="true">2.</strong> Relation between IOTA and Rosetta</a></li><li class="chapter-item expanded "><a href="pages/deployment.html"><strong aria-hidden="true">3.</strong> Deployment</a></li><li class="chapter-item expanded "><a href="pages/testing_cli.html"><strong aria-hidden="true">4.</strong> Testing with rosetta-cli</a></li><li class="chapter-item expanded "><a href="pages/testing_curl.html"><strong aria-hidden="true">5.</strong> Testing with curl</a></li><li class="chapter-item expanded "><a href="pages/explorer_faucet.html"><strong aria-hidden="true">6.</strong> Explorer and Faucet</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -353,18 +353,21 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 </code></pre>
 </li>
 </ol>
-<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with some custom snapshots, you can put them in the <code>data/snapshots/</code> directory.</strong></p>
+<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with a custom snapshots, you can put them in the <code>data/snapshots/</code> directory.</strong></p>
 <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
+<p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is run with the correct configuration values.</p>
 <ol>
 <li>
-<p>Install following dependencies:</p>
+<p>To be able to run the testing scripts, install following dependencies:</p>
 <pre><code>sudo apt-get install sed jq psmisc
 </code></pre>
 </li>
 <li>
 <p>Ensure the IOTA node is running and an instance of the Rosetta API is available.
-To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
+Also ensure that the REST API of the IOTA is available at http://localhost:14265/api/v1/info.</p>
+<p>To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
 <p>Testing the Data API <strong>(Testnet)</strong>:</p>
 <pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
 </code></pre>
@@ -373,12 +376,12 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 </code></pre>
 </li>
 </ol>
-<p>The scripts do uses the following environment variables:</p>
+<p>The testing scripts make use of following environment variables:</p>
 <ul>
 <li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
 <li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances</li>
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
-<li><code>NODE_URL=1</code> ...the local</li>
+<li><code>NODE_URL=1</code> ...the URL to the REST API of the started IOTA node.  </li>
 </ul>
 <h2 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h2>
 <p>Curl commands can be used for manual inspection of each API endpoint.</p>
@@ -462,6 +465,9 @@ To validate the correctness of <code>rosetta-iota</code> run the commands below:
 </ul>
 <pre><code>curl --request POST 'http://localhost:3030/construction/hash' \--header 'Accept: application/json' \--header 'Content-Type: application/json' \--data-raw '{&quot;network_identifier&quot;:{&quot;blockchain&quot;:&quot;iota&quot;,&quot;network&quot;:&quot;testnet7&quot;},&quot;signed_transaction&quot;:&quot;7b227472616e73616374696f6e223a7b22657373656e6365223a7b2274797065223a22526567756c6172222c2264617461223a7b22696e70757473223a5b7b2274797065223a225574786f222c2264617461223a223862656337666430613966646333353161646161663037663539356166656661373834346561666431383336323539343965353164636233623936333262383930303030227d5d2c226f757470757473223a5b7b2274797065223a225369676e61747572654c6f636b656453696e676c65222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2235653732303736303964323336333162373266333734663730303361626239373863326139303631633835613365356563633638393934653531366563323632227d2c22616d6f756e74223a3339353236347d7d2c7b2274797065223a225369676e61747572654c6f636b656453696e676c65222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2237363130613736633737643134303461636536396465376165333337376537366564313061386361303362636332366136333037666565313339303965333537227d2c22616d6f756e74223a383630343733367d7d2c7b2274797065223a225369676e61747572654c6f636b656444757374416c6c6f77616e6365222c2264617461223a7b2261646472657373223a7b2274797065223a2245643235353139222c2264617461223a2235653732303736303964323336333162373266333734663730303361626239373863326139303631633835613365356563633638393934653531366563323632227d2c22616d6f756e74223a313030303030307d7d5d2c227061796c6f6164223a7b2274797065223a22496e6465786174696f6e222c2264617461223a7b22696e646578223a5b38322c3131312c3131352c3130312c3131362c3131362c39375d2c2264617461223a5b5d7d7d7d7d2c22756e6c6f636b5f626c6f636b73223a5b7b2274797065223a225369676e6174757265222c2264617461223a7b2274797065223a2245643235353139222c2264617461223a7b227075626c69635f6b6579223a5b31312c3230372c362c3233332c3139312c3234312c3131332c3234302c3134332c3132342c3138342c3136382c3139372c38312c3137312c3233342c3231372c3135392c38332c3134382c33332c3138342c37342c36332c3230372c3231312c39362c3135342c38332c36372c3137392c35325d2c227369676e6174757265223a5b3132382c36342c3137392c3130352c3132322c3131302c3134302c39332c3232342c38312c3139362c3232342c36332c3231312c3234332c3138382c3230362c3230312c3135392c36312c3138362c36322c3139352c332c3133302c32352c32352c3133352c3132352c3230382c3233372c3135352c31342c33332c3234372c36352c3138382c3136382c3231362c3130372c3134322c3138302c3231342c31372c3131372c37392c3134382c3234352c32372c3131352c3136352c3231382c3134362c3134302c3137352c3137362c33312c3230342c3233322c3230342c3134332c35372c3136372c31305d7d7d7d5d7d2c22696e707574735f6d65746164617461223a7b223862656337666430613966646333353161646161663037663539356166656661373834346561666431383336323539343965353164636233623936333262383930303030223a7b226d6573736167654964223a2232663265346632643739636165353061656366396132363239326636393362313333356136393264316533653435323938336165656331363539363864616438222c227472616e73616374696f6e4964223a2238626563376664306139666463333531616461616630376635393561666566613738343465616664313833363235393439653531646362336239363332623839222c226f7574707574496e646578223a302c2269735370656e74223a66616c73652c226f7574707574223a7b2274797065223a302c2261646472657373223a7b2274797065223a302c2261646472657373223a2265613531346639643038663963386136656563323562353634303061323437616666393663373136333431363662623666336431356262346232303164323335227d2c22616d6f756e74223a31303030303030307d7d7d7d&quot;}' | jq
 </code></pre>
+<h1 id="explorer-and-faucet"><a class="header" href="#explorer-and-faucet">Explorer and Faucet</a></h1>
+<p>To view transactions you can use: https://explorer.iota.org/chrysalis</p>
+<p>To fund an address you can use https://faucet.testnet.chrysalis2.com or https://faucet.tanglekit.de</p>
 
                     </main>
 
