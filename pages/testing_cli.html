@@ -168,6 +168,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
+<h2 id="testing-on-testnet"><a class="header" href="#testing-on-testnet">Testing on testnet</a></h2>
 <p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.</p>
 <ol>
 <li>
@@ -190,8 +191,8 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 <p>The testing scripts make use of following environment variables:</p>
 <ul>
 <li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
-<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the latest available IOTA snapshot and bootstraps balances</li>
-<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage</li>
+<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the most recent snapshots, bootstraps balances and starts synchronizing from the snapshot state</li>
+<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage and continues to synchronize from the available state</li>
 <li><code>NODE_URL=http://localhost:14265</code> ...the URL of the REST API from the IOTA node.  </li>
 </ul>
 

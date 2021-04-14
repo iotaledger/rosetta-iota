@@ -167,7 +167,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="iota-nodes"><a class="header" href="#iota-nodes">IOTA nodes</a></h2>
+                        <h1 id="deployment"><a class="header" href="#deployment">Deployment</a></h1>
+<h2 id="iota-nodes"><a class="header" href="#iota-nodes">IOTA nodes</a></h2>
 <p><strong>IOTA full-nodes</strong> (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">Bee</a>) are able to start up from a recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the node with recent <a href="https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md">snapshots</a>. 
 Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <strong>IOTA full-nodes per default don't hold the entire Tangle history - they are not designed for it.</strong></p>
@@ -196,7 +197,7 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 </ol>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
 <p>The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. <strong>If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/</code> directory.</strong></p>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself with custom snapshots, put them in the <code>data/snapshots/testnet</code> directory.</strong></p>
 
                     </main>
 
