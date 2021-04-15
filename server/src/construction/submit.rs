@@ -1,13 +1,16 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Config, is_offline_mode_enabled};
+use crate::{
+    construction::deserialize_signed_transaction, error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*,
+    Config,
+};
 
 use bee_message::prelude::*;
 
+use crate::client::build_client;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use crate::client::build_client;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionSubmitRequest {
@@ -28,11 +31,13 @@ pub(crate) async fn construction_submit_request(
     debug!("/construction/submit");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
+        return Err(ApiError::NonRetriable(
+            "endpoint is not available in offline mode".to_string(),
+        ));
     }
 
     let client = build_client(&options).await?;
@@ -58,5 +63,4 @@ pub(crate) async fn construction_submit_request(
 
         Err(e) => Err(ApiError::NonRetriable(format!("can not submit message: {}", e))),
     }
-
 }

@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, config::RosettaMode, types::NetworkIdentifier};
+use crate::{config::RosettaMode, error::ApiError, types::NetworkIdentifier};
 
 pub use config::Config;
 
@@ -12,16 +12,16 @@ use warp::{http::StatusCode, Filter};
 use std::{convert::Infallible, net::SocketAddr};
 
 pub mod client;
+pub mod config;
 pub mod construction;
 pub mod consts;
 pub mod currency;
 pub mod data;
 pub mod error;
 pub mod filters;
-pub mod operations;
-pub mod config;
-pub mod types;
 pub mod mocknet;
+pub mod operations;
+pub mod types;
 
 pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
@@ -32,7 +32,15 @@ pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Sen
         .expect("unable to parse socket address");
 
     info!("Listening on {}.", bind_addr.to_string());
-    info!("BIND_ADDRESS {} NETWORK {} BECH32_HRP {} TX_TAG {} NODE_URL {} MODE {:#?}", bind_addr.to_string(), config.network, config.bech32_hrp, config.tx_tag, config.node_url, config.mode);
+    info!(
+        "BIND_ADDRESS {} NETWORK {} BECH32_HRP {} TX_TAG {} NODE_URL {} MODE {:#?}",
+        bind_addr.to_string(),
+        config.network,
+        config.bech32_hrp,
+        config.tx_tag,
+        config.node_url,
+        config.mode
+    );
 
     let routes = data::network::routes(config.clone())
         .or(data::block::routes(config.clone()))

@@ -1,7 +1,14 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::{deserialize_signed_transaction, deserialize_unsigned_transaction}, error::ApiError, operations::{utxo_input_operation, utxo_output_operation}, types::*, Config, is_wrong_network};
+use crate::{
+    construction::{deserialize_signed_transaction, deserialize_unsigned_transaction},
+    error::ApiError,
+    is_wrong_network,
+    operations::{utxo_input_operation, utxo_output_operation},
+    types::*,
+    Config,
+};
 
 use bee_message::prelude::*;
 use bee_rest_api::types::{
@@ -14,8 +21,8 @@ use crypto::hashes::{blake2b::Blake2b256, Digest};
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use std::{collections::HashMap, convert::TryInto, str::FromStr};
 use crate::operations::dust_allowance_output_operation;
+use std::{collections::HashMap, convert::TryInto, str::FromStr};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ConstructionParseRequest {
@@ -38,7 +45,7 @@ pub(crate) async fn construction_parse_request(
     debug!("/construction/parse");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("wrong network".to_string()))
+        return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     if request.signed {
@@ -85,9 +92,7 @@ async fn parse_signed_transaction(
                 let signature = match s {
                     SignatureUnlock::Ed25519(s) => s,
                     _ => {
-                        return Err(ApiError::NonRetriable(
-                            "signature type not supported".to_string(),
-                        ));
+                        return Err(ApiError::NonRetriable("signature type not supported".to_string()));
                     }
                 };
                 let bech32_addr =
@@ -115,9 +120,7 @@ async fn essence_to_operations(
     let regular_essence = match essence {
         Essence::Regular(r) => r,
         _ => {
-            return Err(ApiError::NonRetriable(
-                "essence type not supported".to_string(),
-            ));
+            return Err(ApiError::NonRetriable("essence type not supported".to_string()));
         }
     };
 
@@ -132,9 +135,7 @@ async fn essence_to_operations(
         let input_metadata = match inputs_metadata.get(&utxo_input.to_string()) {
             Some(metadata) => metadata,
             None => {
-                return Err(ApiError::NonRetriable(
-                    "metadata for input missing".to_string(),
-                ));
+                return Err(ApiError::NonRetriable("metadata for input missing".to_string()));
             }
         };
 
@@ -171,17 +172,17 @@ async fn essence_to_operations(
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
-                },
-                _ => unimplemented!()
+                }
+                _ => unimplemented!(),
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
-                },
-                _ => unimplemented!()
+                }
+                _ => unimplemented!(),
             },
-            _ => unimplemented!()
+            _ => unimplemented!(),
         };
         operations.push(output_operation);
     }
@@ -190,7 +191,8 @@ async fn essence_to_operations(
 }
 
 fn address_from_public_key(hex_string: &str) -> Result<Address, ApiError> {
-    let public_key_bytes = hex::decode(hex_string).map_err(|e| ApiError::NonRetriable(format!("can not derive address from public key: {}", e)))?;
+    let public_key_bytes = hex::decode(hex_string)
+        .map_err(|e| ApiError::NonRetriable(format!("can not derive address from public key: {}", e)))?;
     let hash = Blake2b256::digest(&public_key_bytes);
     let ed25519_address = Ed25519Address::new(hash.try_into().unwrap());
     let address = Address::Ed25519(ed25519_address);

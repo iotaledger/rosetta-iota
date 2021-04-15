@@ -35,7 +35,7 @@ pub(crate) async fn construction_combine_request(
     debug!("/construction/combine");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     let unsigned_transaction = deserialize_unsigned_transaction(&request.unsigned_transaction);
@@ -43,9 +43,7 @@ pub(crate) async fn construction_combine_request(
     let regular_essence = match &unsigned_transaction.essence() {
         Essence::Regular(r) => r,
         _ => {
-            return Err(ApiError::NonRetriable(
-                "essence type not supported".to_string(),
-            ));
+            return Err(ApiError::NonRetriable("essence type not supported".to_string()));
         }
     };
 
@@ -60,14 +58,14 @@ pub(crate) async fn construction_combine_request(
     let mut index_of_signature_unlock_block_with_address: HashMap<String, SignatureUnlockBlockIndex> = HashMap::new();
 
     for signature in request.signatures {
-
         // get address for which the signature was produced
         let bech32_addr = signature
             .signing_payload
             .account_identifier
             .ok_or(ApiError::NonRetriable(
                 "signing_payload.account_identifier not populated".to_string(),
-            ))?.address;
+            ))?
+            .address;
 
         // check if a Signature Unlock Block already was added for the address
         if let Some(index) = index_of_signature_unlock_block_with_address.get(&bech32_addr) {
@@ -78,16 +76,17 @@ pub(crate) async fn construction_combine_request(
 
             let signature = {
                 let mut public_key_bytes = [0u8; 32];
-                hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key_bytes).map_err(|e| ApiError::NonRetriable(format!("invalid public key: {}", e)))?;
-                let signature_bytes = hex::decode(signature.hex_bytes.clone()).map_err(|e| ApiError::NonRetriable(format!("invalid signature: {}", e)))?;
+                hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key_bytes)
+                    .map_err(|e| ApiError::NonRetriable(format!("invalid public key: {}", e)))?;
+                let signature_bytes = hex::decode(signature.hex_bytes.clone())
+                    .map_err(|e| ApiError::NonRetriable(format!("invalid signature: {}", e)))?;
                 Ed25519Signature::new(public_key_bytes, signature_bytes.into_boxed_slice())
             };
 
             unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
 
             // memorise the address and index of the Signature Unlock Block
-            index_of_signature_unlock_block_with_address
-                .insert(bech32_addr, (unlock_blocks.len() -1) as u16);
+            index_of_signature_unlock_block_with_address.insert(bech32_addr, (unlock_blocks.len() - 1) as u16);
         }
     }
 

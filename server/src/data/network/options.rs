@@ -1,7 +1,14 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, is_wrong_network, operations::*, config::Config, types::{NetworkIdentifier, *}};
+use crate::{
+    config::Config,
+    consts,
+    error::ApiError,
+    is_wrong_network,
+    operations::*,
+    types::{NetworkIdentifier, *},
+};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -24,7 +31,7 @@ pub async fn network_options(
     debug!("/network/options");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("wrong network".to_string()))
+        return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     let version = Version {
@@ -67,8 +74,7 @@ pub async fn network_options(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::RosettaMode;
-    use crate::mocknet::start_mocknet_node;
+    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
 
     #[tokio::test]
     async fn test_network_options() {

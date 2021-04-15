@@ -9,7 +9,7 @@ use warp::{http::StatusCode, reply::Reply};
 #[derive(Debug, Error)]
 pub enum ApiError {
     #[error("non retriable error")]
-    NonRetriable (String),
+    NonRetriable(String),
     #[error("retriable error")]
     Retriable(String),
 }

@@ -1,8 +1,13 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, config::Config, types::{NetworkIdentifier, *}, is_offline_mode_enabled};
-use crate::client::{build_client, get_latest_milestone, get_peers, get_genesis_milestone};
+use crate::{
+    client::{build_client, get_genesis_milestone, get_latest_milestone, get_peers},
+    config::Config,
+    error::ApiError,
+    is_offline_mode_enabled, is_wrong_network,
+    types::{NetworkIdentifier, *},
+};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -20,23 +25,22 @@ pub struct NetworkStatusResponse {
     pub peers: Vec<Peer>,
 }
 
-pub async fn network_status(
-    request: NetworkStatusRequest,
-    options: Config,
-) -> Result<NetworkStatusResponse, ApiError> {
+pub async fn network_status(request: NetworkStatusRequest, options: Config) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("wrong network".to_string()))
+        return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
+        return Err(ApiError::NonRetriable(
+            "endpoint does not support offline mode".to_string(),
+        ));
     }
 
     let client = build_client(&options).await?;
 
-    let genesis_milestone = get_genesis_milestone( &client).await?;
+    let genesis_milestone = get_genesis_milestone(&client).await?;
 
     let latest_milestone = get_latest_milestone(&client).await?;
 
@@ -83,7 +87,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_network_status() {
-
         tokio::task::spawn(start_mocknet_node());
 
         let request = NetworkStatusRequest {
@@ -106,7 +109,10 @@ mod tests {
         let response = network_status(request, server_options).await.unwrap();
 
         assert_eq!(68910, response.current_block_identifier.index);
-        assert_eq!("339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac", response.current_block_identifier.hash);
+        assert_eq!(
+            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
+            response.current_block_identifier.hash
+        );
         assert_eq!(1618486402000, response.current_block_timestamp);
     }
 }

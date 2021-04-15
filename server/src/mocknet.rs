@@ -3,8 +3,10 @@ use warp::Filter;
 use std::net::SocketAddr;
 
 pub async fn start_mocknet_node() {
-
-    let bind_addr = "0.0.0.0:3029".to_string().parse::<SocketAddr>().expect("unable to parse socket address");
+    let bind_addr = "0.0.0.0:3029"
+        .to_string()
+        .parse::<SocketAddr>()
+        .expect("unable to parse socket address");
 
     println!("Mocknet node listening on {}.", bind_addr.to_string());
 
@@ -76,7 +78,8 @@ pub async fn start_mocknet_node() {
         r#"{"data":[{"id":"A","multiAddresses":["/dns/testnet.chrysalis2.com/tcp/15600"],"alias":"A","relation":"known","connected":true,"gossip":{"heartbeat":{"solidMilestoneIndex":69082,"prunedMilestoneIndex":0,"latestMilestoneIndex":69082,"connectedNeighbors":1,"syncedNeighbors":8},"metrics":{"newMessages":10139612,"knownMessages":1210097,"receivedMessages":11538518,"receivedMessageRequests":0,"receivedMilestoneRequests":1,"receivedHeartbeats":54797,"sentMessages":564098,"sentMessageRequests":2758,"sentMilestoneRequests":9,"sentHeartbeats":54807,"droppedPackets":0}}}]}"#
     });
 
-    let routes = health.or(node_info.or(milestones.or(utxo_changes.or(outputs.or(message.or(addresses.or(outputs_for_address.or(peers))))))));
+    let routes = health.or(node_info
+        .or(milestones.or(utxo_changes.or(outputs.or(message.or(addresses.or(outputs_for_address.or(peers))))))));
 
     let shutdown = async {
         tokio::signal::ctrl_c()

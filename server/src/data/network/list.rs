@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{consts, error::ApiError, filters::EmptyRequest, config::Config, types::NetworkIdentifier};
+use crate::{config::Config, consts, error::ApiError, filters::EmptyRequest, types::NetworkIdentifier};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -28,8 +28,7 @@ pub async fn network_list(_empty: EmptyRequest, options: Config) -> Result<Netwo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::RosettaMode;
-    use crate::mocknet::start_mocknet_node;
+    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
 
     #[tokio::test]
     async fn test_network_list() {

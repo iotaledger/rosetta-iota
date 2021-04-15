@@ -18,12 +18,10 @@ use std::{
     path::Path,
 };
 
-use bee_snapshot::header::{FullSnapshotHeader, DeltaSnapshotHeader};
+use bee_snapshot::header::{DeltaSnapshotHeader, FullSnapshotHeader};
 use iota::Client;
 
-pub async fn bootstrap_balances_from_snapshot(
-    config: &Config,
-) {
+pub async fn bootstrap_balances_from_snapshot(config: &Config) {
     let download_url = "https://dbfiles.testnet.chrysalis2.com/";
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
@@ -52,7 +50,11 @@ struct BootstrapBalanceEntry {
     value: String,
 }
 
-async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs, config: &Config) -> (MilestoneIndex, String) {
+async fn read_delta_snapshot(
+    delta_path: &Path,
+    mut balance_diffs: BalanceDiffs,
+    config: &Config,
+) -> (MilestoneIndex, String) {
     println!("reading delta snapshot...");
 
     let mut reader = BufReader::new(
@@ -191,16 +193,19 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
 }
 
 async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) {
-    let file_name = file_path
-        .file_name()
-        .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()));
+    let file_name = file_path.file_name().expect(&format!(
+        "invalid file path {}",
+        file_path.to_string_lossy().to_string()
+    ));
 
-    std::fs::create_dir_all(
-        file_path
-            .parent()
-            .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()))
-    )
-        .expect(&format!("invalid file path {}", file_path.to_string_lossy().to_string()));
+    std::fs::create_dir_all(file_path.parent().expect(&format!(
+        "invalid file path {}",
+        file_path.to_string_lossy().to_string()
+    )))
+    .expect(&format!(
+        "invalid file path {}",
+        file_path.to_string_lossy().to_string()
+    ));
 
     for url in download_urls {
         let url = url.to_owned() + &file_name.to_string_lossy();

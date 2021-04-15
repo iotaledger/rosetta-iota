@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, config::Config};
+use crate::{config::Config, error::ApiError};
 
 use futures::future::BoxFuture;
 use serde::{Deserialize, Serialize};

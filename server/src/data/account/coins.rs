@@ -1,14 +1,20 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, is_wrong_network, config::Config, types::{AccountIdentifier, NetworkIdentifier, *}, is_offline_mode_enabled};
+use crate::{
+    config::Config,
+    currency::iota_currency,
+    error::ApiError,
+    is_offline_mode_enabled, is_wrong_network,
+    types::{AccountIdentifier, NetworkIdentifier, *},
+};
 
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
 
+use crate::client::{build_client, get_confirmed_milestone_index, get_milestone, get_outputs_of_address};
+use bee_rest_api::types::responses::OutputResponse;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use crate::client::{build_client, get_outputs_of_address, get_confirmed_milestone_index, get_milestone};
-use bee_rest_api::types::responses::OutputResponse;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -22,18 +28,17 @@ pub struct AccountCoinsResponse {
     pub coins: Vec<Coin>,
 }
 
-pub async fn account_coins(
-    request: AccountCoinsRequest,
-    options: Config,
-) -> Result<AccountCoinsResponse, ApiError> {
+pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::NonRetriable("endpoint is not available in offline mode".to_string()))
+        return Err(ApiError::NonRetriable(
+            "endpoint is not available in offline mode".to_string(),
+        ));
     }
 
     let (outputs, milestone) = outputs_of_address_at_milestone(&request.account_identifier.address, &options).await?;
@@ -41,7 +46,11 @@ pub async fn account_coins(
     let mut coins = Vec::new();
     for output_res in outputs {
         let amount = match output_res.output {
-            OutputDto::Treasury(_) => return Err(ApiError::NonRetriable("treasury output can not be used to feed a transaction".to_string())),
+            OutputDto::Treasury(_) => {
+                return Err(ApiError::NonRetriable(
+                    "treasury output can not be used to feed a transaction".to_string(),
+                ));
+            }
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
             },
@@ -50,12 +59,14 @@ pub async fn account_coins(
             },
         };
 
-        let output_id = format!("{}{}", output_res.transaction_id, hex::encode(output_res.output_index.to_le_bytes()));
+        let output_id = format!(
+            "{}{}",
+            output_res.transaction_id,
+            hex::encode(output_res.output_index.to_le_bytes())
+        );
 
         coins.push(Coin {
-            coin_identifier: CoinIdentifier {
-                identifier: output_id,
-            },
+            coin_identifier: CoinIdentifier { identifier: output_id },
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
@@ -75,7 +86,10 @@ pub async fn account_coins(
     Ok(response)
 }
 
-async fn outputs_of_address_at_milestone(address: &str, options: &Config) -> Result<(Vec<OutputResponse>, iota::MilestoneResponse), ApiError> {
+async fn outputs_of_address_at_milestone(
+    address: &str,
+    options: &Config,
+) -> Result<(Vec<OutputResponse>, iota::MilestoneResponse), ApiError> {
     let client = build_client(options).await?;
 
     // to make sure the outputs of an address do not change in the meantime, check the index of the confirmed
@@ -86,7 +100,9 @@ async fn outputs_of_address_at_milestone(address: &str, options: &Config) -> Res
     let index_after = get_confirmed_milestone_index(&client).await?;
 
     if index_before != index_after {
-        return Err(ApiError::Retriable("confirmed milestone changed while performing the request".to_string()));
+        return Err(ApiError::Retriable(
+            "confirmed milestone changed while performing the request".to_string(),
+        ));
     }
 
     let milestone = get_milestone(index_before, &client).await?;
@@ -97,12 +113,10 @@ async fn outputs_of_address_at_milestone(address: &str, options: &Config) -> Res
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::RosettaMode;
-    use crate::mocknet::start_mocknet_node;
+    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
 
     #[tokio::test]
     async fn test_coins() {
-
         tokio::task::spawn(start_mocknet_node());
 
         let request = AccountCoinsRequest {
@@ -133,15 +147,11 @@ mod tests {
             "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
             response.block_identifier.hash
         );
+        assert_eq!(1, response.coins.len());
+        assert_eq!("10000000", response.coins[0].amount.value);
         assert_eq!(
-            1,
-            response.coins.len()
-        );
-        assert_eq!(
-            "10000000", response.coins[0].amount.value
-        );
-        assert_eq!(
-            "f3a53f04402be2f59634ee9b073898c84d2e08b4ba06046d440b1ac27bc5ded60000", response.coins[0].coin_identifier.identifier
+            "f3a53f04402be2f59634ee9b073898c84d2e08b4ba06046d440b1ac27bc5ded60000",
+            response.coins[0].coin_identifier.identifier
         );
     }
 }

@@ -28,14 +28,17 @@ pub async fn construction_derive_request(
     debug!("/construction/derive");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     if request.public_key.curve_type != CurveType::Edwards25519 {
-        return Err(ApiError::NonRetriable("invalid curve type: must be edwards25519".to_string()))
+        return Err(ApiError::NonRetriable(
+            "invalid curve type: must be edwards25519".to_string(),
+        ));
     }
 
-    let public_key_bytes = hex::decode(request.public_key.hex_bytes).map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
+    let public_key_bytes = hex::decode(request.public_key.hex_bytes)
+        .map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
     let bech32_address = Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&options.bech32_hrp);
@@ -56,7 +59,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_derive() {
-
         let data = r#"{"network_identifier":{"blockchain":"iota","network":"testnet7"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}"#;
         let request: ConstructionDeriveRequest = serde_json::from_str(data).unwrap();
 

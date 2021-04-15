@@ -1,7 +1,13 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, operations::*, config::Config, types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier}, is_offline_mode_enabled};
+use crate::{
+    config::Config,
+    error::ApiError,
+    is_offline_mode_enabled, is_wrong_network,
+    operations::*,
+    types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier},
+};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -15,11 +21,11 @@ use iota::Client;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
+use crate::client::{build_client, get_milestone, get_utxo_changes};
 use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
 };
-use crate::client::{build_client, get_milestone, get_utxo_changes};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BlockRequest {
@@ -36,11 +42,13 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
     debug!("/block");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
+        return Err(ApiError::NonRetriable(
+            "endpoint does not support offline mode".to_string(),
+        ));
     }
 
     let client = build_client(&options).await?;
@@ -54,7 +62,9 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
 
     if let Some(hash) = request.block_identifier.hash {
         if hash != milestone.message_id.to_string() {
-            return Err(ApiError::NonRetriable("provided block hash does not relate to the provided block index".to_string()));
+            return Err(ApiError::NonRetriable(
+                "provided block hash does not relate to the provided block index".to_string(),
+            ));
         }
     }
 
@@ -182,9 +192,13 @@ async fn from_transaction(
             _ => return Err(ApiError::NonRetriable("input type not supported".to_string())), // NOT SUPPORTED
         };
 
-        let output_info = iota_client.get_output(&utxo_input).await.map_err(|e| ApiError::NonRetriable(format!("can not get input information: {}", e)))?;
+        let output_info = iota_client
+            .get_output(&utxo_input)
+            .await
+            .map_err(|e| ApiError::NonRetriable(format!("can not get input information: {}", e)))?;
 
-        let output = Output::try_from(&output_info.output).map_err(|e| ApiError::NonRetriable(format!("can not parse output from output information: {}", e)))?;
+        let output = Output::try_from(&output_info.output)
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse output from output information: {}", e)))?;
 
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
@@ -201,10 +215,14 @@ async fn from_transaction(
 
     let mut output_index: u16 = 0;
     for output in regular_essence.outputs() {
-
         let output_id = {
-            let s = format!("{}{}", transaction_payload.id().to_string(), hex::encode(output_index.to_le_bytes()));
-            s.parse::<OutputId>().map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?
+            let s = format!(
+                "{}{}",
+                transaction_payload.id().to_string(),
+                hex::encode(output_index.to_le_bytes())
+            );
+            s.parse::<OutputId>()
+                .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?
         };
 
         let output_operation = match output {
@@ -212,17 +230,17 @@ async fn from_transaction(
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
-                },
-                _ => unimplemented!()
+                }
+                _ => unimplemented!(),
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
-                },
-                _ => unimplemented!()
+                }
+                _ => unimplemented!(),
             },
-            _ => unimplemented!()
+            _ => unimplemented!(),
         };
 
         operations.push(output_operation);
@@ -241,14 +259,12 @@ async fn from_transaction(
     Ok(transaction)
 }
 
-async fn from_milestone(
-    created_outputs: &Vec<CreatedOutput>,
-    options: &Config,
-) -> Result<Transaction, ApiError> {
+async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &Config) -> Result<Transaction, ApiError> {
     let mut operations = Vec::new();
 
     for created_output in created_outputs {
-        let output = Output::try_from(&created_output.output_response.output).map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
+        let output = Output::try_from(&created_output.output_response.output)
+            .map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
 
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
 
@@ -265,7 +281,7 @@ async fn from_milestone(
 
     let transaction = Transaction {
         transaction_identifier: TransactionIdentifier {
-            hash: created_outputs.first().unwrap().output_id.transaction_id().to_string()
+            hash: created_outputs.first().unwrap().output_id.transaction_id().to_string(),
         },
         operations,
         metadata: None,
@@ -293,8 +309,7 @@ async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::RosettaMode;
-    use crate::mocknet::start_mocknet_node;
+    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
 
     #[tokio::test]
     async fn test_block() {

@@ -1,10 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*,
-    Config,
-};
+use crate::{construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*, Config};
 
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
@@ -32,7 +29,7 @@ pub(crate) async fn construction_payloads_request(
     debug!("/construction/payloads");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()))
+        return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     let mut inputs = vec![];
@@ -46,13 +43,10 @@ pub(crate) async fn construction_payloads_request(
             .address;
 
         match &operation.type_[..] {
-
             "INPUT" => {
                 let output_id = operation
                     .coin_change
-                    .ok_or(ApiError::NonRetriable(
-                        "coin change not populated".to_string(),
-                    ))?
+                    .ok_or(ApiError::NonRetriable("coin change not populated".to_string()))?
                     .coin_identifier
                     .identifier;
 
@@ -73,7 +67,9 @@ pub(crate) async fn construction_payloads_request(
                     .parse::<u64>()
                     .unwrap();
 
-                outputs.push(Output::SignatureLockedSingle(SignatureLockedSingleOutput::new(address, amount).unwrap().into()));
+                outputs.push(Output::SignatureLockedSingle(
+                    SignatureLockedSingleOutput::new(address, amount).unwrap().into(),
+                ));
             }
 
             "SIG_LOCKED_DUST_ALLOWANCE_OUTPUT" => {
@@ -86,7 +82,9 @@ pub(crate) async fn construction_payloads_request(
                     .parse::<u64>()
                     .unwrap();
 
-                outputs.push(Output::SignatureLockedDustAllowance(SignatureLockedDustAllowanceOutput::new(address, amount).unwrap().into()));
+                outputs.push(Output::SignatureLockedDustAllowance(
+                    SignatureLockedDustAllowanceOutput::new(address, amount).unwrap().into(),
+                ));
             }
 
             _ => return Err(ApiError::NonRetriable("invalid operation type".to_string())),
@@ -97,7 +95,8 @@ pub(crate) async fn construction_payloads_request(
     inputs.sort_unstable_by_key(|i| i.0.pack_new());
     outputs.sort_unstable_by_key(|o| o.pack_new());
 
-    let indexation_payload = IndexationPayload::new(options.tx_tag.as_bytes(), &[]).map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
+    let indexation_payload = IndexationPayload::new(options.tx_tag.as_bytes(), &[])
+        .map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
 
     let mut transaction_payload_essence =
         RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
@@ -112,8 +111,7 @@ pub(crate) async fn construction_payloads_request(
 
     let essence = Essence::Regular(transaction_payload_essence.finish().unwrap());
     let hash_to_sign = essence.hash();
-    let unsigned_transaction =
-        UnsignedTransaction::new(essence, request.metadata.utxo_inputs_metadata);
+    let unsigned_transaction = UnsignedTransaction::new(essence, request.metadata.utxo_inputs_metadata);
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {

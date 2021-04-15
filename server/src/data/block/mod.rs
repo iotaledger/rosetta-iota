@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    config::Config,
     data::block::block::block,
     filters::{handle, with_options},
-    config::Config,
 };
 
 use warp::Filter;

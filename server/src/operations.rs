@@ -21,7 +21,11 @@ pub const UTXO_CONSUMED: &str = "coin_spent"; // UTXO Input, where coins are com
 pub const UTXO_CREATED: &str = "coin_created"; // UTXO Output, where coins are going out from the Transaction
 
 pub fn operation_type_list() -> Vec<String> {
-    vec![INPUT.into(), SIG_LOCKED_SINGLE_OUTPUT.into(), SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into()]
+    vec![
+        INPUT.into(),
+        SIG_LOCKED_SINGLE_OUTPUT.into(),
+        SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
+    ]
 }
 
 pub fn operation_status_success() -> String {
@@ -81,7 +85,13 @@ pub fn utxo_input_operation(
     }
 }
 
-pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool, output_id: Option<OutputId>) -> Operation {
+pub fn utxo_output_operation(
+    address: String,
+    amnt: u64,
+    operation_counter: usize,
+    online: bool,
+    output_id: Option<OutputId>,
+) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -107,19 +117,25 @@ pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usiz
         account: Some(account),
         amount: Some(amount),
         coin_change: match output_id {
-            Some(output_id) => {
-                Some(CoinChange {
-                    coin_identifier: CoinIdentifier { identifier: output_id.to_string() },
-                    coin_action: CoinAction::CoinCreated,
-                })
-            }
-            None => None
+            Some(output_id) => Some(CoinChange {
+                coin_identifier: CoinIdentifier {
+                    identifier: output_id.to_string(),
+                },
+                coin_action: CoinAction::CoinCreated,
+            }),
+            None => None,
         },
         metadata: None,
     }
 }
 
-pub fn dust_allowance_output_operation(address: String, amnt: u64, operation_counter: usize, online: bool, output_id: Option<OutputId>) -> Operation {
+pub fn dust_allowance_output_operation(
+    address: String,
+    amnt: u64,
+    operation_counter: usize,
+    online: bool,
+    output_id: Option<OutputId>,
+) -> Operation {
     let account = AccountIdentifier {
         address,
         sub_account: None,
@@ -145,13 +161,13 @@ pub fn dust_allowance_output_operation(address: String, amnt: u64, operation_cou
         account: Some(account),
         amount: Some(amount),
         coin_change: match output_id {
-            Some(output_id) => {
-                Some(CoinChange {
-                    coin_identifier: CoinIdentifier { identifier: output_id.to_string() },
-                    coin_action: CoinAction::CoinCreated,
-                })
-            }
-            None => None
+            Some(output_id) => Some(CoinChange {
+                coin_identifier: CoinIdentifier {
+                    identifier: output_id.to_string(),
+                },
+                coin_action: CoinAction::CoinCreated,
+            }),
+            None => None,
         },
         metadata: None,
     }

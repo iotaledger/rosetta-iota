@@ -1,11 +1,16 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{currency::iota_currency, error::ApiError, is_wrong_network, config::Config, types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier}, is_offline_mode_enabled};
+use crate::{
+    config::Config,
+    currency::iota_currency,
+    error::ApiError,
+    is_offline_mode_enabled, is_wrong_network,
+    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
+};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-
 
 use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index, get_milestone};
 
@@ -30,20 +35,23 @@ pub async fn account_balance(
     debug!("/account/balance");
 
     if is_wrong_network(&options, &request.network_identifier) {
-        return Err(ApiError::NonRetriable("wrong network".to_string()))
+        return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     if is_offline_mode_enabled(&options) {
-        return Err(ApiError::NonRetriable("endpoint does not support offline mode".to_string()))
+        return Err(ApiError::NonRetriable(
+            "endpoint does not support offline mode".to_string(),
+        ));
     }
 
     // historical balance lookup is not supported
     if request.block_identifier.is_some() {
-        return Err(ApiError::NonRetriable("historical balance lookup not supported".to_string()));
+        return Err(ApiError::NonRetriable(
+            "historical balance lookup not supported".to_string(),
+        ));
     }
 
-    let (balance, confirmed_milestone) =
-        balance_at_milestone(&request.account_identifier.address, &options).await?;
+    let (balance, confirmed_milestone) = balance_at_milestone(&request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {
@@ -67,7 +75,9 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
     let index_after = get_confirmed_milestone_index(&client).await?;
 
     if index_before != index_after {
-        return Err(ApiError::Retriable("confirmed milestone changed while performing the request".to_string()));
+        return Err(ApiError::Retriable(
+            "confirmed milestone changed while performing the request".to_string(),
+        ));
     }
 
     let milestone = get_milestone(index_before, &client).await?;
@@ -84,8 +94,7 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::RosettaMode;
-    use crate::mocknet::start_mocknet_node;
+    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
 
     #[tokio::test]
     async fn test_balance() {
@@ -120,14 +129,9 @@ mod tests {
             "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
             response.block_identifier.hash
         );
-        assert_eq!(
-            1,
-            response.balances.len()
-        );
+        assert_eq!(1, response.balances.len());
         assert_eq!("IOTA", response.balances[0].currency.symbol);
         assert_eq!(0, response.balances[0].currency.decimals);
-        assert_eq!(
-            "11000000", response.balances[0].value
-        );
+        assert_eq!("11000000", response.balances[0].value);
     }
 }

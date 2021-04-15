@@ -16,7 +16,7 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering_testnet.json`. If you don't have any peers, please contact us and we will help you.
+3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering_testnet.json`. If you don't have any peers, please contact us and we will help you find some.
 4) Run the implementation in the desired mode:
 
 **Testnet: online mode**
