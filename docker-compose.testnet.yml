@@ -14,8 +14,8 @@ services:
       - "127.0.0.1:14265:14265/tcp"
       - "0.0.0.0:15600:15600/tcp"
     volumes:
-      - './hornet/config.json:/app/config.json:ro'
-      - './hornet/peering.json:/app/peering.json'
+      - './hornet/config_testnet.json:/app/config.json:ro'
+      - './hornet/peering_testnet.json:/app/peering.json'
       - './data:/data'
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'
@@ -26,10 +26,8 @@ services:
     restart: "no"
     environment:
       RUST_LOG: info
-
       NETWORK: 'testnet7'
       BECH32_HRP: 'atoi'
-      MODE: 'online'
     expose:
       # Rosetta API
       - "3030"
