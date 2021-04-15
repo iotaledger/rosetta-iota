@@ -68,7 +68,7 @@ transfer(1){
 
     // find receiver
     receiver = find_balance({
-      "not_account_identifier":[{{sender.account_identifier}}, {{dust_receiver.account_identifier}}],
+      "not_account_identifier":[{{sender.account_identifier}}],
       "minimum_balance":{
         "value": "0",
         "currency": {{currency}}
