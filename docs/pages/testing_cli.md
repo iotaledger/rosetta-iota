@@ -16,15 +16,15 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 
     Testing the Data API **(testnet)**:
     ```
-    ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
+    INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
     ```
 
     Testing the Construction API **(testnet)**:
     ```
-    ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
+    INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
     ```
 The testing scripts make use of following environment variables:
-- `ROSETTA_CLI_INSTALL=1` ...installs rosetta-cli
+- `INSTALL=1` ...installs rosetta-cli
 - `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli storage, downloads the most recent snapshots, bootstraps balances and starts synchronizing from the snapshot state
 - `NO_BOOTSTRAP=1` ...keeps the rosetta-cli storage and continues to synchronize from the available state
 - `NODE_URL=http://localhost:14265` ...the URL of the REST API from the IOTA node.  
