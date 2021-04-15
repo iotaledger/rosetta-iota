@@ -34,7 +34,7 @@ pub async fn get_outputs_of_address(
 ) -> Result<Vec<OutputResponse>, ApiError> {
     match client.find_outputs(&[], &[bech32_addr.to_string()]).await {
         Ok(outputs) => Ok(outputs),
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to outputs from address: {}", e))),
+        Err(e) => return Err(ApiError::NonRetriable(format!("can not get outputs of address: {}", e))),
     }
 }
 

@@ -85,9 +85,12 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
 mod tests {
     use super::*;
     use crate::config::RosettaMode;
+    use crate::mocknet::start_mocknet_node;
 
     #[tokio::test]
     async fn test_balance() {
+        tokio::task::spawn(start_mocknet_node());
+
         let request = AccountBalanceRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
@@ -95,16 +98,16 @@ mod tests {
                 sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
-                address: String::from("atoi1qqp4g5xv4zjweaj5tu44yn365afdhe3n3t9nmp9wqreahzp8a3egc5zrx2h"),
+                address: String::from("atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek"),
                 sub_account: None,
             },
             block_identifier: None,
         };
 
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
             network: "testnet7".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
@@ -112,8 +115,19 @@ mod tests {
 
         let response = account_balance(request, server_options).await.unwrap();
 
+        assert_eq!(68910, response.block_identifier.index);
+        assert_eq!(
+            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
+            response.block_identifier.hash
+        );
+        assert_eq!(
+            1,
+            response.balances.len()
+        );
         assert_eq!("IOTA", response.balances[0].currency.symbol);
         assert_eq!(0, response.balances[0].currency.decimals);
-        // todo: more assertions
+        assert_eq!(
+            "10000000", response.balances[0].value
+        );
     }
 }

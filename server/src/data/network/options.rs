@@ -68,27 +68,45 @@ pub async fn network_options(
 mod tests {
     use super::*;
     use crate::config::RosettaMode;
+    use crate::mocknet::start_mocknet_node;
 
     #[tokio::test]
     async fn test_network_options() {
+        tokio::task::spawn(start_mocknet_node());
+
         let request = NetworkOptionsRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
-                network: "testnet6".to_string(),
+                network: "testnet7".to_string(),
                 sub_network_identifier: None,
             },
         };
 
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
+            network: "testnet7".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
-        let _response = network_options(request, server_options).await.unwrap();
 
-        // todo: assertions
+        let response = network_options(request, server_options).await.unwrap();
+
+        assert_eq!("1.4.10", response.version.rosetta_version);
+        assert_eq!("0.6.0-alpha", response.version.node_version);
+        assert_eq!("0.6.0-alpha", response.version.middleware_version);
+
+        assert_eq!("Success", response.allow.operation_statuses[0].status);
+        assert_eq!(true, response.allow.operation_statuses[0].successful);
+
+        assert_eq!("UTXO_INPUT", response.allow.operation_types[0]);
+        assert_eq!("UTXO_OUTPUT", response.allow.operation_types[1]);
+        assert_eq!("DUST_ALLOWANCE_OUTPUT", response.allow.operation_types[2]);
+
+        assert_eq!(1, response.allow.errors[0].code);
+        assert_eq!("non retriable error", response.allow.errors[0].message);
+        assert_eq!(false, response.allow.errors[0].retriable);
+        assert_eq!(false, response.allow.errors[0].details.is_some());
     }
 }

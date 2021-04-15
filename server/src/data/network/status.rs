@@ -79,8 +79,13 @@ mod tests {
     use super::*;
     use crate::config::RosettaMode;
 
+    use crate::mocknet::start_mocknet_node;
+
     #[tokio::test]
     async fn test_network_status() {
+
+        tokio::task::spawn(start_mocknet_node());
+
         let request = NetworkStatusRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
@@ -90,15 +95,18 @@ mod tests {
         };
 
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
             network: "testnet7".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
-        let _response = network_status(request, server_options).await.unwrap();
 
-        // todo: assertions
+        let response = network_status(request, server_options).await.unwrap();
+
+        assert_eq!(68910, response.current_block_identifier.index);
+        assert_eq!("339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac", response.current_block_identifier.hash);
+        assert_eq!(1618486402000, response.current_block_timestamp);
     }
 }

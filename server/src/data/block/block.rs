@@ -294,9 +294,12 @@ async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address)
 mod tests {
     use super::*;
     use crate::config::RosettaMode;
+    use crate::mocknet::start_mocknet_node;
 
     #[tokio::test]
     async fn test_block() {
+        tokio::task::spawn(start_mocknet_node());
+
         let request = BlockRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
@@ -304,31 +307,33 @@ mod tests {
                 sub_network_identifier: None,
             },
             block_identifier: PartialBlockIdentifier {
-                index: Some(252),
+                index: Some(68910),
                 hash: None,
             },
         };
 
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
             network: "testnet7".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
+
         let response = block(request, server_options).await.unwrap();
-        assert_eq!(252, response.block.block_identifier.index);
+
+        assert_eq!(68910, response.block.block_identifier.index);
         assert_eq!(
-            "81cb76571142610b3773f247dc6d915673d4b7e4f73bad2ab82d94a10e3ed5bd",
+            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
             response.block.block_identifier.hash
         );
-        assert_eq!(251, response.block.parent_block_identifier.index);
+        assert_eq!(68909, response.block.parent_block_identifier.index);
         assert_eq!(
-            "beec71a316e761cabc66e82ff67d451e49f2941f160c38b4296af9de05bba638",
+            "8489917555634d94da2c5fa208fe9bc0a90a1cb03528147e43bc0b286e78b59d",
             response.block.parent_block_identifier.hash
         );
-        assert_eq!(1617799822 * 1000, response.block.timestamp);
+        assert_eq!(1618486402 * 1000, response.block.timestamp);
         assert_eq!(false, response.block.metadata.is_some());
     }
 }

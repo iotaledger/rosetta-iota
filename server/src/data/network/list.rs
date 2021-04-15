@@ -29,13 +29,16 @@ pub async fn network_list(_empty: EmptyRequest, options: Config) -> Result<Netwo
 mod tests {
     use super::*;
     use crate::config::RosettaMode;
+    use crate::mocknet::start_mocknet_node;
 
     #[tokio::test]
     async fn test_network_list() {
+        tokio::task::spawn(start_mocknet_node());
+
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
+            network: "testnet7".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
@@ -43,7 +46,7 @@ mod tests {
         let response = network_list(EmptyRequest, server_options).await.unwrap();
 
         assert_eq!("iota", response.network_identifiers[0].blockchain);
-        assert_eq!("testnet6", response.network_identifiers[0].network);
+        assert_eq!("testnet7", response.network_identifiers[0].network);
         assert_eq!(false, response.network_identifiers[0].sub_network_identifier.is_some())
     }
 }

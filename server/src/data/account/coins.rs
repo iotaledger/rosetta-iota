@@ -98,9 +98,13 @@ async fn outputs_of_address_at_milestone(address: &str, options: &Config) -> Res
 mod tests {
     use super::*;
     use crate::config::RosettaMode;
+    use crate::mocknet::start_mocknet_node;
 
     #[tokio::test]
     async fn test_coins() {
+
+        tokio::task::spawn(start_mocknet_node());
+
         let request = AccountCoinsRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
@@ -108,21 +112,36 @@ mod tests {
                 sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
-                address: String::from("atoi1qzgrk7whadapf4qw5sqvlxkrr0ve3nv09xgdfyc09gfp3e2369ghsj5g2rf"),
+                address: String::from("atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek"),
                 sub_account: None,
             },
         };
 
         let server_options = Config {
-            node: "https://api.hornet-rosetta.testnet.chrysalis2.com".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
             network: "testnet7".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
 
-        let _response = account_coins(request, server_options).await.unwrap();
-        // todo: assertions
+        let response = account_coins(request, server_options).await.unwrap();
+
+        assert_eq!(68910, response.block_identifier.index);
+        assert_eq!(
+            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
+            response.block_identifier.hash
+        );
+        assert_eq!(
+            1,
+            response.coins.len()
+        );
+        assert_eq!(
+            "10000000", response.coins[0].amount.value
+        );
+        assert_eq!(
+            "f3a53f04402be2f59634ee9b073898c84d2e08b4ba06046d440b1ac27bc5ded60000", response.coins[0].coin_identifier.identifier
+        );
     }
 }

@@ -21,7 +21,7 @@ pub mod filters;
 pub mod operations;
 pub mod config;
 pub mod types;
-
+pub mod mocknet;
 
 pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();

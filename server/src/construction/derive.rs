@@ -69,9 +69,9 @@ mod tests {
         };
 
         let server_options = Config {
-            node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
+            node_url: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Offline,
             bind_addr: "0.0.0.0:3030".to_string(),
@@ -99,20 +99,15 @@ mod tests {
         };
 
         let server_options = Config {
-            node: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
+            node_url: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
             network: "testnet6".to_string(),
-            tx_indexation: "rosetta".to_string(),
+            tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
             mode: RosettaMode::Offline,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
 
-        if let Err(e) = construction_derive_request(request, server_options).await {
-            match e {
-                ApiError::WrongNetwork => (),
-                _ => panic!("expected bad network error"),
-            }
-        } else {
+        if let Ok(_) = construction_derive_request(request, server_options).await {
             panic!("expected an error")
         }
     }
