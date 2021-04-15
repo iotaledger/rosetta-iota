@@ -32,6 +32,7 @@ pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Sen
         .expect("unable to parse socket address");
 
     info!("Listening on {}.", bind_addr.to_string());
+    info!("BIND_ADDRESS {} NETWORK {} BECH32_HRP {} TX_TAG {} NODE_URL {} MODE {:#?}", bind_addr.to_string(), config.network, config.bech32_hrp, config.tx_tag, config.node_url, config.mode);
 
     let routes = data::network::routes(config.clone())
         .or(data::block::routes(config.clone()))

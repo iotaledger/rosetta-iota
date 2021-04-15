@@ -100,9 +100,9 @@ mod tests {
         assert_eq!("Success", response.allow.operation_statuses[0].status);
         assert_eq!(true, response.allow.operation_statuses[0].successful);
 
-        assert_eq!("UTXO_INPUT", response.allow.operation_types[0]);
-        assert_eq!("UTXO_OUTPUT", response.allow.operation_types[1]);
-        assert_eq!("DUST_ALLOWANCE_OUTPUT", response.allow.operation_types[2]);
+        assert_eq!("INPUT", response.allow.operation_types[0]);
+        assert_eq!("SIG_LOCKED_SINGLE_OUTPUT", response.allow.operation_types[1]);
+        assert_eq!("SIG_LOCKED_DUST_ALLOWANCE_OUTPUT", response.allow.operation_types[2]);
 
         assert_eq!(1, response.allow.errors[0].code);
         assert_eq!("non retriable error", response.allow.errors[0].message);

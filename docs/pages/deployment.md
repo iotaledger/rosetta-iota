@@ -21,12 +21,12 @@ Only **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chro
 
 **Testnet: online mode**
 ```
-NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=online docker-compose up
+MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
 ```
 
 **Testnet: offline mode**
 ```
-NETWORK=testnet7 BECH32_HRP=atoi TX_TAG=Rosetta MODE=offline docker-compose up
+MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
 ```
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 

@@ -22,14 +22,14 @@ services:
 
   rosetta:
     build: .
-    command: --bind-addr 0.0.0.0:3030 --network $NETWORK --bech32-hrp $BECH32_HRP --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
+    command: --bind-addr 0.0.0.0:3030 --network {NETWORK} --bech32-hrp {BECH32_HRP} --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
     restart: "no"
     environment:
-      RUST_LOG: info
-      NETWORK: 'testnet7'
-      BECH32_HRP: 'atoi'
+      - RUST_LOG=info
+      - NETWORK=testnet7
+      - BECH32_HRP=atoi
+    ports:
+      - "0.0.0.0:3030:3030/tcp"
     expose:
       # Rosetta API
       - "3030"
-    ports:
-      - "0.0.0.0:3030:3030/tcp"
