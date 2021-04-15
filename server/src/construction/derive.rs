@@ -55,60 +55,24 @@ mod tests {
     use crate::config::RosettaMode;
 
     #[tokio::test]
-    async fn test_address_from_public_key() {
-        let request = ConstructionDeriveRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet6".to_string(),
-                sub_network_identifier: None,
-            },
-            public_key: PublicKey {
-                hex_bytes: "29bdea325f58cb4ad7493ba7bc12c36bafb381350f5fbea0357ad2b869793e95".to_string(),
-                curve_type: CurveType::Edwards25519,
-            },
-        };
+    async fn test_derive() {
+
+        let data = r#"{"network_identifier":{"blockchain":"iota","network":"testnet7"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}"#;
+        let request: ConstructionDeriveRequest = serde_json::from_str(data).unwrap();
 
         let server_options = Config {
-            node_url: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
+            node_url: "http://127.0.0.1:3029".to_string(),
+            network: "testnet7".to_string(),
             tx_tag: "rosetta".to_string(),
             bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Offline,
+            mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
 
         let response = construction_derive_request(request, server_options).await.unwrap();
         assert_eq!(
-            "atoi1qqdxdqak4x96hzw6rkt48t4x5t84e209jmmlkp6t6lcx8aj6unr7zzv994h",
+            "atoi1qpv2nr99fkjykh5ga3x62lqlztrg6t67k750v93lculsna3z7knnu9wdz4h",
             response.account_identifier.address
         )
-    }
-
-    #[tokio::test]
-    async fn test_bad_network() {
-        let request = ConstructionDeriveRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet4".to_string(),
-                sub_network_identifier: None,
-            },
-            public_key: PublicKey {
-                hex_bytes: "29bdea325f58cb4ad7493ba7bc12c36bafb381350f5fbea0357ad2b869793e95".to_string(),
-                curve_type: CurveType::Edwards25519,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "https://api.lb-0.testnet.chrysalis2.com".to_string(),
-            network: "testnet6".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Offline,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        if let Ok(_) = construction_derive_request(request, server_options).await {
-            panic!("expected an error")
-        }
     }
 }

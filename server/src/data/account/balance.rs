@@ -127,7 +127,7 @@ mod tests {
         assert_eq!("IOTA", response.balances[0].currency.symbol);
         assert_eq!(0, response.balances[0].currency.decimals);
         assert_eq!(
-            "10000000", response.balances[0].value
+            "11000000", response.balances[0].value
         );
     }
 }

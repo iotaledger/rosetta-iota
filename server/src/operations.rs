@@ -8,9 +8,9 @@ use crate::{
 use bee_message::prelude::OutputId;
 
 // operation types
-pub const UTXO_INPUT: &str = "UTXO_INPUT";
-pub const UTXO_OUTPUT: &str = "UTXO_OUTPUT";
-pub const DUST_ALLOWANCE_OUTPUT: &str = "DUST_ALLOWANCE_OUTPUT";
+pub const INPUT: &str = "INPUT";
+pub const SIG_LOCKED_SINGLE_OUTPUT: &str = "SIG_LOCKED_SINGLE_OUTPUT";
+pub const SIG_LOCKED_DUST_ALLOWANCE_OUTPUT: &str = "SIG_LOCKED_DUST_ALLOWANCE_OUTPUT";
 
 // operation status
 pub const SUCCESS: &str = "Success";
@@ -21,7 +21,7 @@ pub const UTXO_CONSUMED: &str = "coin_spent"; // UTXO Input, where coins are com
 pub const UTXO_CREATED: &str = "coin_created"; // UTXO Output, where coins are going out from the Transaction
 
 pub fn operation_type_list() -> Vec<String> {
-    vec![UTXO_INPUT.into(), UTXO_OUTPUT.into(), DUST_ALLOWANCE_OUTPUT.into()]
+    vec![INPUT.into(), SIG_LOCKED_SINGLE_OUTPUT.into(), SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into()]
 }
 
 pub fn operation_status_success() -> String {
@@ -63,7 +63,7 @@ pub fn utxo_input_operation(
             network_index: Some(output_index as u64), // no sharding in IOTA yet :(
         },
         related_operations: None,
-        type_: UTXO_INPUT.into(),
+        type_: INPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()), // call coming from /data/block
             false => None,                // call coming from /construction/parse
@@ -99,7 +99,7 @@ pub fn utxo_output_operation(address: String, amnt: u64, operation_counter: usiz
             network_index: None,
         },
         related_operations: None,
-        type_: UTXO_OUTPUT.into(),
+        type_: SIG_LOCKED_SINGLE_OUTPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()),
             false => None,
@@ -137,7 +137,7 @@ pub fn dust_allowance_output_operation(address: String, amnt: u64, operation_cou
             network_index: None,
         },
         related_operations: None,
-        type_: DUST_ALLOWANCE_OUTPUT.into(),
+        type_: SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()),
             false => None,

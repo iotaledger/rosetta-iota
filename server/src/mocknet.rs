@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 
 pub async fn start_mocknet_node() {
 
-    let bind_addr = "127.0.0.1:3029".to_string().parse::<SocketAddr>().expect("unable to parse socket address");
+    let bind_addr = "0.0.0.0:3029".to_string().parse::<SocketAddr>().expect("unable to parse socket address");
 
     println!("Mocknet node listening on {}.", bind_addr.to_string());
 

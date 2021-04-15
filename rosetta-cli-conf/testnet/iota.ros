@@ -112,7 +112,7 @@ transfer(1){
           "index":0,
           "network_index":0
         },
-        "type":"UTXO_INPUT",
+        "type":"INPUT",
         "account":{{sender.account_identifier}},
         "amount":{
           "value":{{sender_amount}},
@@ -127,7 +127,7 @@ transfer(1){
         "operation_identifier":{
           "index":1
         },
-        "type":"UTXO_OUTPUT",
+        "type":"SIG_LOCKED_SINGLE_OUTPUT",
         "account":{{receiver.account_identifier}},
         "amount":{
           "value":{{receiver_amount}},
@@ -138,7 +138,7 @@ transfer(1){
         "operation_identifier":{
           "index":2
         },
-        "type":"UTXO_OUTPUT",
+        "type":"SIG_LOCKED_SINGLE_OUTPUT",
         "account":{{dust_receiver.account_identifier}},
         "amount":{
           "value":{{dust_receiver_amount}},
@@ -149,7 +149,7 @@ transfer(1){
         "operation_identifier":{
           "index":3
         },
-        "type":"DUST_ALLOWANCE_OUTPUT",
+        "type":"SIG_LOCKED_DUST_ALLOWANCE_OUTPUT",
         "account":{{dust_receiver.account_identifier}},
         "amount":{
           "value":{{dust_allowance}},

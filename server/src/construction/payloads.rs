@@ -47,7 +47,7 @@ pub(crate) async fn construction_payloads_request(
 
         match &operation.type_[..] {
 
-            "UTXO_INPUT" => {
+            "INPUT" => {
                 let output_id = operation
                     .coin_change
                     .ok_or(ApiError::NonRetriable(
@@ -63,7 +63,7 @@ pub(crate) async fn construction_payloads_request(
                 inputs.push((Input::Utxo(utxo_input), address));
             }
 
-            "UTXO_OUTPUT" => {
+            "SIG_LOCKED_SINGLE_OUTPUT" => {
                 let address = Address::try_from_bech32(&address).unwrap();
 
                 let amount = operation
@@ -76,7 +76,7 @@ pub(crate) async fn construction_payloads_request(
                 outputs.push(Output::SignatureLockedSingle(SignatureLockedSingleOutput::new(address, amount).unwrap().into()));
             }
 
-            "DUST_ALLOWANCE_OUTPUT" => {
+            "SIG_LOCKED_DUST_ALLOWANCE_OUTPUT" => {
                 let address = Address::try_from_bech32(&address).unwrap();
 
                 let amount = operation
