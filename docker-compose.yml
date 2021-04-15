@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   hornet:
-    image: iotaledger/hornet:chrysalis2-preview
+    image: iotaledger/hornet@sha256:05d4d7c8f609b2ebcd81c2d3fdb912a3c0cc87b444a50a1b05c91b05c0060f10
     restart: "no"
     working_dir: /app
     expose:
@@ -23,9 +23,13 @@ services:
   rosetta:
     build: .
     command: --bind-addr 0.0.0.0:3030 --network $NETWORK --bech32-hrp $BECH32_HRP --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
-    restart: "always"
+    restart: "no"
     environment:
       RUST_LOG: info
+
+      NETWORK: 'testnet7'
+      BECH32_HRP: 'atoi'
+      MODE: 'online'
     expose:
       # Rosetta API
       - "3030"
