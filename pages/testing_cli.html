@@ -181,16 +181,16 @@
 Also ensure that the REST API of the IOTA is available at http://localhost:14265/api/v1/info.</p>
 <p>To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
 <p>Testing the Data API <strong>(testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
 </code></pre>
 <p>Testing the Construction API <strong>(testnet)</strong>:</p>
-<pre><code>ROSETTA_CLI_INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
 </code></pre>
 </li>
 </ol>
 <p>The testing scripts make use of following environment variables:</p>
 <ul>
-<li><code>ROSETTA_CLI_INSTALL=1</code> ...installs rosetta-cli</li>
+<li><code>INSTALL=1</code> ...installs rosetta-cli</li>
 <li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the most recent snapshots, bootstraps balances and starts synchronizing from the snapshot state</li>
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage and continues to synchronize from the available state</li>
 <li><code>NODE_URL=http://localhost:14265</code> ...the URL of the REST API from the IOTA node.  </li>
