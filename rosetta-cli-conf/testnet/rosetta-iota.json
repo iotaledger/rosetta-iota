@@ -27,7 +27,7 @@
     "constructor_dsl_file": "iota.ros",
     "offline_url": "http://localhost:3030",
     "end_conditions": {
-      "transfer": 10
+      "transfer": 1
     }
   }
 }
