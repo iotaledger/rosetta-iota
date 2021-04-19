@@ -21,7 +21,7 @@ use iota::Client;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{build_client, get_milestone, get_utxo_changes};
+use crate::client::{build_client, get_milestone, get_utxo_changes, get_pruning_index};
 use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
@@ -51,12 +51,12 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
         ));
     }
 
-    let client = build_client(&options).await?;
-
     let milestone_index = request
         .block_identifier
         .index
         .ok_or(ApiError::NonRetriable("block index not set".to_string()))?;
+
+    let client = build_client(&options).await?;
 
     let milestone = get_milestone(milestone_index, &client).await?;
 
@@ -80,8 +80,12 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
             let (index, hash) = if milestone_index == 1 {
                 (milestone_index, milestone.message_id.to_string())
             } else {
-                let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
-                (parent_milestone.index, parent_milestone.message_id.to_string())
+                if milestone_index - 1 < get_pruning_index(&client).await? {
+                    (milestone_index, milestone.message_id.to_string())
+                } else {
+                    let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
+                    (parent_milestone.index, parent_milestone.message_id.to_string())
+                }
             };
             BlockIdentifier { index, hash }
         },

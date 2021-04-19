@@ -88,6 +88,13 @@ pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {
     }
 }
 
+pub async fn get_pruning_index(client: &Client) -> Result<u32, ApiError> {
+    match client.get_info().await {
+        Ok(res) => Ok(res.nodeinfo.pruning_index),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get pruning index: {}", e))),
+    }
+}
+
 pub async fn get_peers(client: &Client) -> Result<Vec<PeerDto>, ApiError> {
     client
         .get_peers()
