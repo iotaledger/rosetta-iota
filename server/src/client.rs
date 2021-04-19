@@ -34,14 +34,14 @@ pub async fn get_outputs_of_address(bech32_addr: &str, client: &Client) -> Resul
 pub async fn get_balance_of_address(bech32_addr: &str, client: &Client) -> Result<BalanceAddressResponse, ApiError> {
     match client.get_address().balance(bech32_addr).await {
         Ok(balance) => Ok(balance),
-        Err(_) => return Err(ApiError::NonRetriable("unable to get balance".to_string())),
+        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get balance: {}", e))),
     }
 }
 
 pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
     match client.get_milestone(milestone_index).await {
         Ok(milestone) => Ok(milestone),
-        Err(_) => return Err(ApiError::NonRetriable("can not get milestone".to_string())),
+        Err(e) => return Err(ApiError::NonRetriable(format!("can not get milestone: {}", e))),
     }
 }
 
