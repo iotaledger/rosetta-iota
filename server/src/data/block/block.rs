@@ -68,8 +68,7 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
         }
     }
 
-    let messages = messages_of_created_outputs(milestone_index, &client).await?;
-    let transactions = build_rosetta_transactions(messages, &client, &options).await?;
+    let transactions = build_rosetta_transactions(milestone_index, &client, &options).await?;
 
     let block = Block {
         block_identifier: BlockIdentifier {
@@ -80,8 +79,8 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
             let (index, hash) = if milestone_index == 1 {
                 (milestone_index, milestone.message_id.to_string())
             } else {
-                if milestone_index - 1 == get_pruning_index(&client).await? {
-                    (milestone_index, milestone.message_id.to_string())
+                if milestone_index - 1 <= get_pruning_index(&client).await? {
+                    (milestone_index, "".to_string()) // TODO: the actual parent identifier should be returned
                 } else {
                     let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
                     (parent_milestone.index, parent_milestone.message_id.to_string())
@@ -160,15 +159,18 @@ async fn messages_of_created_outputs(
 }
 
 async fn build_rosetta_transactions(
-    messages: HashMap<MessageId, MessageInfo>,
-    iota_client: &Client,
+    milestone_index: u32,
+    client: &Client,
     options: &Config,
 ) -> Result<Vec<Transaction>, ApiError> {
+
+    let messages = messages_of_created_outputs(milestone_index, &client).await?;
+
     let mut built_transactions = Vec::new();
 
     for (_message_id, message_info) in messages {
         let transaction = match message_info.message.payload() {
-            Some(Payload::Transaction(t)) => from_transaction(t, iota_client, options).await?,
+            Some(Payload::Transaction(t)) => from_transaction(t, client, options).await?,
             Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, options).await?,
             _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())), // NOT SUPPORTED
         };
