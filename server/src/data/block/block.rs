@@ -80,7 +80,7 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
             let (index, hash) = if milestone_index == 1 {
                 (milestone_index, milestone.message_id.to_string())
             } else {
-                if milestone_index - 1 < get_pruning_index(&client).await? {
+                if milestone_index - 1 == get_pruning_index(&client).await? {
                     (milestone_index, milestone.message_id.to_string())
                 } else {
                     let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
