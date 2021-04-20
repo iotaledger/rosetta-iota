@@ -74,13 +74,13 @@ pub async fn network_options(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{config::RosettaMode, mocknet::mocked_node};
+    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
 
     #[tokio::test]
     #[serial]
     async fn test_network_options() {
-        tokio::task::spawn(mocked_node());
+        tokio::task::spawn(start_mocked_node());
 
         let request = NetworkOptionsRequest {
             network_identifier: NetworkIdentifier {

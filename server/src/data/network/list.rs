@@ -28,13 +28,13 @@ pub async fn network_list(_empty: EmptyRequest, options: Config) -> Result<Netwo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{config::RosettaMode, mocknet::mocked_node};
+    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
 
     #[tokio::test]
     #[serial]
     async fn test_network_list() {
-        tokio::task::spawn(mocked_node());
+        tokio::task::spawn(start_mocked_node());
 
         let server_options = Config {
             node_url: "http://127.0.0.1:3029".to_string(),

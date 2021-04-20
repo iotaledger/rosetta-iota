@@ -113,13 +113,13 @@ async fn outputs_of_address_at_milestone(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{config::RosettaMode, mocknet::mocked_node};
+    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
 
     #[tokio::test]
     #[serial]
     async fn test_coins() {
-        tokio::task::spawn(mocked_node());
+        tokio::task::spawn(start_mocked_node());
 
         let request = AccountCoinsRequest {
             network_identifier: NetworkIdentifier {

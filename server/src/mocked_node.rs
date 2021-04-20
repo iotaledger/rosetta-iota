@@ -2,7 +2,7 @@ use warp::Filter;
 
 use std::net::SocketAddr;
 
-pub async fn mocked_node() {
+pub async fn start_mocked_node() {
     let bind_addr = "0.0.0.0:3029"
         .to_string()
         .parse::<SocketAddr>()
@@ -91,5 +91,5 @@ pub async fn mocked_node() {
 
     server.await;
 
-    println!("Mocknet node stopped.");
+    println!("Node stopped.");
 }

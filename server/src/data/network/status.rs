@@ -81,13 +81,13 @@ mod tests {
     use super::*;
     use crate::config::RosettaMode;
 
-    use crate::mocknet::mocked_node;
+    use crate::mocked_node::start_mocked_node;
     use serial_test::serial;
 
     #[tokio::test]
     #[serial]
     async fn test_network_status() {
-        tokio::task::spawn(mocked_node());
+        tokio::task::spawn(start_mocked_node());
 
         let request = NetworkStatusRequest {
             network_identifier: NetworkIdentifier {

@@ -19,7 +19,7 @@ pub mod currency;
 pub mod data;
 pub mod error;
 pub mod filters;
-pub mod mocknet;
+pub mod mocked_node;
 pub mod operations;
 pub mod types;
 
