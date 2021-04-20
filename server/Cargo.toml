@@ -4,26 +4,27 @@ version = "0.1.0"
 authors = ["IOTA Stiftung"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "cb3118d3de32df1272690e98508bf0afc9c9cf2c" }
 bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
 bee-rest-api = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f", features = ["endpoints"] }
 bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f" }
+
+iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "cb3118d3de32df1272690e98508bf0afc9c9cf2c" }
 iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
+
 digest = "0.9"
-log = "0.4"
-warp = "0.3"
-structopt = "0.3"
-thiserror = "1.0"
-url = "2.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.0", features = ["macros", "signal"] }
-hex = "0.4"
 env_logger = "0.7"
 futures = "0.3"
+hex = "0.4"
+log = "0.4"
+serial_test = "0.5.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+structopt = "0.3"
+thiserror = "1.0"
+tokio = { version = "1.0", features = ["macros", "signal"] }
+url = "2.1"
+warp = "0.3"
 
 [[bin]]
 name = "rosetta-iota"

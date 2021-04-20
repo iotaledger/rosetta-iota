@@ -306,11 +306,13 @@ async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
+    use crate::{config::RosettaMode, mocknet::mocked_node};
+    use serial_test::serial;
 
     #[tokio::test]
+    #[serial]
     async fn test_block() {
-        tokio::task::spawn(start_mocknet_node());
+        tokio::task::spawn(mocked_node());
 
         let request = BlockRequest {
             network_identifier: NetworkIdentifier {
@@ -337,12 +339,12 @@ mod tests {
 
         assert_eq!(68910, response.block.block_identifier.index);
         assert_eq!(
-            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
+            "68910",
             response.block.block_identifier.hash
         );
         assert_eq!(68909, response.block.parent_block_identifier.index);
         assert_eq!(
-            "8489917555634d94da2c5fa208fe9bc0a90a1cb03528147e43bc0b286e78b59d",
+            "68909",
             response.block.parent_block_identifier.hash
         );
         assert_eq!(1618486402 * 1000, response.block.timestamp);

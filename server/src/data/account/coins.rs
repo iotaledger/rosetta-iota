@@ -113,11 +113,13 @@ async fn outputs_of_address_at_milestone(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{config::RosettaMode, mocknet::start_mocknet_node};
+    use crate::{config::RosettaMode, mocknet::mocked_node};
+    use serial_test::serial;
 
     #[tokio::test]
+    #[serial]
     async fn test_coins() {
-        tokio::task::spawn(start_mocknet_node());
+        tokio::task::spawn(mocked_node());
 
         let request = AccountCoinsRequest {
             network_identifier: NetworkIdentifier {
@@ -144,7 +146,7 @@ mod tests {
 
         assert_eq!(68910, response.block_identifier.index);
         assert_eq!(
-            "339a467c3f950e28381aaef84aa82f3f650e6284574b156ccc1e574eb77afcac",
+            "68910",
             response.block_identifier.hash
         );
         assert_eq!(1, response.coins.len());
