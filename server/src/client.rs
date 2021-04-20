@@ -45,18 +45,6 @@ pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota
     }
 }
 
-pub async fn get_genesis_milestone(client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
-    if get_node_info(&client).await?.pruning_index > 0 {
-        Ok(iota::MilestoneResponse {
-            index: 1,
-            message_id: MessageId::null(),
-            timestamp: 0,
-        })
-    } else {
-        get_milestone(1, &client).await
-    }
-}
-
 pub async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError> {
     match client.get_info().await {
         Ok(res) => Ok(res.nodeinfo.confirmed_milestone_index),
@@ -85,13 +73,6 @@ pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {
     match client.get_info().await {
         Ok(res) => Ok(res.nodeinfo),
         Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
-    }
-}
-
-pub async fn get_pruning_index(client: &Client) -> Result<u32, ApiError> {
-    match client.get_info().await {
-        Ok(res) => Ok(res.nodeinfo.pruning_index),
-        Err(e) => return Err(ApiError::NonRetriable(format!("unable to get pruning index: {}", e))),
     }
 }
 

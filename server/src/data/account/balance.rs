@@ -56,7 +56,7 @@ pub async fn account_balance(
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {
             index: confirmed_milestone.index,
-            hash: confirmed_milestone.message_id.to_string(),
+            hash: confirmed_milestone.index.to_string(),
         },
         balances: vec![balance],
     };

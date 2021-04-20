@@ -78,7 +78,7 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
     let response = AccountCoinsResponse {
         block_identifier: BlockIdentifier {
             index: milestone.index,
-            hash: milestone.message_id.to_string(),
+            hash: milestone.index.to_string(),
         },
         coins,
     };

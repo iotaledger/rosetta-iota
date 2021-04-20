@@ -21,7 +21,7 @@ use iota::Client;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{build_client, get_milestone, get_utxo_changes, get_pruning_index};
+use crate::client::{build_client, get_milestone, get_utxo_changes};
 use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
@@ -73,20 +73,11 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
     let block = Block {
         block_identifier: BlockIdentifier {
             index: milestone_index,
-            hash: milestone.message_id.to_string(),
+            hash: milestone_index.to_string(),
         },
-        parent_block_identifier: {
-            let (index, hash) = if milestone_index == 1 {
-                (milestone_index, milestone.message_id.to_string())
-            } else {
-                if milestone_index - 1 <= get_pruning_index(&client).await? {
-                    (milestone_index, "".to_string()) // TODO: the actual parent identifier should be returned
-                } else {
-                    let parent_milestone = get_milestone(milestone_index - 1, &client).await?;
-                    (parent_milestone.index, parent_milestone.message_id.to_string())
-                }
-            };
-            BlockIdentifier { index, hash }
+        parent_block_identifier: BlockIdentifier {
+            index: milestone_index - 1,
+            hash: (milestone_index - 1).to_string(),
         },
         timestamp: milestone.timestamp * 1000,
         transactions,

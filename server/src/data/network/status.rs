@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    client::{build_client, get_genesis_milestone, get_latest_milestone, get_peers},
+    client::{build_client, get_latest_milestone, get_peers},
     config::Config,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
@@ -40,8 +40,6 @@ pub async fn network_status(request: NetworkStatusRequest, options: Config) -> R
 
     let client = build_client(&options).await?;
 
-    let genesis_milestone = get_genesis_milestone(&client).await?;
-
     let latest_milestone = get_latest_milestone(&client).await?;
 
     let current_block_timestamp = latest_milestone.timestamp * 1000;
@@ -59,13 +57,13 @@ pub async fn network_status(request: NetworkStatusRequest, options: Config) -> R
     }
 
     let genesis_block_identifier = BlockIdentifier {
-        index: genesis_milestone.index,
-        hash: genesis_milestone.message_id.to_string(),
+        index: 1,
+        hash: 1.to_string(),
     };
 
     let current_block_identifier = BlockIdentifier {
         index: latest_milestone.index,
-        hash: latest_milestone.message_id.to_string(),
+        hash: latest_milestone.index.to_string(),
     };
 
     let response = NetworkStatusResponse {
