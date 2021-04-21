@@ -169,11 +169,11 @@
                     <main>
                         <h1 id="deployment"><a class="header" href="#deployment">Deployment</a></h1>
 <h2 id="iota-nodes"><a class="header" href="#iota-nodes">IOTA nodes</a></h2>
-<p><strong>IOTA full-nodes</strong> (such as <a href="https://github.com/gohornet/hornet.git">HORNET</a> and <a href="https://github.com/iotaledger/bee.git">Bee</a>) are able to start up from a recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the node with recent <a href="https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md">snapshots</a>. 
-Also, IOTA full-nodes are able to prune history from time to time in a safe way.
-<strong>IOTA full-nodes per default don't hold the entire Tangle history - they are not designed for it.</strong></p>
-<p>Only <strong>IOTA Permanodes</strong> (such as <a href="https://github.com/iotaledger/chronicle.rs/tree/main/chronicle-node">Chronicle</a>) <strong>are designed to hold the entire Tangle history.</strong></p>
-<p><code>rosetta-iota</code> aims for a more reliable integration and better performance with limiting state storage. For these reasons <strong>the Rosetta API implementation will be deployed with an IOTA full-node</strong> (<a href="https://github.com/gohornet/hornet.git">HORNET</a>).</p>
+<p><strong>IOTA full-nodes</strong> (such as <a href="https://github.com/gohornet/hornet">HORNET</a> and <a href="https://github.com/iotaledger/bee">Bee</a>) are able to start up from a more recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the IOTA full-node with recent <a href="https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md">snapshots</a>. 
+In addition, IOTA full-nodes are able to prune history from time to time in a safe way.
+<strong>IOTA full-nodes per default don't hold the entire history - they are not designed to do so.</strong></p>
+<p>In contrast, <strong>IOTA Permanodes</strong> (such as <a href="https://github.com/iotaledger/chronicle.rs">Chronicle</a>) <strong>are designed to hold the entire history.</strong></p>
+<p><code>rosetta-iota</code> aims for a more reliable integration and better performance with limiting state storage. For these reasons, <strong>the Rosetta API implementation is deployed with an IOTA full-node</strong> (<a href="https://github.com/gohornet/hornet.git">HORNET</a>).</p>
 <h2 id="testnet-deployment"><a class="header" href="#testnet-deployment">Testnet deployment</a></h2>
 <p><strong>Following instructions will start a HORNET node together with a Rosetta API instance:</strong></p>
 <ol>
@@ -189,8 +189,13 @@ Also, IOTA full-nodes are able to prune history from time to time in a safe way.
 <pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
 </code></pre>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
-<p>The REST API of the HORNET node will be available at: http://localhost:14265/api/v1/info</p>
+<p>The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info</p>
 <p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, put your snapshots in the <code>data/snapshots/testnet</code> directory.</strong></p>
+<h4 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h4>
+<ul>
+<li><code>MODE</code> ... the mode in which the implementation is to run. Can be either <code>offline</code> or <code>online</code>.</li>
+<li><code>TX_TAG</code> ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag <code>Rosetta</code> is used by default.</li>
+</ul>
 
                     </main>
 
