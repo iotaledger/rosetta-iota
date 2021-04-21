@@ -16,7 +16,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add your HORNET peers (to which your HORNET node should connect) to following configuration file: `hornet/peering_testnet.json`. If you don't have any peers, please contact us and we will help you find some.
+3) Add your HORNET peer(s) - to which your HORNET node should connect - to following configuration file: `hornet/peering_testnet.json`. If you don't have any peers, please contact us and we will help you find some.
 4) Run the implementation in the desired mode:
 
 **Testnet: online mode**
@@ -35,6 +35,6 @@ The health status of the HORNET node can be checked at: http://localhost:14265/a
 
 The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. **The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, put your snapshots in the `data/snapshots/testnet` directory.**
 
-#### Environment variables:
+### Environment variables:
 - `MODE` ... the mode in which the implementation is to run. Can be either `offline` or `online`.
-- `TX_TAG` ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag `Rosetta` is used by default.
+- `TX_TAG` ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag `Rosetta` is used by default. Constructed transactions can then be found by this tag. The tag can be a maximum of 64 bytes long.
