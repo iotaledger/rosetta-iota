@@ -179,7 +179,7 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <ol>
 <li>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</li>
 <li>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</li>
-<li>Add your HORNET peers (to which your HORNET node should connect) to following configuration file: <code>hornet/peering_testnet.json</code>. If you don't have any peers, please contact us and we will help you find some.</li>
+<li>Add your HORNET peer(s) - to which your HORNET node should connect - to following configuration file: <code>hornet/peering_testnet.json</code>. If you don't have any peers, please contact us and we will help you find some.</li>
 <li>Run the implementation in the desired mode:</li>
 </ol>
 <p><strong>Testnet: online mode</strong></p>
@@ -191,10 +191,10 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
 <p>The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info</p>
 <p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, put your snapshots in the <code>data/snapshots/testnet</code> directory.</strong></p>
-<h4 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h4>
+<h3 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h3>
 <ul>
 <li><code>MODE</code> ... the mode in which the implementation is to run. Can be either <code>offline</code> or <code>online</code>.</li>
-<li><code>TX_TAG</code> ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag <code>Rosetta</code> is used by default.</li>
+<li><code>TX_TAG</code> ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag <code>Rosetta</code> is used by default. Constructed transactions can then be found by this tag. The tag can be a maximum of 64 bytes long.</li>
 </ul>
 
                     </main>
