@@ -12,7 +12,8 @@ use crate::{
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index, get_milestone};
+use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index};
+use bee_message::milestone::MilestoneIndex;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
@@ -51,12 +52,12 @@ pub async fn account_balance(
         ));
     }
 
-    let (balance, confirmed_milestone) = balance_at_milestone(&request.account_identifier.address, &options).await?;
+    let (balance, milestone_index) = balance_at_milestone(&request.account_identifier.address, &options).await?;
 
     let response = AccountBalanceResponse {
         block_identifier: BlockIdentifier {
-            index: confirmed_milestone.index,
-            hash: confirmed_milestone.index.to_string(),
+            index: *milestone_index,
+            hash: (*milestone_index).to_string(),
         },
         balances: vec![balance],
     };
@@ -64,7 +65,7 @@ pub async fn account_balance(
     Ok(response)
 }
 
-async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount, iota::MilestoneResponse), ApiError> {
+async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {
     let client = build_client(options).await?;
 
     // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
@@ -80,15 +81,13 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
         ));
     }
 
-    let milestone = get_milestone(index_before, &client).await?;
-
     let amount = Amount {
         value: balance_response.balance.to_string(),
         currency: iota_currency(),
         metadata: None,
     };
 
-    Ok((amount, milestone))
+    Ok((amount, MilestoneIndex(index_before)))
 }
 
 #[cfg(test)]
