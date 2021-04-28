@@ -39,7 +39,7 @@ pub fn operation_status_skipped() -> String {
 pub fn utxo_input_operation(
     transaction_id: String,
     address: String,
-    amnt: u64,
+    amount: u64,
     output_index: u16,
     operation_counter: usize,
     consumed: bool,
@@ -52,8 +52,8 @@ pub fn utxo_input_operation(
 
     let amount = Amount {
         value: match consumed {
-            true => (amnt as i64 * -1).to_string(),
-            false => amnt.to_string(),
+            true => (amount as i64 * -1).to_string(),
+            false => amount.to_string(),
         },
         currency: iota_currency(),
         metadata: None,
@@ -87,7 +87,7 @@ pub fn utxo_input_operation(
 
 pub fn utxo_output_operation(
     address: String,
-    amnt: u64,
+    amount: u64,
     operation_counter: usize,
     online: bool,
     output_id: Option<OutputId>,
@@ -98,7 +98,7 @@ pub fn utxo_output_operation(
     };
 
     let amount = Amount {
-        value: amnt.to_string(),
+        value: amount.to_string(),
         currency: iota_currency(),
         metadata: None,
     };

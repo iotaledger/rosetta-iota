@@ -50,23 +50,24 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
             "endpoint does not support offline mode".to_string(),
         ));
     }
-
-    let milestone_index = request
-        .block_identifier
-        .index
-        .ok_or(ApiError::NonRetriable("block index not set".to_string()))?;
+    
+    let milestone_index = match (request.block_identifier.index, request.block_identifier.hash) {
+        (Some(index), Some(hash)) => {
+            let hash = hash.parse::<u32>().map_err(|_|ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string()))?;
+            if index != hash {
+                return Err(ApiError::NonRetriable("block index does not related to provided block hash".to_string()));
+            } else {
+                index
+            }
+        },
+        (Some(index), None) => index,
+        (None, Some(hash)) => hash.parse::<u32>().map_err(|_| ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string()))?,
+        (None, None) => return Err(ApiError::NonRetriable("either block index or block hash must be set".to_string())),
+    };
 
     let client = build_client(&options).await?;
 
     let milestone = get_milestone(milestone_index, &client).await?;
-
-    if let Some(hash) = request.block_identifier.hash {
-        if hash != milestone.message_id.to_string() {
-            return Err(ApiError::NonRetriable(
-                "provided block hash does not relate to the provided block index".to_string(),
-            ));
-        }
-    }
 
     let transactions = build_rosetta_transactions(milestone_index, &client, &options).await?;
 
@@ -97,11 +98,11 @@ struct CreatedOutput {
     pub output_response: OutputResponse,
 }
 
-async fn messages_of_created_outputs(
+async fn messages_from_utxo_changes(
     milestone_index: u32,
     iota_client: &Client,
 ) -> Result<HashMap<MessageId, MessageInfo>, ApiError> {
-    let mut messages_of_created_outputs = HashMap::new();
+    let mut message_map = HashMap::new();
 
     let created_outputs = get_utxo_changes(milestone_index, iota_client).await?.created_outputs;
 
@@ -125,7 +126,7 @@ async fn messages_of_created_outputs(
             output_response,
         };
 
-        match messages_of_created_outputs.entry(message_id) {
+        match message_map.entry(message_id) {
             Entry::Occupied(mut entry) => {
                 let message_info: &mut MessageInfo = entry.get_mut();
                 message_info.created_outputs.push(created_output);
@@ -135,18 +136,17 @@ async fn messages_of_created_outputs(
                     .get_message()
                     .data(&message_id)
                     .await
-                    .map_err(|e| ApiError::NonRetriable(format!("can not get message id: {}", e)))?;
-                let created_outputs = vec![created_output];
+                    .map_err(|e| ApiError::NonRetriable(format!("can not get message: {}", e)))?;
                 let message_info = MessageInfo {
                     message,
-                    created_outputs,
+                    created_outputs: vec![created_output],
                 };
                 entry.insert(message_info);
             }
         }
     }
 
-    Ok(messages_of_created_outputs)
+    Ok(message_map)
 }
 
 async fn build_rosetta_transactions(
@@ -155,7 +155,7 @@ async fn build_rosetta_transactions(
     options: &Config,
 ) -> Result<Vec<Transaction>, ApiError> {
 
-    let messages = messages_of_created_outputs(milestone_index, &client).await?;
+    let messages = messages_from_utxo_changes(milestone_index, &client).await?;
 
     let mut built_transactions = Vec::new();
 
@@ -163,7 +163,7 @@ async fn build_rosetta_transactions(
         let transaction = match message_info.message.payload() {
             Some(Payload::Transaction(t)) => from_transaction(t, client, options).await?,
             Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, options).await?,
-            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())), // NOT SUPPORTED
+            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())),
         };
         built_transactions.push(transaction);
     }
@@ -197,7 +197,7 @@ async fn from_transaction(
         let output = Output::try_from(&output_info.output)
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output from output information: {}", e)))?;
 
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await?;
 
         operations.push(utxo_input_operation(
             output_info.transaction_id,
@@ -263,13 +263,13 @@ async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &Config) 
         let output = Output::try_from(&created_output.output_response.output)
             .map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
 
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await;
+        let (amount, ed25519_address) = address_and_balance_of_output(&output).await?;
 
         let mint_operation = utxo_output_operation(
             Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
             amount,
             operations.len(),
-            false,
+            true,
             Some(created_output.output_id),
         );
 
@@ -287,20 +287,19 @@ async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &Config) 
     Ok(transaction)
 }
 
-async fn address_and_balance_of_output(output: &Output) -> (u64, Ed25519Address) {
+async fn address_and_balance_of_output(output: &Output) -> Result<(u64, Ed25519Address), ApiError> {
     let (amount, ed25519_address) = match output {
-        Output::Treasury(_) => panic!("Can't be used as input"),
         Output::SignatureLockedSingle(r) => match r.address() {
             Address::Ed25519(addr) => (r.amount(), *addr),
-            _ => panic!("Can't be used as address"),
+            _ => return Err(ApiError::NonRetriable("address type not supported".to_string())),
         },
         Output::SignatureLockedDustAllowance(r) => match r.address() {
             Address::Ed25519(addr) => (r.amount(), *addr),
-            _ => panic!("Can't be used as address"),
+            _ => return Err(ApiError::NonRetriable("address type not supported".to_string())),
         },
-        _ => panic!("Can't be used as output"),
+        _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
     };
-    (amount, ed25519_address)
+    Ok((amount, ed25519_address))
 }
 
 #[cfg(test)]
