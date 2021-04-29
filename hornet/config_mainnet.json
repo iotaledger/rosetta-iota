@@ -55,8 +55,8 @@
   "snapshots": {
     "depth": 50,
     "interval": 200,
-    "fullPath": "snapshots/mainnet/full_snapshot.bin",
-    "deltaPath": "snapshots/mainnet/delta_snapshot.bin",
+    "fullPath": "/data/snapshots/mainnet/full_snapshot.bin",
+    "deltaPath": "/data/snapshots/mainnet/delta_snapshot.bin",
     "deltaSizeThresholdPercentage": 50.0,
     "downloadURLs": [
       {

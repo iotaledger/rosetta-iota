@@ -1,10 +1,8 @@
 {
   "restAPI": {
-    "basicAuth": {
+    "jwtAuth": {
       "enabled": false,
-      "userName": "",
-      "passwordHash": "",
-      "passwordSalt": ""
+      "salt": "HORNET"
     },
     "excludeHealthCheckFromAuth": false,
     "permittedRoutes": [
@@ -52,7 +50,7 @@
   },
   "db": {
     "engine": "pebble",
-    "path": "/data/db",
+    "path": "/data/testnetdb",
     "autoRevalidation": false
   },
   "snapshots": {
@@ -60,6 +58,7 @@
     "interval": 200,
     "fullPath": "/data/snapshots/testnet/full_snapshot.bin",
     "deltaPath": "/data/snapshots/testnet/delta_snapshot.bin",
+    "deltaSizeThresholdPercentage": 50.0,
     "downloadURLs": [
       {
         "full": "https://dbfiles.testnet.chrysalis2.com/full_snapshot.bin",
@@ -94,6 +93,9 @@
         "end": 0
       }
     ]
+  },
+  "pow": {
+    "refreshTipsInterval": "5s"
   },
   "requests": {
     "discardOlderThan": "15s",
@@ -137,6 +139,9 @@
         "merkleTreeDepth": 18
       }
     }
+  },
+  "tangle": {
+    "milestoneTimeout": "30s"
   },
   "tipsel": {
     "maxDeltaMsgYoungestConeRootIndexToCMI": 8,
@@ -201,7 +206,7 @@
     "indexSemiLazy": "HORNET Spammer Semi-Lazy",
     "cpuMaxUsage": 0.8,
     "mpsRateLimit": 5.0,
-    "workers": 1,
+    "workers": 0,
     "autostart": true
   },
   "mqtt": {
