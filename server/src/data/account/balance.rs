@@ -54,15 +54,13 @@ pub async fn account_balance(
 
     let (balance, milestone_index) = balance_at_milestone(&request.account_identifier.address, &options).await?;
 
-    let response = AccountBalanceResponse {
+    Ok(AccountBalanceResponse {
         block_identifier: BlockIdentifier {
             index: *milestone_index,
             hash: (*milestone_index).to_string(),
         },
         balances: vec![balance],
-    };
-
-    Ok(response)
+    })
 }
 
 async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {

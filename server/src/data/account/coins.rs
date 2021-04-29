@@ -8,13 +8,16 @@ use crate::{
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, NetworkIdentifier, *},
 };
+use crate::client::{build_client, get_confirmed_milestone_index, get_unspent_outputs_of_address};
 
+use bee_message::milestone::MilestoneIndex;
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
-
-use crate::client::{build_client, get_confirmed_milestone_index, get_milestone, get_outputs_of_address};
 use bee_rest_api::types::responses::OutputResponse;
+
 use log::debug;
 use serde::{Deserialize, Serialize};
+use bee_message::payload::transaction::TransactionId;
+use bee_message::output::OutputId;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -41,32 +44,27 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
         ));
     }
 
-    let (outputs, milestone) = outputs_of_address_at_milestone(&request.account_identifier.address, &options).await?;
+    let (outputs, milestone_index) = outputs_of_address_at_milestone(&request.account_identifier.address, &options).await?;
 
     let mut coins = Vec::new();
     for output_res in outputs {
+        let output_id = {
+            let transaction_id = output_res.transaction_id.parse::<TransactionId>().map_err(|_| ApiError::NonRetriable("invalid transaction id".to_string()))?;
+            OutputId::new(transaction_id, output_res.output_index).map_err(|_| ApiError::NonRetriable("can not build output id".to_string()))?
+        };
+
         let amount = match output_res.output {
-            OutputDto::Treasury(_) => {
-                return Err(ApiError::NonRetriable(
-                    "treasury output can not be used to feed a transaction".to_string(),
-                ));
-            }
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
             },
             OutputDto::SignatureLockedDustAllowance(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
             },
+            _ => unimplemented!()
         };
 
-        let output_id = format!(
-            "{}{}",
-            output_res.transaction_id,
-            hex::encode(output_res.output_index.to_le_bytes())
-        );
-
         coins.push(Coin {
-            coin_identifier: CoinIdentifier { identifier: output_id },
+            coin_identifier: CoinIdentifier { identifier: output_id.to_string() },
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
@@ -75,28 +73,26 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
         });
     }
 
-    let response = AccountCoinsResponse {
+    Ok(AccountCoinsResponse {
         block_identifier: BlockIdentifier {
-            index: milestone.index,
-            hash: milestone.index.to_string(),
+            index: *milestone_index,
+            hash: (*milestone_index).to_string(),
         },
         coins,
-    };
-
-    Ok(response)
+    })
 }
 
 async fn outputs_of_address_at_milestone(
     address: &str,
     options: &Config,
-) -> Result<(Vec<OutputResponse>, iota::MilestoneResponse), ApiError> {
+) -> Result<(Vec<OutputResponse>, MilestoneIndex), ApiError> {
     let client = build_client(options).await?;
 
     // to make sure the outputs of an address do not change in the meantime, check the index of the confirmed
     // milestone before and after performing the request
 
     let index_before = get_confirmed_milestone_index(&client).await?;
-    let outputs = get_outputs_of_address(&address, &client).await?;
+    let outputs = get_unspent_outputs_of_address(&address, &client).await?;
     let index_after = get_confirmed_milestone_index(&client).await?;
 
     if index_before != index_after {
@@ -105,9 +101,7 @@ async fn outputs_of_address_at_milestone(
         ));
     }
 
-    let milestone = get_milestone(index_before, &client).await?;
-
-    Ok((outputs, milestone))
+    Ok((outputs, MilestoneIndex(index_before)))
 }
 
 #[cfg(test)]

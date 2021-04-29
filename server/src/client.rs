@@ -24,7 +24,7 @@ pub async fn get_output(output_id: OutputId, client: &Client) -> Result<OutputRe
         .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))
 }
 
-pub async fn get_outputs_of_address(bech32_addr: &str, client: &Client) -> Result<Vec<OutputResponse>, ApiError> {
+pub async fn get_unspent_outputs_of_address(bech32_addr: &str, client: &Client) -> Result<Vec<OutputResponse>, ApiError> {
     match client.find_outputs(&[], &[bech32_addr.to_string()]).await {
         Ok(outputs) => Ok(outputs),
         Err(e) => return Err(ApiError::NonRetriable(format!("can not get outputs of address: {}", e))),
