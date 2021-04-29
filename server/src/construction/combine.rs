@@ -76,11 +76,12 @@ pub(crate) async fn construction_combine_request(
 
             let signature = {
                 let mut public_key_bytes = [0u8; 32];
+                let mut signature_bytes = [0u8; 64];
                 hex::decode_to_slice(signature.public_key.hex_bytes.clone(), &mut public_key_bytes)
                     .map_err(|e| ApiError::NonRetriable(format!("invalid public key: {}", e)))?;
-                let signature_bytes = hex::decode(signature.hex_bytes.clone())
+                hex::decode_to_slice(signature.hex_bytes.clone(), &mut signature_bytes)
                     .map_err(|e| ApiError::NonRetriable(format!("invalid signature: {}", e)))?;
-                Ed25519Signature::new(public_key_bytes, signature_bytes.into_boxed_slice())
+                Ed25519Signature::new(public_key_bytes, signature_bytes)
             };
 
             unlock_blocks.push(UnlockBlock::Signature(SignatureUnlock::Ed25519(signature)));
