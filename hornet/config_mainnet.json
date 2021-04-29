@@ -1,0 +1,211 @@
+{
+  "restAPI": {
+    "jwtAuth": {
+      "enabled": false,
+      "salt": "HORNET"
+    },
+    "excludeHealthCheckFromAuth": false,
+    "permittedRoutes": [
+      "/health",
+      "/mqtt",
+      "/api/v1/info",
+      "/api/v1/tips",
+      "/api/v1/messages/:messageID",
+      "/api/v1/messages/:messageID/metadata",
+      "/api/v1/messages/:messageID/raw",
+      "/api/v1/messages/:messageID/children",
+      "/api/v1/messages",
+      "/api/v1/transactions/:transactionID/included-message",
+      "/api/v1/milestones/:milestoneIndex",
+      "/api/v1/milestones/:milestoneIndex/utxo-changes",
+      "/api/v1/outputs/:outputID",
+      "/api/v1/addresses/:address",
+      "/api/v1/addresses/:address/outputs",
+      "/api/v1/addresses/ed25519/:address",
+      "/api/v1/addresses/ed25519/:address/outputs",
+      "/api/v1/treasury",
+      "/api/v1/peers"
+    ],
+    "whitelistedAddresses": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "bindAddress": "0.0.0.0:14265",
+    "powEnabled": true,
+    "powWorkerCount": 1,
+    "limits": {
+      "bodyLength": "1M",
+      "maxResults": 1000
+    }
+  },
+  "dashboard": {
+    "bindAddress": "localhost:8081",
+    "auth": {
+      "sessionTimeout": "72h",
+      "username": "admin",
+      "passwordHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "passwordSalt": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "db": {
+    "engine": "rocksdb",
+    "path": "/data/mainnetdb",
+    "autoRevalidation": false
+  },
+  "snapshots": {
+    "depth": 50,
+    "interval": 200,
+    "fullPath": "snapshots/mainnet/full_snapshot.bin",
+    "deltaPath": "snapshots/mainnet/delta_snapshot.bin",
+    "deltaSizeThresholdPercentage": 50.0,
+    "downloadURLs": [
+      {
+        "full": "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-full_snapshot.bin",
+        "delta": "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-delta_snapshot.bin"
+      }
+    ]
+  },
+  "pruning": {
+    "enabled": true,
+    "delay": 60480,
+    "pruneReceipts": false
+  },
+  "protocol": {
+    "networkID": "chrysalis-mainnet",
+    "bech32HRP": "iota",
+    "minPoWScore": 4000,
+    "milestonePublicKeyCount": 2,
+    "publicKeyRanges": [
+      {
+        "key": "a9b46fe743df783dedd00c954612428b34241f5913cf249d75bed3aafd65e4cd",
+        "start": 0,
+        "end": 777600
+      },
+      {
+        "key": "365fb85e7568b9b32f7359d6cbafa9814472ad0ecbad32d77beaf5dd9e84c6ba",
+        "start": 0,
+        "end": 1555200
+      }
+    ]
+  },
+  "pow": {
+    "refreshTipsInterval": "5s"
+  },
+  "requests": {
+    "discardOlderThan": "15s",
+    "pendingReEnqueueInterval": "5s"
+  },
+  "receipts": {
+    "backup": {
+      "enabled": false,
+      "folder": "receipts"
+    },
+    "validator": {
+      "validate": false,
+      "api": {
+        "address": "http://localhost:14266",
+        "timeout": "5s"
+      },
+      "coordinator": {
+        "address": "UDYXTZBE9GZGPM9SSQV9LTZNDLJIZMPUVVXYXFYVBLIEUHLSEWFTKZZLXYRHHWVQV9MNNX9KZC9D9UZWZ",
+        "merkleTreeDepth": 24
+      }
+    }
+  },
+  "tangle": {
+    "milestoneTimeout": "30s"
+  },
+  "tipsel": {
+    "maxDeltaMsgYoungestConeRootIndexToCMI": 8,
+    "maxDeltaMsgOldestConeRootIndexToCMI": 13,
+    "belowMaxDepth": 15,
+    "nonLazy": {
+      "retentionRulesTipsLimit": 100,
+      "maxReferencedTipAge": "3s",
+      "maxChildren": 30,
+      "spammerTipsThreshold": 0
+    },
+    "semiLazy": {
+      "retentionRulesTipsLimit": 20,
+      "maxReferencedTipAge": "3s",
+      "maxChildren": 2,
+      "spammerTipsThreshold": 30
+    }
+  },
+  "node": {
+    "alias": "HORNET node",
+    "profile": "auto",
+    "disablePlugins": [],
+    "enablePlugins": [
+      "Spammer"
+    ]
+  },
+  "p2p": {
+    "bindMultiAddresses": [
+      "/ip4/0.0.0.0/tcp/15600"
+    ],
+    "connectionManager": {
+      "highWatermark": 10,
+      "lowWatermark": 5
+    },
+    "gossipUnknownPeersLimit": 4,
+    "identityPrivateKey": "",
+    "peerStore": {
+      "path": "/data/p2pstore"
+    },
+    "reconnectInterval": "30s"
+  },
+  "p2pdisc": {
+    "advertiseInterval": "30s",
+    "maxDiscoveredPeerConns": 4,
+    "rendezvousPoint": "between-two-vertices",
+    "routingTableRefreshPeriod": "60s"
+  },
+  "logger": {
+    "level": "info",
+    "disableCaller": true,
+    "encoding": "console",
+    "outputPaths": [
+      "stdout"
+    ]
+  },
+  "warpsync": {
+    "advancementRange": 150
+  },
+  "spammer": {
+    "message": "IOTA - A new dawn",
+    "index": "HORNET Spammer",
+    "indexSemiLazy": "HORNET Spammer Semi-Lazy",
+    "cpuMaxUsage": 0.8,
+    "mpsRateLimit": 5.0,
+    "workers": 0,
+    "autostart": false
+  },
+  "mqtt": {
+    "bindAddress": "localhost:1883",
+    "wsPort": 1888,
+    "workerCount": 100
+  },
+  "profiling": {
+    "bindAddress": "localhost:6060"
+  },
+  "prometheus": {
+    "bindAddress": "localhost:9311",
+    "fileServiceDiscovery": {
+      "enabled": false,
+      "path": "target.json",
+      "target": "localhost:9311"
+    },
+    "databaseMetrics": true,
+    "nodeMetrics": true,
+    "gossipMetrics": true,
+    "cachesMetrics": true,
+    "restAPIMetrics": true,
+    "migrationMetrics": true,
+    "coordinatorMetrics": true,
+    "debugMetrics": false,
+    "goMetrics": false,
+    "processMetrics": false,
+    "promhttpMetrics": false
+  }
+}
