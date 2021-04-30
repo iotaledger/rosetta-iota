@@ -173,15 +173,15 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
 
         match output {
             Output::SignatureLockedSingle(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount());
+                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
                 // DUST_THRESHOLD
                 if output.amount() < 1_000_000 {
-                    balance_diffs.dust_outputs_inc(*output.address());
+                    balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
                 }
             }
             Output::SignatureLockedDustAllowance(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount());
-                balance_diffs.dust_allowance_add(*output.address(), output.amount());
+                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not add dust allowance");
             }
             _ => panic!("unsupported output type"),
         }
