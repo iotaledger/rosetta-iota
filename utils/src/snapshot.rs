@@ -77,15 +77,15 @@ async fn read_delta_snapshot(
         for (_, output) in diff.created().iter() {
             match output.inner() {
                 Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount());
+                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
                     // DUST_THRESHOLD
                     if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_inc(*output.address());
+                        balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
                     }
                 }
                 Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount());
-                    balance_diffs.dust_allowance_add(*output.address(), output.amount());
+                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                    balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not dust allowance");
                 }
                 _ => panic!("unsupported output type"),
             }
@@ -94,15 +94,15 @@ async fn read_delta_snapshot(
         for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
             match created_output.inner() {
                 Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount());
+                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
                     // DUST_THRESHOLD
                     if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_dec(*output.address());
+                        balance_diffs.dust_outputs_dec(*output.address()).expect("can not decrement dust outputs");
                     }
                 }
                 Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount());
-                    balance_diffs.dust_allowance_sub(*output.address(), output.amount());
+                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
+                    balance_diffs.dust_allowance_sub(*output.address(), output.amount()).expect("can not dust allowance");
                 }
                 _ => panic!("unsupported output type"),
             }
