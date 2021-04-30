@@ -4,24 +4,23 @@ version = "0.1.0"
 authors = ["IOTA Stiftung"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 rosetta-iota-server = { path = "../server"}
-tokio = { version = "1.4", features = ["full"] }
-iota-core = { git = "https://github.com/iotaledger/iota.rs", rev = "cb3118d3de32df1272690e98508bf0afc9c9cf2c" }
+
+bee-common = "0.4"
+bee-message = "0.1"
+bee-ledger = "0.2.0"
+bee-tangle = "0.1.0"
+
+iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "60892fa6b649d9efa540349b68dd70a57cc300a9" }
+iota-crypto = { version = "0.5", features = ["blake2b", "ed25519", "random"]}
+
 hex = "0.4.2"
-iota-crypto = { git = "https://github.com/iotaledger/crypto.rs", rev = "527392202e78fa35620a9b30061d5e231a046ea2", features = ["blake2b", "ed25519", "random"] }
-bee-message = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f" }
-bee-common = { git = "https://github.com/iotaledger/bee.git", branch = "dev" }
-bee-snapshot = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f" }
-bee-ledger = { git = "https://github.com/iotaledger/bee.git", rev = "6ae5d7a8582187294aa55b6cbee7c3d968a6c41f" }
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 structopt = "0.3"
-thiserror = "1.0"
-log = "0.4"
+tokio = { version = "1.4", features = ["full"] }
 
 [[bin]]
 name = "rosetta-iota-utils"

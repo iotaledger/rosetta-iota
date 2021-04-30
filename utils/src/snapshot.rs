@@ -6,8 +6,8 @@ use rosetta_iota_server::types::{AccountIdentifier, Currency};
 
 use bee_common::packable::Packable;
 use bee_ledger::types::BalanceDiffs;
-use bee_message::{prelude::*, solid_entry_point::SolidEntryPoint};
-use bee_snapshot::{header::SnapshotHeader, milestone_diff::MilestoneDiff};
+use bee_message::{prelude::*};
+use bee_tangle::solid_entry_point::SolidEntryPoint;
 
 use serde::{Deserialize, Serialize};
 
@@ -18,8 +18,8 @@ use std::{
     path::Path,
 };
 
-use bee_snapshot::header::{DeltaSnapshotHeader, FullSnapshotHeader};
 use iota::Client;
+use bee_ledger::types::snapshot::*;
 
 pub async fn bootstrap_balances_from_snapshot(config: &Config) {
     let download_url = "https://dbfiles.testnet.chrysalis2.com/";
@@ -80,7 +80,7 @@ async fn read_delta_snapshot(
                     balance_diffs.amount_add(*output.address(), output.amount());
                     // DUST_THRESHOLD
                     if output.amount() < 1_000_000 {
-                        balance_diffs.dust_output_inc(*output.address());
+                        balance_diffs.dust_outputs_inc(*output.address());
                     }
                 }
                 Output::SignatureLockedDustAllowance(output) => {
@@ -97,7 +97,7 @@ async fn read_delta_snapshot(
                     balance_diffs.amount_sub(*output.address(), output.amount());
                     // DUST_THRESHOLD
                     if output.amount() < 1_000_000 {
-                        balance_diffs.dust_output_dec(*output.address());
+                        balance_diffs.dust_outputs_dec(*output.address());
                     }
                 }
                 Output::SignatureLockedDustAllowance(output) => {
@@ -176,7 +176,7 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
                 balance_diffs.amount_add(*output.address(), output.amount());
                 // DUST_THRESHOLD
                 if output.amount() < 1_000_000 {
-                    balance_diffs.dust_output_inc(*output.address());
+                    balance_diffs.dust_outputs_inc(*output.address());
                 }
             }
             Output::SignatureLockedDustAllowance(output) => {

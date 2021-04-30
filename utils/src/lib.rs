@@ -4,6 +4,4 @@
 pub use config::Config;
 
 pub mod config;
-pub mod consts;
-pub mod faucet;
 pub mod snapshot;
