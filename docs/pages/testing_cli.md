@@ -16,12 +16,12 @@ Also ensure that the REST API of the IOTA is available at http://localhost:14265
 
     Testing the Data API **(testnet)**:
     ```
-    INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
+    INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
     ```
 
     Testing the Construction API **(testnet)**:
     ```
-    INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
+    INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_construction_testnet.sh
     ```
 The testing scripts make use of following environment variables:
 - `INSTALL=1` ...installs rosetta-cli
