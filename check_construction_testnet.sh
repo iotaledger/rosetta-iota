@@ -29,7 +29,8 @@ if [ $BOOTSTRAP_BALANCES ]; then
 
   # download the latest available IOTA snapshot to create the bootstrap_balances.json file
   echo "download the latest available IOTA snapshot to create the bootstrap_balances.json file..."
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network testnet7 --bech32-hrp atoi
+  #RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network testnet7 --bech32-hrp atoi
+  docker run -it --rm --entrypoint /rosetta-iota-utils rosetta-iota_rosetta --network testnet7 --bech32-hrp atoi
   ROSETTA_UTILS_EXIT=$?
 
   if [ $ROSETTA_UTILS_EXIT -ne 0 ]; then
