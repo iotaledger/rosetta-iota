@@ -10,7 +10,6 @@ The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh`
     ```
 
 2) Ensure the IOTA node is running and an instance of the Rosetta API is available.
-Also ensure that the REST API of the IOTA is available at http://localhost:14265/api/v1/info.
 
     To validate the correctness of `rosetta-iota` run the commands below:
 
