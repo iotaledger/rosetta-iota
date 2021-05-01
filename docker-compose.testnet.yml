@@ -31,3 +31,5 @@ services:
     expose:
       # Rosetta API
       - "3030"
+    volumes:
+      - '/etc/ssl/certs:/etc/ssl/certs:ro'
