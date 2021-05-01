@@ -223,10 +223,10 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 Also ensure that the REST API of the IOTA is available at http://localhost:14265/api/v1/info.</p>
 <p>To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
 <p>Testing the Data API <strong>(testnet)</strong>:</p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_data_testnet.sh
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
 </code></pre>
 <p>Testing the Construction API <strong>(testnet)</strong>:</p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NODE_URL=http://localhost:14265 ./check_construction_testnet.sh
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_construction_testnet.sh
 </code></pre>
 </li>
 </ol>
