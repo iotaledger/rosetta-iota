@@ -12,7 +12,6 @@ bee-message = "0.1"
 bee-ledger = "0.2.0"
 bee-tangle = "0.1.0"
 
-iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "60892fa6b649d9efa540349b68dd70a57cc300a9" }
 iota-crypto = { version = "0.5", features = ["blake2b", "ed25519", "random"]}
 
 hex = "0.4.2"

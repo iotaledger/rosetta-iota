@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::Config;
+use crate::config::Network;
+
 use rosetta_iota_server::types::{AccountIdentifier, Currency};
 
 use bee_common::packable::Packable;
 use bee_ledger::types::BalanceDiffs;
+use bee_ledger::types::snapshot::*;
 use bee_message::{prelude::*};
 use bee_tangle::solid_entry_point::SolidEntryPoint;
 
@@ -18,22 +21,27 @@ use std::{
     path::Path,
 };
 
-use iota::Client;
-use bee_ledger::types::snapshot::*;
-
 pub async fn bootstrap_balances_from_snapshot(config: &Config) {
-    let download_url = "https://dbfiles.testnet.chrysalis2.com/";
+    let (full_url, delta_url) = match &config.network {
+        Network::ChrysalisMainnet => (
+            "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-full_snapshot.bin",
+            "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-delta_snapshot.bin",
+        ),
+        Network::Testnet7 => (
+            "https://dbfiles.testnet.chrysalis2.com/full_snapshot.bin",
+            "https://dbfiles.testnet.chrysalis2.com/delta_snapshot.bin"
+        )
+    };
+
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
 
     if !full_path.exists() {
-        println!("downloading full snapshot...");
-        download_snapshot_file(full_path, &[String::from(download_url)]).await;
+        download_snapshot_file(full_path, &full_url.to_string()).await;
     }
 
     if !delta_path.exists() {
-        println!("downloading delta snapshot...");
-        download_snapshot_file(delta_path, &[String::from(download_url)]).await;
+        download_snapshot_file(delta_path, &delta_url.to_string()).await;
     }
 
     let balance_diffs = read_full_snapshot(full_path).await;
@@ -111,18 +119,8 @@ async fn read_delta_snapshot(
 
     let mut json_entries = Vec::new();
 
-    // Create iota client
-    let iota = Client::builder() // Crate a client instance builder
-        .with_node(&config.node_url) // Insert the node here
-        .unwrap()
-        .finish()
-        .await
-        .expect("can not build client");
-
-    let bech32_hrp = iota.get_bech32_hrp().await.expect("can not get bech32 HRP");
-
     for (addr, balance_diff) in balance_diffs {
-        let addr = addr.to_bech32(&bech32_hrp);
+        let addr = addr.to_bech32(&config.bech32_hrp);
 
         let balance = balance_diff.amount();
 
@@ -144,7 +142,7 @@ async fn read_delta_snapshot(
 
     let json_string = serde_json::to_string_pretty(&json_entries).unwrap();
 
-    println!("delta snapshot successfully read...");
+    println!("delta snapshot successfully read");
 
     (sep_index, json_string)
 }
@@ -187,17 +185,12 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
         }
     }
 
-    println!("full snapshot successfully read...");
+    println!("full snapshot successfully read");
 
     balance_diffs
 }
 
-async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) {
-    let file_name = file_path.file_name().expect(&format!(
-        "invalid file path {}",
-        file_path.to_string_lossy().to_string()
-    ));
-
+async fn download_snapshot_file(file_path: &Path, url: &String) {
     std::fs::create_dir_all(file_path.parent().expect(&format!(
         "invalid file path {}",
         file_path.to_string_lossy().to_string()
@@ -207,21 +200,18 @@ async fn download_snapshot_file(file_path: &Path, download_urls: &[String]) {
         file_path.to_string_lossy().to_string()
     ));
 
-    for url in download_urls {
-        let url = url.to_owned() + &file_name.to_string_lossy();
+    println!("downloading snapshot file {}...", url);
 
-        println!("downloading snapshot file {}...", url);
-        match reqwest::get(&url).await {
-            Ok(res) => match File::create(file_path) {
-                // TODO unwrap
-                Ok(mut file) => match copy(&mut res.bytes().await.unwrap().as_ref(), &mut file) {
-                    Ok(_) => break,
-                    Err(e) => panic!("copying snapshot file failed: {:?}", e),
-                },
-                Err(e) => panic!("creating snapshot file failed: {:?}", e),
+    match reqwest::get(url).await {
+        Ok(res) => match File::create(file_path) {
+            // TODO unwrap
+            Ok(mut file) => match copy(&mut res.bytes().await.unwrap().as_ref(), &mut file) {
+                Ok(_) => {},
+                Err(e) => panic!("copying snapshot file failed: {:?}", e),
             },
-            Err(e) => panic!("downloading snapshot file failed: {:?}", e),
-        }
+            Err(e) => panic!("creating snapshot file failed: {:?}", e),
+        },
+        Err(e) => panic!("downloading snapshot file failed: {:?}", e),
     }
 
     if !file_path.exists() {
