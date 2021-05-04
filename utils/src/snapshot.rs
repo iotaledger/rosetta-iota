@@ -1,15 +1,13 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::Config;
-use crate::config::Network;
+use crate::{config::Network, Config};
 
 use rosetta_iota_server::types::{AccountIdentifier, Currency};
 
-use bee_common::packable::Packable;
-use bee_ledger::types::BalanceDiffs;
-use bee_ledger::types::snapshot::*;
-use bee_message::{prelude::*};
+use bee_common::packable::{Packable, Read};
+use bee_ledger::types::{snapshot::*, BalanceDiffs};
+use bee_message::prelude::*;
 use bee_tangle::solid_entry_point::SolidEntryPoint;
 
 use serde::{Deserialize, Serialize};
@@ -29,8 +27,8 @@ pub async fn balances_from_snapshot(config: &Config) {
         ),
         Network::Testnet7 => (
             "https://dbfiles.testnet.chrysalis2.com/full_snapshot.bin",
-            "https://dbfiles.testnet.chrysalis2.com/delta_snapshot.bin"
-        )
+            "https://dbfiles.testnet.chrysalis2.com/delta_snapshot.bin",
+        ),
     };
 
     let full_path = Path::new("full_snapshot.bin");
@@ -51,6 +49,86 @@ pub async fn balances_from_snapshot(config: &Config) {
     save_balance_diffs(balance_diffs, &config).await;
 }
 
+async fn import_milestone_diffs<R: Read>(
+    reader: &mut R,
+    mut ledger_index: MilestoneIndex,
+    milestone_diff_count: u64,
+    balance_diffs: &mut BalanceDiffs,
+) {
+    for _ in 0..milestone_diff_count {
+        let diff = MilestoneDiff::unpack(reader).expect("cannot unpack milestone diff");
+        let index = diff.milestone().essence().index();
+        let mut tmp_balance_diffs = BalanceDiffs::new();
+
+        for (_, output) in diff.created().iter() {
+            match output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    tmp_balance_diffs
+                        .amount_add(*output.address(), output.amount())
+                        .expect("can not add amount");
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
+                        tmp_balance_diffs
+                            .dust_outputs_inc(*output.address())
+                            .expect("can not increment dust outputs");
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    tmp_balance_diffs
+                        .amount_add(*output.address(), output.amount())
+                        .expect("can not add amount");
+                    tmp_balance_diffs
+                        .dust_allowance_add(*output.address(), output.amount())
+                        .expect("can not dust allowance");
+                }
+                _ => panic!("unsupported output type"),
+            }
+        }
+
+        for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
+            match created_output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    tmp_balance_diffs
+                        .amount_sub(*output.address(), output.amount())
+                        .expect("can not sub amount");
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
+                        tmp_balance_diffs
+                            .dust_outputs_dec(*output.address())
+                            .expect("can not decrement dust outputs");
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    tmp_balance_diffs
+                        .amount_sub(*output.address(), output.amount())
+                        .expect("can not sub amount");
+                    tmp_balance_diffs
+                        .dust_allowance_sub(*output.address(), output.amount())
+                        .expect("can not dust allowance");
+                }
+                _ => panic!("unsupported output type"),
+            }
+        }
+
+        match index {
+            index if index == MilestoneIndex(*ledger_index + 1) => {
+                balance_diffs
+                    .merge(tmp_balance_diffs)
+                    .expect("can not merge balance diffs");
+                ledger_index = MilestoneIndex(*ledger_index + 1)
+            }
+            index if index == MilestoneIndex(*ledger_index) => {
+                tmp_balance_diffs.negate();
+                balance_diffs
+                    .merge(tmp_balance_diffs)
+                    .expect("can not merge balance diffs");
+                ledger_index = MilestoneIndex(*ledger_index - 1)
+            }
+            _ => panic!("unexpected diff index"),
+        }
+    }
+}
+
 async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
     println!("reading full snapshot...");
 
@@ -60,7 +138,7 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
             .open(full_path)
             .expect("could not open full snapshot"),
     );
-    let _header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
+    let header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
     let full_header = FullSnapshotHeader::unpack(&mut reader).expect("can not read full snapshot header");
 
     for _ in 0..full_header.sep_count() {
@@ -75,66 +153,42 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
 
         match output {
             Output::SignatureLockedSingle(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                balance_diffs
+                    .amount_add(*output.address(), output.amount())
+                    .expect("can not add amount");
                 // DUST_THRESHOLD
                 if output.amount() < 1_000_000 {
-                    balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
+                    balance_diffs
+                        .dust_outputs_inc(*output.address())
+                        .expect("can not increment dust outputs");
                 }
             }
             Output::SignatureLockedDustAllowance(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not add dust allowance");
+                balance_diffs
+                    .amount_add(*output.address(), output.amount())
+                    .expect("can not add amount");
+                balance_diffs
+                    .dust_allowance_add(*output.address(), output.amount())
+                    .expect("can not add dust allowance");
             }
             _ => panic!("unsupported output type"),
         }
     }
 
-    for _ in 0..full_header.milestone_diff_count() {
-        let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
-        for (_, output) in diff.created().iter() {
-            match output.inner() {
-                Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                    // DUST_THRESHOLD
-                    if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
-                    }
-                }
-                Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                    balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not dust allowance");
-                }
-                _ => panic!("unsupported output type"),
-            }
-        }
-
-        for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
-            match created_output.inner() {
-                Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
-                    // DUST_THRESHOLD
-                    if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_dec(*output.address()).expect("can not decrement dust outputs");
-                    }
-                }
-                Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
-                    balance_diffs.dust_allowance_sub(*output.address(), output.amount()).expect("can not dust allowance");
-                }
-                _ => panic!("unsupported output type"),
-            }
-        }
-    }
+    import_milestone_diffs(
+        &mut reader,
+        header.ledger_index(),
+        full_header.milestone_diff_count(),
+        &mut balance_diffs,
+    )
+    .await;
 
     println!("full snapshot successfully read");
 
     balance_diffs
 }
 
-async fn read_delta_snapshot(
-    delta_path: &Path,
-    mut balance_diffs: BalanceDiffs,
-) -> (MilestoneIndex, BalanceDiffs) {
+async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> (MilestoneIndex, BalanceDiffs) {
     println!("reading delta snapshot...");
 
     let mut reader = BufReader::new(
@@ -152,42 +206,13 @@ async fn read_delta_snapshot(
         SolidEntryPoint::unpack(&mut reader).expect("cannot unpack solid entry point");
     }
 
-    for _ in 0..delta_header.milestone_diff_count() {
-        let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
-        for (_, output) in diff.created().iter() {
-            match output.inner() {
-                Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                    // DUST_THRESHOLD
-                    if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
-                    }
-                }
-                Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                    balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not dust allowance");
-                }
-                _ => panic!("unsupported output type"),
-            }
-        }
-
-        for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
-            match created_output.inner() {
-                Output::SignatureLockedSingle(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
-                    // DUST_THRESHOLD
-                    if output.amount() < 1_000_000 {
-                        balance_diffs.dust_outputs_dec(*output.address()).expect("can not decrement dust outputs");
-                    }
-                }
-                Output::SignatureLockedDustAllowance(output) => {
-                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
-                    balance_diffs.dust_allowance_sub(*output.address(), output.amount()).expect("can not dust allowance");
-                }
-                _ => panic!("unsupported output type"),
-            }
-        }
-    }
+    import_milestone_diffs(
+        &mut reader,
+        header.ledger_index(),
+        delta_header.milestone_diff_count(),
+        &mut balance_diffs,
+    )
+    .await;
 
     println!("delta snapshot successfully read");
 
@@ -210,7 +235,7 @@ async fn download_snapshot_file(file_path: &Path, url: &String) {
         Ok(res) => match File::create(file_path) {
             // TODO unwrap
             Ok(mut file) => match copy(&mut res.bytes().await.unwrap().as_ref(), &mut file) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => panic!("copying snapshot file failed: {:?}", e),
             },
             Err(e) => panic!("creating snapshot file failed: {:?}", e),
@@ -234,7 +259,7 @@ async fn save_sep_index(sep_index: MilestoneIndex) {
     fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
 }
 
-async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config,) {
+async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config) {
     let mut json_entries = Vec::new();
 
     for (addr, balance_diff) in balance_diffs {
@@ -258,5 +283,9 @@ async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config,) {
         }
     }
 
-    fs::write("bootstrap_balances.json", serde_json::to_string_pretty(&json_entries).unwrap()).expect("cannot write bootstrap_balances.json file");
+    fs::write(
+        "bootstrap_balances.json",
+        serde_json::to_string_pretty(&json_entries).unwrap(),
+    )
+    .expect("cannot write bootstrap_balances.json file");
 }
