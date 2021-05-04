@@ -42,7 +42,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
   SEP_INDEX=$(cat sep_index)
   START_MS=`expr $SEP_INDEX + 1`
 
-  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq --argjson START_MS "$START_MS" '.data.start_index |= $START_MS' $CONF_DIR/config.json) > $CONF_DIR/config.json
 
   # clean up artifacts
   rm delta_snapshot.bin
@@ -52,8 +52,8 @@ fi
 
 # start synching from $DATA_DIR
 if [ "$NO_BOOTSTRAP" ]; then
-  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
-  cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/rosetta-iota.json) > $CONF_DIR/rosetta-iota.json
+  cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/config.json) > $CONF_DIR/config.json
+  cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/config.json) > $CONF_DIR/config.json
   if [ -d "$DATA_DIR" ]; then
     echo "can not find data directory, please boostrap rosetta-cli..."
   fi
@@ -68,7 +68,7 @@ fi
 # test Data API
 echo "--------------------------------------------------------------------------------"
 echo "running rosetta-cli check:data"
-./rosetta-cli check:data --configuration-file $CONF_DIR/rosetta-iota.json
+./rosetta-cli check:data --configuration-file $CONF_DIR/config.json
 DATA_EXIT=$?
 
 if [ $DATA_EXIT -ne 0 ]; then
