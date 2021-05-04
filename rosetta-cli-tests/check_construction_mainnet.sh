@@ -2,8 +2,8 @@
 
 # define a few vars
 ROOT=$(pwd)
-CONF_DIR=$ROOT/rosetta-cli-conf/testnet7
-DATA_DIR=".rosetta-cli-testnet7"
+CONF_DIR=../$ROOT/rosetta-cli-conf/chrysalis-mainnet
+DATA_DIR=".rosetta-cli-chrysalis-mainnet-db"
 
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
@@ -29,7 +29,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
 
   # download the latest available IOTA snapshot to create the bootstrap_balances.json file
   echo "download the latest available IOTA snapshot to create the bootstrap_balances.json file..."
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network testnet7 --bech32-hrp atoi
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network chrysalis-mainnet --bech32-hrp iota
   ROSETTA_UTILS_EXIT=$?
 
   if [ $ROSETTA_UTILS_EXIT -ne 0 ]; then
@@ -65,13 +65,13 @@ if [ $INSTALL ]; then
   echo "installing rosetta-cli via curl..."
   curl -sSfL https://raw.githubusercontent.com/coinbase/rosetta-cli/master/scripts/install.sh | sh -s -- -b .
 fi
-# test Data API
+# test Construction API
 echo "--------------------------------------------------------------------------------"
-echo "running rosetta-cli check:data"
-./rosetta-cli check:data --configuration-file $CONF_DIR/config.json
-DATA_EXIT=$?
+echo "running rosetta-cli check:construction"
+./rosetta-cli check:construction --configuration-file $CONF_DIR/config.json
+CONSTRUCTION_EXIT=$?
 
-if [ $DATA_EXIT -ne 0 ]; then
-  echo "rosetta-cli check:data unsuccessful..."
+if [ $CONSTRUCTION_EXIT -ne 0 ]; then
+  echo "rosetta-cli check:construction unsuccessful..."
   exit 1
 fi

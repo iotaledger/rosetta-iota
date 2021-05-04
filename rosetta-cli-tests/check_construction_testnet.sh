@@ -2,8 +2,8 @@
 
 # define a few vars
 ROOT=$(pwd)
-CONF_DIR=$ROOT/rosetta-cli-conf/chrysalis-mainnet
-DATA_DIR=".rosetta-cli-chrysalis-mainnet"
+CONF_DIR=../$ROOT/rosetta-cli-conf/testnet7
+DATA_DIR=".rosetta-cli-testnet7-db"
 
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
@@ -29,7 +29,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
 
   # download the latest available IOTA snapshot to create the bootstrap_balances.json file
   echo "download the latest available IOTA snapshot to create the bootstrap_balances.json file..."
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network chrysalis-mainnet --bech32-hrp iota
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-utils --release -- --network testnet7 --bech32-hrp atoi
   ROSETTA_UTILS_EXIT=$?
 
   if [ $ROSETTA_UTILS_EXIT -ne 0 ]; then

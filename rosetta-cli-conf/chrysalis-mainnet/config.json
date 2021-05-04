@@ -4,7 +4,7 @@
     "network": "chrysalis-mainnet"
   },
   "online_url": "http://localhost:3030",
-  "data_directory": ".rosetta-cli-chrysalis-mainnet",
+  "data_directory": ".rosetta-cli-chrysalis-mainnet-db",
   "http_timeout": 10,
   "max_retries": 5,
   "max_sync_concurrency": 32,
