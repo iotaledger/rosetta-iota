@@ -14,8 +14,8 @@ services:
       - "127.0.0.1:14265:14265/tcp"
       - "0.0.0.0:15600:15600/tcp"
     volumes:
-      - './hornet-conf/config_testnet.json:/app/config.json:ro'
-      - './hornet-conf/peering_testnet.json:/app/peering.json'
+      - './hornet-conf/testnet7/config.json:/app/config.json:ro'
+      - './hornet-conf/testnet7/peering.json:/app/peering.json'
       - './data:/data'
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'

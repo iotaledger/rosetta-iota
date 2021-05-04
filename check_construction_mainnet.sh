@@ -2,8 +2,8 @@
 
 # define a few vars
 ROOT=$(pwd)
-CONF_DIR=$ROOT/rosetta-cli-conf/mainnet
-DATA_DIR=".rosetta-cli-data-mainnet"
+CONF_DIR=$ROOT/rosetta-cli-conf/chrysalis-mainnet
+DATA_DIR=".rosetta-cli-chrysalis-mainnet"
 
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli

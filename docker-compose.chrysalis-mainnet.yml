@@ -14,15 +14,15 @@ services:
       - "127.0.0.1:14265:14265/tcp"
       - "0.0.0.0:15600:15600/tcp"
     volumes:
-      - './hornet-conf/config_mainnet.json:/app/config.json:ro'
-      - './hornet-conf/peering_mainnet.json:/app/peering.json'
+      - './hornet-conf/chrysalis-mainnet/config.json:/app/config.json:ro'
+      - './hornet-conf/chrysalis-mainnet/peering.json:/app/peering.json'
       - './data:/data'
       - '/etc/ssl/certs:/etc/ssl/certs:ro'
       - '/etc/localtime:/etc/localtime:ro'
 
   rosetta:
     build: .
-    command: --bind-addr 0.0.0.0:3030 --network chrysalis-mainnet --bech32-hrp iota --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
+    command: --bind-addr 0.0.0.0:3030 --network chrysalis-chrysalis-mainnet --bech32-hrp iota --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
     restart: "no"
     environment:
       - RUST_LOG=info

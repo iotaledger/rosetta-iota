@@ -2,8 +2,8 @@
 
 # define a few vars
 ROOT=$(pwd)
-CONF_DIR=$ROOT/rosetta-cli-conf/testnet
-DATA_DIR=".rosetta-cli-data-testnet"
+CONF_DIR=$ROOT/rosetta-cli-conf/testnet7
+DATA_DIR=".rosetta-cli-testnet7"
 
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli
