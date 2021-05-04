@@ -45,24 +45,59 @@ pub async fn bootstrap_balances_from_snapshot(config: &Config) {
     }
 
     let balance_diffs = read_full_snapshot(full_path).await;
-    let (sep_index, json_string) = read_delta_snapshot(delta_path, balance_diffs, config).await;
+    let (sep_index, balance_diffs) = read_delta_snapshot(delta_path, balance_diffs).await;
 
-    fs::write("bootstrap_balances.json", json_string).expect("cannot write bootstrap_balances.json file");
-    fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
+    save_sep_index(sep_index).await;
+    save_balance_diffs(balance_diffs, &config).await;
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct BootstrapBalanceEntry {
-    account_identifier: AccountIdentifier,
-    currency: Currency,
-    value: String,
+async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
+    println!("reading full snapshot...");
+
+    let mut reader = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .open(full_path)
+            .expect("could not open full snapshot"),
+    );
+    let _header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
+    let full_header = FullSnapshotHeader::unpack(&mut reader).expect("can not read full snapshot header");
+
+    for _ in 0..full_header.sep_count() {
+        let _ = SolidEntryPoint::unpack(&mut reader).expect("can not read solid entry point");
+    }
+
+    let mut balance_diffs = BalanceDiffs::new();
+    for _ in 0..full_header.output_count() {
+        let _ = MessageId::unpack(&mut reader).expect("can not read message id of output");
+        let _ = OutputId::unpack(&mut reader).expect("can not read output id");
+        let output = Output::unpack(&mut reader).expect("can not read output");
+
+        match output {
+            Output::SignatureLockedSingle(output) => {
+                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                // DUST_THRESHOLD
+                if output.amount() < 1_000_000 {
+                    balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
+                }
+            }
+            Output::SignatureLockedDustAllowance(output) => {
+                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not add dust allowance");
+            }
+            _ => panic!("unsupported output type"),
+        }
+    }
+
+    println!("full snapshot successfully read");
+
+    balance_diffs
 }
 
 async fn read_delta_snapshot(
     delta_path: &Path,
     mut balance_diffs: BalanceDiffs,
-    config: &Config,
-) -> (MilestoneIndex, String) {
+) -> (MilestoneIndex, BalanceDiffs) {
     println!("reading delta snapshot...");
 
     let mut reader = BufReader::new(
@@ -117,6 +152,12 @@ async fn read_delta_snapshot(
         }
     }
 
+    println!("delta snapshot successfully read");
+
+    (sep_index, balance_diffs)
+}
+
+async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config,) {
     let mut json_entries = Vec::new();
 
     for (addr, balance_diff) in balance_diffs {
@@ -140,54 +181,11 @@ async fn read_delta_snapshot(
         }
     }
 
-    let json_string = serde_json::to_string_pretty(&json_entries).unwrap();
-
-    println!("delta snapshot successfully read");
-
-    (sep_index, json_string)
+    fs::write("bootstrap_balances.json", serde_json::to_string_pretty(&json_entries).unwrap()).expect("cannot write bootstrap_balances.json file");
 }
 
-async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
-    println!("reading full snapshot...");
-
-    let mut reader = BufReader::new(
-        OpenOptions::new()
-            .read(true)
-            .open(full_path)
-            .expect("could not open full snapshot"),
-    );
-    let _header = SnapshotHeader::unpack(&mut reader).expect("can not read snapshot header");
-    let full_header = FullSnapshotHeader::unpack(&mut reader).expect("can not read full snapshot header");
-
-    for _ in 0..full_header.sep_count() {
-        let _ = SolidEntryPoint::unpack(&mut reader).expect("can not read solid entry point");
-    }
-
-    let mut balance_diffs = BalanceDiffs::new();
-    for _ in 0..full_header.output_count() {
-        let _ = MessageId::unpack(&mut reader).expect("can not read message id of output");
-        let _ = OutputId::unpack(&mut reader).expect("can not read output id");
-        let output = Output::unpack(&mut reader).expect("can not read output");
-
-        match output {
-            Output::SignatureLockedSingle(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                // DUST_THRESHOLD
-                if output.amount() < 1_000_000 {
-                    balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
-                }
-            }
-            Output::SignatureLockedDustAllowance(output) => {
-                balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
-                balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not add dust allowance");
-            }
-            _ => panic!("unsupported output type"),
-        }
-    }
-
-    println!("full snapshot successfully read");
-
-    balance_diffs
+async fn save_sep_index(sep_index: MilestoneIndex) {
+    fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
 }
 
 async fn download_snapshot_file(file_path: &Path, url: &String) {
@@ -217,4 +215,11 @@ async fn download_snapshot_file(file_path: &Path, url: &String) {
     if !file_path.exists() {
         panic!("no working download source available");
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct BootstrapBalanceEntry {
+    account_identifier: AccountIdentifier,
+    currency: Currency,
+    value: String,
 }
