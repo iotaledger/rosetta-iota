@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-    "server",
-    "utils"
+    "rosetta-iota-server",
+    "rosetta-iota-utils"
 ]

@@ -5,7 +5,7 @@ authors = ["IOTA Stiftung"]
 edition = "2018"
 
 [dependencies]
-rosetta-iota-server = { path = "../server"}
+rosetta-iota-server = { path = "../rosetta-iota-server"}
 
 bee-common = "0.4"
 bee-message = "0.1"
