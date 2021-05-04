@@ -21,7 +21,7 @@ use std::{
     path::Path,
 };
 
-pub async fn bootstrap_balances_from_snapshot(config: &Config) {
+pub async fn balances_from_snapshot(config: &Config) {
     let (full_url, delta_url) = match &config.network {
         Network::ChrysalisMainnet => (
             "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-full_snapshot.bin",
@@ -86,6 +86,43 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
                 balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not add dust allowance");
             }
             _ => panic!("unsupported output type"),
+        }
+    }
+
+    for _ in 0..full_header.milestone_diff_count() {
+        let diff = MilestoneDiff::unpack(&mut reader).expect("cannot unpack milestone diff");
+        for (_, output) in diff.created().iter() {
+            match output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
+                        balance_diffs.dust_outputs_inc(*output.address()).expect("can not increment dust outputs");
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    balance_diffs.amount_add(*output.address(), output.amount()).expect("can not add amount");
+                    balance_diffs.dust_allowance_add(*output.address(), output.amount()).expect("can not dust allowance");
+                }
+                _ => panic!("unsupported output type"),
+            }
+        }
+
+        for (_output_id, (created_output, _consumed_output)) in diff.consumed().iter() {
+            match created_output.inner() {
+                Output::SignatureLockedSingle(output) => {
+                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
+                    // DUST_THRESHOLD
+                    if output.amount() < 1_000_000 {
+                        balance_diffs.dust_outputs_dec(*output.address()).expect("can not decrement dust outputs");
+                    }
+                }
+                Output::SignatureLockedDustAllowance(output) => {
+                    balance_diffs.amount_sub(*output.address(), output.amount()).expect("can not sub amount");
+                    balance_diffs.dust_allowance_sub(*output.address(), output.amount()).expect("can not dust allowance");
+                }
+                _ => panic!("unsupported output type"),
+            }
         }
     }
 
@@ -157,37 +194,6 @@ async fn read_delta_snapshot(
     (sep_index, balance_diffs)
 }
 
-async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config,) {
-    let mut json_entries = Vec::new();
-
-    for (addr, balance_diff) in balance_diffs {
-        let addr = addr.to_bech32(&config.bech32_hrp);
-
-        let balance = balance_diff.amount();
-
-        if balance > 0 {
-            json_entries.push(BootstrapBalanceEntry {
-                account_identifier: AccountIdentifier {
-                    address: addr,
-                    sub_account: None,
-                },
-                currency: Currency {
-                    symbol: "IOTA".to_string(),
-                    decimals: 0,
-                    metadata: None,
-                },
-                value: balance.to_string(),
-            });
-        }
-    }
-
-    fs::write("bootstrap_balances.json", serde_json::to_string_pretty(&json_entries).unwrap()).expect("cannot write bootstrap_balances.json file");
-}
-
-async fn save_sep_index(sep_index: MilestoneIndex) {
-    fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
-}
-
 async fn download_snapshot_file(file_path: &Path, url: &String) {
     std::fs::create_dir_all(file_path.parent().expect(&format!(
         "invalid file path {}",
@@ -222,4 +228,35 @@ struct BootstrapBalanceEntry {
     account_identifier: AccountIdentifier,
     currency: Currency,
     value: String,
+}
+
+async fn save_sep_index(sep_index: MilestoneIndex) {
+    fs::write("sep_index", sep_index.to_string()).expect("cannot write to sep_index file");
+}
+
+async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config,) {
+    let mut json_entries = Vec::new();
+
+    for (addr, balance_diff) in balance_diffs {
+        let addr = addr.to_bech32(&config.bech32_hrp);
+
+        let balance = balance_diff.amount();
+
+        if balance > 0 {
+            json_entries.push(BootstrapBalanceEntry {
+                account_identifier: AccountIdentifier {
+                    address: addr,
+                    sub_account: None,
+                },
+                currency: Currency {
+                    symbol: "IOTA".to_string(),
+                    decimals: 0,
+                    metadata: None,
+                },
+                value: balance.to_string(),
+            });
+        }
+    }
+
+    fs::write("bootstrap_balances.json", serde_json::to_string_pretty(&json_entries).unwrap()).expect("cannot write bootstrap_balances.json file");
 }
