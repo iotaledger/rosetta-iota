@@ -1,7 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use rosetta_iota_utils::{snapshot::balances_from_snapshot, Config};
+use rosetta_iota_snapshot::{snapshot::balances_from_snapshot, Config};
 
 use structopt::StructOpt;
 

@@ -1,5 +1,5 @@
 [package]
-name = "rosetta-iota-utils"
+name = "rosetta-iota-snapshot"
 version = "0.1.0"
 authors = ["IOTA Stiftung"]
 edition = "2018"
@@ -19,5 +19,5 @@ structopt = "0.3"
 tokio = { version = "1.4", features = ["full"] }
 
 [[bin]]
-name = "rosetta-iota-utils"
+name = "rosetta-iota-snapshot"
 path = "src/main.rs"

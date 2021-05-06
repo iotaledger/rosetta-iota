@@ -19,11 +19,11 @@ book
 .rosetta-cli-alphanet
 rosetta-cli
 
-# rosetta-iota-utils files
-rosetta-iota-utils/full_snapshot.bin
-rosetta-iota-utils/delta_snapshot.bin
-rosetta-iota-utils/bootstrap_balances.json
-rosetta-iota-utils/sep_index
+# rosetta-iota-snapshot files
+rosetta-iota-snapshot/full_snapshot.bin
+rosetta-iota-snapshot/delta_snapshot.bin
+rosetta-iota-snapshot/bootstrap_balances.json
+rosetta-iota-snapshot/sep_index
 full_snapshot.bin
 delta_snapshot.bin
 bootstrap_balances.json

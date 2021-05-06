@@ -26,8 +26,8 @@ services:
     restart: "no"
     environment:
       - RUST_LOG=info
-    ports:
-      - "0.0.0.0:3030:3030/tcp"
     expose:
       # Rosetta API
       - "3030"
+    ports:
+      - "0.0.0.0:3030:3030/tcp"
