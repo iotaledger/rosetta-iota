@@ -21,12 +21,12 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 
 **Testnet: online mode**
 ```
-MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
+MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```
 
 **Testnet: offline mode**
 ```
-MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
+MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```
 
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030

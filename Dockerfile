@@ -48,6 +48,6 @@ RUN rm -rf /var/lib/apt
 EXPOSE 3030/tcp
 
 COPY --from=build /rosetta-iota/target/release/rosetta-iota /
-COPY --from=build /rosetta-iota/target/release/rosetta-iota-utils /
+COPY --from=build /rosetta-iota/target/release/rosetta-iota-snapshot /
 
 ENTRYPOINT ["/rosetta-iota"]
