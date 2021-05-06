@@ -183,10 +183,10 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <li>Run the implementation in the desired mode:</li>
 </ol>
 <p><strong>Testnet: online mode</strong></p>
-<pre><code>MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
+<pre><code>MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 </code></pre>
 <p><strong>Testnet: offline mode</strong></p>
-<pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet.yml up
+<pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 </code></pre>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
 <p>The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info</p>
