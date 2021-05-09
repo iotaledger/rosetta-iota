@@ -177,11 +177,32 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <h2 id="instructions"><a class="header" href="#instructions">Instructions</a></h2>
 <p><strong>Following instructions will start a HORNET node together with a Rosetta API instance:</strong></p>
 <ol>
-<li>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</li>
-<li>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</li>
-<li>Add your peer(s) - to which your HORNET node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>hornet/chrysalis-mainnet/peering_.json</code> file. For <code>testnet7</code>, add the peers to the <code>hornet/testnet7/peering_.json</code> file. If you don't have any peers, please contact us and we will help you find some.</li>
-<li>Run the implementation in the desired mode:</li>
-</ol>
+<li>
+<p>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</p>
+</li>
+<li>
+<p>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
+</li>
+<li>
+<p>Add your peer(s) - to which your HORNET node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>hornet/chrysalis-mainnet/peering.json</code> file. For <code>testnet7</code>, add the peers to the <code>hornet/testnet7/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
+<p>For better illustration, the <code>peering.json</code> file could then look like the following, for example:</p>
+<pre><code class="language-json">{
+ &quot;peers&quot;: [
+   {
+     &quot;multiAddress&quot;: &quot;/dns/xyz.com/tcp/15600/p2p/12D3KooWEVGFchjYqCH1nAWt2norb6sJYEedmEkPofoNiyDwyptf&quot;,
+     &quot;alias&quot;: &quot;Alice&quot;
+   },
+   {
+     &quot;multiAddress&quot;: &quot;/dns/121.56.12.23/tcp/15600/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9&quot;,
+     &quot;alias&quot;: &quot;Bob&quot;
+   }
+ ]
+}
+</code></pre>
+<p>Also, make sure that you tell your peers the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the <strong>address where you deploy the node and the node ID</strong>. You can find your node ID in the logs when you start the implementation.</p>
+</li>
+<li>
+<p>Run the implementation in the desired mode:</p>
 <p><strong>chrysalis-mainnet: online mode</strong></p>
 <pre><code>MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
 </code></pre>
@@ -194,14 +215,21 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <p><strong>testnet7: offline mode</strong></p>
 <pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 </code></pre>
-<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
-<p>The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info</p>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>The snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, put your snapshots in the <code>data/snapshots/testnet</code> directory.</strong></p>
-<h3 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h3>
+</li>
+<li>
+<p>Since the node ID is tied with a private key make sure you back up the private key. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
+You can back up your node ID by preserving the <code>data/p2pstore</code> directory.</p>
+</li>
+</ol>
+<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
+The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info</p>
+<h4 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h4>
 <ul>
 <li><code>MODE</code> ... the mode in which the implementation is to run. Can be either <code>offline</code> or <code>online</code>.</li>
 <li><code>TX_TAG</code> ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag <code>Rosetta</code> is used by default. Constructed transactions can then be found by this tag. The tag can be a maximum of 64 bytes long.</li>
 </ul>
+<h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. <strong>For <code>chrysalis-mainnet</code>, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For <code>testnet7</code>, the snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the <code>data/snapshots/</code> directory.</strong></p>
 
                     </main>
 
