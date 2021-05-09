@@ -5,24 +5,24 @@
 The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.
 
 1) To be able to run the testing scripts, make sure you have **the latest version of [Rust](https://www.rust-lang.org/tools/install) installed.** **Also make sure [jq](https://wiki.ubuntuusers.de/jq/) is installed.**
-
-2) Ensure the IOTA node is running **for the correct network** and an instance of the Rosetta API is available.
+2) Switch to the `rosetta-cli-tests/` directory.
+3) Ensure the HORNET node is running **for the correct network** and an instance of the Rosetta API is available.
 
     To validate the correctness of `rosetta-iota` run the commands below:
 
-    Data API **(chrysalis-mainnet)**:
+    **chrysalis-mainnet: check data**
+    ```
+    INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=chrysalis-mainnet ./check_data.sh
+    ```
+    **chrysalis-mainnet: check construction**
+    ```
+    INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=chrysalis-mainnet ./check_construction.sh
+    ```
+    **testnet7: check data**
     ```
     INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_data.sh
     ```
-    Construction API **(chrysalis-mainnet)**:
-    ```
-    INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
-    ```
-    Data API **(testnet7)**:
-    ```
-    INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_data.sh
-    ```
-    Construction API **(testnet7)**:
+    **testnet7: check construction**
     ```
     INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
     ```
