@@ -49,7 +49,7 @@
   },
   "db": {
     "engine": "pebble",
-    "path": "/data/dbs/chrysalis-mainnet",
+    "path": "/data/databases/chrysalis-mainnet/",
     "autoRevalidation": false
   },
   "snapshots": {

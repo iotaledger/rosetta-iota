@@ -50,7 +50,7 @@
   },
   "db": {
     "engine": "pebble",
-    "path": "/data/dbs/testnet7",
+    "path": "/data/databases/testnet7/",
     "autoRevalidation": false
   },
   "snapshots": {
