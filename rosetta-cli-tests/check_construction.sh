@@ -45,10 +45,10 @@ if [ $BOOTSTRAP_BALANCES ]; then
   rm -rf $DB
 
   if [[ "$NETWORK" == "chrysalis-mainnet" ]]; then
-    echo "Copy snapshot(s) from ../data/snapshots/chrysalis-mainnet ..."
+    echo "Copy snapshot(s) from ../data/snapshots/chrysalis-mainnet"
     cp -r ../data/snapshots/chrysalis-mainnet/* .
   elif [[ "$NETWORK" == "testnet7" ]]; then
-    echo "Copy snapshot(s) from ../data/snapshots/testnet7..."
+    echo "Copy snapshot(s) from ../data/snapshots/testnet7"
     cp -r ../data/snapshots/testnet7/* .
   fi
 

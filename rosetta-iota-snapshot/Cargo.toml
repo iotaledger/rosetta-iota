@@ -12,11 +12,10 @@ bee-message = "0.1"
 bee-ledger = "0.2.0"
 bee-tangle = "0.1.0"
 
-reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 structopt = "0.3"
-tokio = { version = "1.4", features = ["full"] }
+tokio = { version = "1.4" }
 
 [[bin]]
 name = "rosetta-iota-snapshot"
