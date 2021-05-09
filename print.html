@@ -186,19 +186,25 @@
 In addition, IOTA full-nodes are able to prune history from time to time in a safe way.
 <strong>IOTA full-nodes per default don't hold the entire history - they are not designed to do so.</strong></p>
 <p>In contrast, <strong>IOTA Permanodes</strong> (such as <a href="https://github.com/iotaledger/chronicle.rs">Chronicle</a>) <strong>are designed to hold the entire history.</strong></p>
-<p><code>rosetta-iota</code> aims for a more reliable integration and better performance with limiting state storage. For these reasons, <strong>the Rosetta API implementation is deployed with an IOTA full-node</strong> (<a href="https://github.com/gohornet/hornet.git">HORNET</a>).</p>
-<h2 id="testnet-deployment"><a class="header" href="#testnet-deployment">Testnet deployment</a></h2>
+<p><code>rosetta-iota</code> aims for a more reliable integration and better performance with limiting state storage. Therefore, <strong>the Rosetta API implementation is deployed with an IOTA full-node</strong> (<a href="https://github.com/gohornet/hornet.git">HORNET</a>).</p>
+<h2 id="instructions"><a class="header" href="#instructions">Instructions</a></h2>
 <p><strong>Following instructions will start a HORNET node together with a Rosetta API instance:</strong></p>
 <ol>
 <li>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</li>
 <li>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</li>
-<li>Add your HORNET peer(s) - to which your HORNET node should connect - to following configuration file: <code>hornet/peering_testnet.json</code>. If you don't have any peers, please contact us and we will help you find some.</li>
+<li>Add your peer(s) - to which your HORNET node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>hornet/chrysalis-mainnet/peering_.json</code> file. For <code>testnet7</code>, add the peers to the <code>hornet/mainnet/peering_.json</code> file. If you don't have any peers, please contact us and we will help you find some.</li>
 <li>Run the implementation in the desired mode:</li>
 </ol>
-<p><strong>Testnet: online mode</strong></p>
+<p><strong><code>chrysalis-mainnet: online mode</code></strong></p>
+<pre><code>MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+</code></pre>
+<p><strong><code>chrysalis-mainnet: offline mode</code></strong></p>
+<pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+</code></pre>
+<p><strong><code>testnet7: online mode</code></strong></p>
 <pre><code>MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 </code></pre>
-<p><strong>Testnet: offline mode</strong></p>
+<p><strong><code>testnet7: offline mode</code></strong></p>
 <pre><code>MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 </code></pre>
 <p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030</p>
