@@ -8,23 +8,33 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 
 In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) **are designed to hold the entire history.**
 
-`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. For these reasons, **the Rosetta API implementation is deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
+`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. Therefore, **the Rosetta API implementation is deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
 
-## Testnet deployment
+## Instructions
 
 **Following instructions will start a HORNET node together with a Rosetta API instance:**
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add your HORNET peer(s) - to which your HORNET node should connect - to following configuration file: `hornet/peering_testnet.json`. If you don't have any peers, please contact us and we will help you find some.
+3) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering_.json` file. For `testnet7`, add the peers to the `hornet/mainnet/peering_.json` file. If you don't have any peers, please contact us and we will help you find some.
 4) Run the implementation in the desired mode:
 
-**Testnet: online mode**
+**`chrysalis-mainnet: online mode`**
+```
+MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+```
+
+**`chrysalis-mainnet: offline mode`**
+```
+MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+```
+
+**`testnet7: online mode`**
 ```
 MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```
 
-**Testnet: offline mode**
+**`testnet7: offline mode`**
 ```
 MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```

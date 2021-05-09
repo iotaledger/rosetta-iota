@@ -74,7 +74,7 @@ fi
 if [ "$NO_BOOTSTRAP" ]; then
   cat <<< $(jq 'del(.data.start_index)' $CONF_DIR/config.json) > $CONF_DIR/config.json
   cat <<< $(jq 'del(.data.bootstrap_balances)' $CONF_DIR/config.json) > $CONF_DIR/config.json
-  if [ -d "$DB" ]; then
+  if [ -f "$DB" ]; then
     echo "Can not find rosetta-cli database. Please boostrap rosetta-cli."
     exit 1
   fi
