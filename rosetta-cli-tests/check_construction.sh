@@ -31,6 +31,19 @@ else
   exit 1
 fi
 
+if [[ "$NETWORK" == "chrysalis-mainnet" ]]; then
+  CONF_DIR = $CHRYSALIS_MAINNET_CONF_DIR
+  DB = $CHRYSALIS_MAINNET_DB
+  HRP = $CHRYSALIS_MAINNET_BECH32_HRP
+elif [[ "$NETWORK" == "testnet7" ]]; then
+  CONF_DIR = $TESTNET7_CONF_DIR
+  DB = $TESTNET7_DB
+  HRP = $TESTNET7_TESTNET7_HRP
+else
+  echo "The provided network is not suppored. Following networks are supported: `chrysalis-mainnet` or `testnet7`."
+  exit 1
+fi
+
 if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
   echo "Please specify how rosetta-cli should be bootsrapped. To delete the rosetta-cli database and bootstrap balances from IOTA snapshots, set `BOOTSTRAP_BALANCES=1`. To keep the rosetta-cli database and continue from the rosetta-cli database state, set `NO_BOOTSTRAP=1`."
   exit 1
