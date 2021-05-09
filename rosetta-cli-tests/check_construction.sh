@@ -10,11 +10,11 @@ TESTNET7_TESTNET7_HRP="atoi"
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli to the current folder
 # BOOTSTRAP_BALANCES=1 ...deletes the rosetta-cli database, downloads the latest available IOTA snapshots and bootstraps balances
-# NO_BOOTSTRAP=1 ...keeps the rosetta-cli database and continues from the rosetta-cli database state
-# NETWORK = ...the network that should be tested on; can be either `chrysalis-mainnet` or `testnet7`
+# NO_BOOTSTRAP=1 ...keeps the rosetta-cli database and continues synching from the available state
+# NETWORK = ...the network that should be tested on; can be either chrysalis-mainnet or testnet7
 
 if [ -z "$NETWORK" ]; then
-  echo "Please specifiy the network that should be tested on. Following networks are supported: chrysalis-mainnet or testnet7."
+  echo "Please specify the network on which to test. Following networks are supported: chrysalis-mainnet or testnet7."
   exit 1
 fi
 
@@ -27,30 +27,17 @@ elif [[ "$NETWORK" == "testnet7" ]]; then
   DB=$TESTNET7_DB
   HRP=$TESTNET7_TESTNET7_HRP
 else
-  echo "The provided network is not supported. Following networks are supported: `chrysalis-mainnet` or `testnet7`."
-  exit 1
-fi
-
-if [[ "$NETWORK" == "chrysalis-mainnet" ]]; then
-  CONF_DIR = $CHRYSALIS_MAINNET_CONF_DIR
-  DB = $CHRYSALIS_MAINNET_DB
-  HRP = $CHRYSALIS_MAINNET_BECH32_HRP
-elif [[ "$NETWORK" == "testnet7" ]]; then
-  CONF_DIR = $TESTNET7_CONF_DIR
-  DB = $TESTNET7_DB
-  HRP = $TESTNET7_TESTNET7_HRP
-else
-  echo "The provided network is not suppored. Following networks are supported: `chrysalis-mainnet` or `testnet7`."
+  echo "The provided network is not supported. Please choose one of following networks: chrysalis-mainnet or testnet7."
   exit 1
 fi
 
 if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
-  echo "Please specify how rosetta-cli should be bootsrapped. To delete the rosetta-cli database and bootstrap balances from IOTA snapshots, set `BOOTSTRAP_BALANCES=1`. To keep the rosetta-cli database and continue from the rosetta-cli database state, set `NO_BOOTSTRAP=1`."
+  echo "Please specify how rosetta-cli should be bootsrapped. To delete the rosetta-cli database and to bootstrap rosetta-cli with balances from IOTA snapshots, set BOOTSTRAP_BALANCES=1. To keep the rosetta-cli database and continue synching from the available state, set NO_BOOTSTRAP=1."
   exit 1
 fi
 
 if [ "$BOOTSTRAP_BALANCES" ] && [ "$NO_BOOTSTRAP" ]; then
-  echo "Please specify only one boostrapping method."
+  echo "Multiple boostrapping methods provided. Please select only one bo"
   exit 1
 fi
 
