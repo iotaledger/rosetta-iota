@@ -4,7 +4,7 @@
     "network": "testnet7"
   },
   "online_url": "http://localhost:3030",
-  "data_directory": "rosetta-cli-testnet7-db",
+  "data_directory": "rosetta-cli-db",
   "http_timeout": 10,
   "max_retries": 5,
   "max_sync_concurrency": 32,

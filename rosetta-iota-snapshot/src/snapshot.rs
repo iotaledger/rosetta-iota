@@ -1,7 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{config::Network, Config};
+use crate::Config;
 
 use rosetta_iota_server::types::{AccountIdentifier, Currency};
 
@@ -14,36 +14,28 @@ use serde::{Deserialize, Serialize};
 
 use std::{
     fs,
-    fs::{File, OpenOptions},
-    io::{copy, BufReader},
+    fs::OpenOptions,
+    io::BufReader,
     path::Path,
 };
 
 pub async fn balances_from_snapshot(config: &Config) {
-    let (full_url, delta_url) = match &config.network {
-        Network::ChrysalisMainnet => (
-            "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-full_snapshot.bin",
-            "https://chrysalis-dbfiles.iota.org/snapshots/hornet/latest-delta_snapshot.bin",
-        ),
-        Network::Testnet7 => (
-            "https://dbfiles.testnet.chrysalis2.com/full_snapshot.bin",
-            "https://dbfiles.testnet.chrysalis2.com/delta_snapshot.bin",
-        ),
-    };
-
     let full_path = Path::new("full_snapshot.bin");
     let delta_path = Path::new("delta_snapshot.bin");
 
     if !full_path.exists() {
-        download_snapshot_file(full_path, &full_url.to_string()).await;
+        panic!("Can not find full_snapshot.bin file. Please re-setup rosetta-iota.")
     }
 
-    if !delta_path.exists() {
-        download_snapshot_file(delta_path, &delta_url.to_string()).await;
-    }
-
-    let balance_diffs = read_full_snapshot(full_path).await;
-    let (sep_index, balance_diffs) = read_delta_snapshot(delta_path, balance_diffs).await;
+    let (sep_index, balance_diffs) = {
+        let (sep_index, balance_diffs) = read_full_snapshot(full_path).await;
+        if !delta_path.exists() {
+            println!("Can not find delta_snapshot.bin file, continue nevertheless...");
+            (sep_index, balance_diffs)
+        } else {
+            read_delta_snapshot(delta_path, balance_diffs).await
+        }
+    };
 
     save_sep_index(sep_index).await;
     save_balance_diffs(balance_diffs, &config).await;
@@ -129,7 +121,7 @@ async fn import_milestone_diffs<R: Read>(
     }
 }
 
-async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
+async fn read_full_snapshot(full_path: &Path) -> (MilestoneIndex, BalanceDiffs) {
     println!("reading full snapshot...");
 
     let mut reader = BufReader::new(
@@ -185,7 +177,7 @@ async fn read_full_snapshot(full_path: &Path) -> BalanceDiffs {
 
     println!("full snapshot successfully read");
 
-    balance_diffs
+    (header.sep_index(), balance_diffs)
 }
 
 async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs) -> (MilestoneIndex, BalanceDiffs) {
@@ -217,35 +209,6 @@ async fn read_delta_snapshot(delta_path: &Path, mut balance_diffs: BalanceDiffs)
     println!("delta snapshot successfully read");
 
     (sep_index, balance_diffs)
-}
-
-async fn download_snapshot_file(file_path: &Path, url: &String) {
-    std::fs::create_dir_all(file_path.parent().expect(&format!(
-        "invalid file path {}",
-        file_path.to_string_lossy().to_string()
-    )))
-    .expect(&format!(
-        "invalid file path {}",
-        file_path.to_string_lossy().to_string()
-    ));
-
-    println!("downloading snapshot file {}...", url);
-
-    match reqwest::get(url).await {
-        Ok(res) => match File::create(file_path) {
-            // TODO unwrap
-            Ok(mut file) => match copy(&mut res.bytes().await.unwrap().as_ref(), &mut file) {
-                Ok(_) => {}
-                Err(e) => panic!("copying snapshot file failed: {:?}", e),
-            },
-            Err(e) => panic!("creating snapshot file failed: {:?}", e),
-        },
-        Err(e) => panic!("downloading snapshot file failed: {:?}", e),
-    }
-
-    if !file_path.exists() {
-        panic!("no working download source available");
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

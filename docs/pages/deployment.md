@@ -16,25 +16,25 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 
 1) Ensure `docker` and `docker-compose` are installed.
 2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
-3) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering_.json` file. For `testnet7`, add the peers to the `hornet/mainnet/peering_.json` file. If you don't have any peers, please contact us and we will help you find some.
+3) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering_.json` file. For `testnet7`, add the peers to the `hornet/testnet7/peering_.json` file. If you don't have any peers, please contact us and we will help you find some.
 4) Run the implementation in the desired mode:
 
-**`chrysalis-mainnet: online mode`**
+**chrysalis-mainnet: online mode**
 ```
 MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
 ```
 
-**`chrysalis-mainnet: offline mode`**
+**chrysalis-mainnet: offline mode**
 ```
 MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
 ```
 
-**`testnet7: online mode`**
+**testnet7: online mode**
 ```
 MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```
 
-**`testnet7: offline mode`**
+**testnet7: offline mode**
 ```
 MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
 ```

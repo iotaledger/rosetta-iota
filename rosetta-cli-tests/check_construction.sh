@@ -1,11 +1,10 @@
 #!/bin/bash
 
 CHRYSALIS_MAINNET_CONF_DIR="../rosetta-cli-conf/chrysalis-mainnet"
-CHRYSALIS_MAINNET_DB="rosetta-cli-chrysalis-mainnet-db"
 CHRYSALIS_MAINNET_BECH32_HRP="iota"
 TESTNET7_CONF_DIR="../rosetta-cli-conf/testnet7"
-TESTNET7_DB="rosetta-cli-testnet7-db"
-TESTNET7_TESTNET7_HRP="atoi"
+TESTNET7_HRP="atoi"
+DB="rosetta-cli-db"
 
 # uncomment to enable
 # INSTALL_ROSETTA_CLI=1 ...installs rosetta-cli to the current folder
@@ -20,14 +19,12 @@ fi
 
 if [[ "$NETWORK" == "chrysalis-mainnet" ]]; then
   CONF_DIR=$CHRYSALIS_MAINNET_CONF_DIR
-  DB=$CHRYSALIS_MAINNET_DB
   HRP=$CHRYSALIS_MAINNET_BECH32_HRP
 elif [[ "$NETWORK" == "testnet7" ]]; then
   CONF_DIR=$TESTNET7_CONF_DIR
-  DB=$TESTNET7_DB
-  HRP=$TESTNET7_TESTNET7_HRP
+  HRP=$TESTNET7_HRP
 else
-  echo "The provided network is not supported. Please choose one of following networks: chrysalis-mainnet or testnet7."
+  echo "The provided network is not supported. Please run the test for following networks: chrysalis-mainnet or testnet7."
   exit 1
 fi
 
@@ -37,7 +34,7 @@ if [ -z "$BOOTSTRAP_BALANCES" ] && [ -z "$NO_BOOTSTRAP" ]; then
 fi
 
 if [ "$BOOTSTRAP_BALANCES" ] && [ "$NO_BOOTSTRAP" ]; then
-  echo "Multiple boostrapping methods provided. Please select only one bo"
+  echo "Multiple bootstrapping methods provided. Please provide only one bootstrapping method."
   exit 1
 fi
 
@@ -47,8 +44,16 @@ if [ $BOOTSTRAP_BALANCES ]; then
   # remove the rosetta-cli database
   rm -rf $DB
 
-  # download the latest available IOTA snapshots to create the bootstrap_balances.json file
-  echo "bootsrapping balances from IOTA snapshots..."
+  if [[ "$NETWORK" == "chrysalis-mainnet" ]]; then
+    echo "Copy snapshot(s) from ../data/snapshots/chrysalis-mainnet ..."
+    cp -r ../data/snapshots/chrysalis-mainnet/* .
+  elif [[ "$NETWORK" == "testnet7" ]]; then
+    echo "Copy snapshot(s) from ../data/snapshots/testnet7..."
+    cp -r ../data/snapshots/testnet7/* .
+  fi
+
+  # create the bootstrap_balances.json file
+  echo "Process the provided snapshots to create the bootstrap_balances.json file..."
   RUST_BACKTRACE=1 cargo run -p rosetta-iota-snapshot --release -- --network $NETWORK --bech32-hrp $HRP
   ROSETTA_UTILS_EXIT=$?
 
