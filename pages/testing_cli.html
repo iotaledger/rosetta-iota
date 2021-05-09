@@ -172,27 +172,31 @@
 <p>The provided scripts <code>check_data_testnet.sh</code> and <code>check_construction_testnet.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.</p>
 <ol>
 <li>
-<p>To be able to run the testing scripts, install following dependencies:</p>
-<pre><code>sudo apt-get install sed jq psmisc
-</code></pre>
+<p>To be able to run the testing scripts, make sure you have <strong>the latest version of <a href="https://www.rust-lang.org/tools/install">Rust</a> installed.</strong> <strong>Also make sure <a href="https://wiki.ubuntuusers.de/jq/">jq</a> is installed.</strong></p>
 </li>
 <li>
-<p>Ensure the IOTA node is running and an instance of the Rosetta API is available.</p>
+<p>Ensure the IOTA node is running <strong>for the correct network</strong> and an instance of the Rosetta API is available.</p>
 <p>To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
-<p>Testing the Data API <strong>(testnet)</strong>:</p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_data_testnet.sh
+<p>Data API <strong>(chrysalis-mainnet)</strong>:</p>
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_data.sh
 </code></pre>
-<p>Testing the Construction API <strong>(testnet)</strong>:</p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 ./check_construction_testnet.sh
+<p>Construction API <strong>(chrysalis-mainnet)</strong>:</p>
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
+</code></pre>
+<p>Data API <strong>(testnet7)</strong>:</p>
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_data.sh
+</code></pre>
+<p>Construction API <strong>(testnet7)</strong>:</p>
+<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
 </code></pre>
 </li>
 </ol>
 <p>The testing scripts make use of following environment variables:</p>
 <ul>
-<li><code>INSTALL=1</code> ...installs rosetta-cli</li>
-<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli storage, downloads the most recent snapshots, bootstraps balances and starts synchronizing from the snapshot state</li>
-<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli storage and continues to synchronize from the available state</li>
-<li><code>NODE_URL=http://localhost:14265</code> ...the URL of the REST API from the IOTA node.  </li>
+<li><code>INSTALL_ROSETTA_CLI=1</code> ...installs rosetta-cli to the current folder</li>
+<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli database, downloads the latest available IOTA snapshots and bootstraps balances</li>
+<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli database and continues synching from the available state</li>
+<li><code>NETWORK</code> = ...the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>testnet7</code></li>
 </ul>
 
                     </main>
