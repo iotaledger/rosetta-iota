@@ -2,7 +2,7 @@
 
 ## Testing on testnet
 
-The provided scripts `check_data_testnet.sh` and `check_construction_testnet.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli is runs with the correct configuration values.
+The provided scripts `check_data.sh` and `check_construction.sh` build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli runs with the correct configuration values.
 
 1) To be able to run the testing scripts, make sure you have **the latest version of [Rust](https://www.rust-lang.org/tools/install) installed.** **Also make sure [jq](https://wiki.ubuntuusers.de/jq/) is installed.**
 2) Switch to the `rosetta-cli-tests/` directory.
