@@ -201,6 +201,8 @@
 <li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli database and continues synching from the available state</li>
 <li><code>NETWORK</code> = ...the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>testnet7</code></li>
 </ul>
+<h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
+<p><strong>It seems like the rosetta-cli construction check sometimes just keeps printing <code>waiting for implementation to reach tip before testing…</code> and doesn't want to start. However, restarting the construction check fixes the issue. Sometimes it needs multiple tries. Unfortunately we couldn't find the cause for this issue yet.</strong></p>
 
                     </main>
 
