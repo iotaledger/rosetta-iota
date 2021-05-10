@@ -15,10 +15,10 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 **Following instructions will start a HORNET node together with a Rosetta API instance:**
 
 1) Ensure `docker` and `docker-compose` are installed.
-2) Download the latest release of `rosetta-iota` and extract the files in a folder of your choice.
+2) Download the [latest release](https://github.com/iotaledger/rosetta-iota/releases) of `rosetta-iota` and extract the files in a folder of your choice.
 3) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `testnet7`, add the peers to the `hornet/testnet7/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
 
-    For better illustration, the `peering.json` file could then look like the following, for example:
+    For better illustration, the `peering.json` file should then look like the following, for example:
     ```json
    {
      "peers": [
@@ -34,7 +34,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
    }
    ```
    
-    Also, make sure that you tell your peers the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **address where you deploy the node and the node ID**. You can find your node ID in the logs when you start the implementation.
+    Also, make sure that you tell your peers the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **address where you deploy the implementation and the node ID**. You can find your node ID in the logs when you start the implementation.
     
 4) Run the implementation in the desired mode:
 
@@ -58,9 +58,8 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
     ```
 
-5) Since the node ID is tied with a private key make sure you back up the private key. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
+5) Since the node ID is tied with a private key make sure you back up the private key files. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 You can back up your node ID by preserving the `data/p2pstore` directory.
-
 
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
 The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info
