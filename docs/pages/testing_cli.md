@@ -26,8 +26,13 @@ The provided scripts `check_data.sh` and `check_construction.sh` build on top of
     ```
     INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
     ```
+   
 The testing scripts make use of following environment variables:
 - `INSTALL_ROSETTA_CLI=1` ...installs rosetta-cli to the current folder
 - `BOOTSTRAP_BALANCES=1` ...deletes the rosetta-cli database, downloads the latest available IOTA snapshots and bootstraps balances
 - `NO_BOOTSTRAP=1` ...keeps the rosetta-cli database and continues synching from the available state
 - `NETWORK` = ...the network that should be tested on; can be either `chrysalis-mainnet` or `testnet7`
+
+## Further notes:
+
+**It seems like the rosetta-cli construction check sometimes just keeps printing `waiting for implementation to reach tip before testing…` and doesn't want to start. However, restarting the construction check fixes the issue. Sometimes it needs multiple tries. Unfortunately we couldn't find the cause for this issue yet.**
