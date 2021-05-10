@@ -181,11 +181,11 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 <p>Ensure <code>docker</code> and <code>docker-compose</code> are installed.</p>
 </li>
 <li>
-<p>Download the latest release of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
+<p>Download the <a href="https://github.com/iotaledger/rosetta-iota/releases">latest release</a> of <code>rosetta-iota</code> and extract the files in a folder of your choice.</p>
 </li>
 <li>
 <p>Add your peer(s) - to which your HORNET node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>hornet/chrysalis-mainnet/peering.json</code> file. For <code>testnet7</code>, add the peers to the <code>hornet/testnet7/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
-<p>For better illustration, the <code>peering.json</code> file could then look like the following, for example:</p>
+<p>For better illustration, the <code>peering.json</code> file should then look like the following, for example:</p>
 <pre><code class="language-json">{
  &quot;peers&quot;: [
    {
@@ -199,7 +199,7 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
  ]
 }
 </code></pre>
-<p>Also, make sure that you tell your peers the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the <strong>address where you deploy the node and the node ID</strong>. You can find your node ID in the logs when you start the implementation.</p>
+<p>Also, make sure that you tell your peers the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the <strong>address where you deploy the implementation and the node ID</strong>. You can find your node ID in the logs when you start the implementation.</p>
 </li>
 <li>
 <p>Run the implementation in the desired mode:</p>
@@ -217,7 +217,7 @@ In addition, IOTA full-nodes are able to prune history from time to time in a sa
 </code></pre>
 </li>
 <li>
-<p>Since the node ID is tied with a private key make sure you back up the private key. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
+<p>Since the node ID is tied with a private key make sure you back up the private key files. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 You can back up your node ID by preserving the <code>data/p2pstore</code> directory.</p>
 </li>
 </ol>
