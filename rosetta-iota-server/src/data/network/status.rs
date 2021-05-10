@@ -83,11 +83,13 @@ mod tests {
 
     use crate::mocked_node::start_mocked_node;
     use serial_test::serial;
+    use tokio::sync::oneshot;
 
     #[tokio::test]
     #[serial]
     async fn test_network_status() {
-        tokio::task::spawn(start_mocked_node());
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        tokio::task::spawn(start_mocked_node(shutdown_rx));
 
         let request = NetworkStatusRequest {
             network_identifier: NetworkIdentifier {
@@ -114,5 +116,7 @@ mod tests {
             response.current_block_identifier.hash
         );
         assert_eq!(1618486402000, response.current_block_timestamp);
+
+        let _ = shutdown_tx.send(());
     }
 }

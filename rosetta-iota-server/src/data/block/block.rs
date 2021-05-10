@@ -307,11 +307,13 @@ mod tests {
     use super::*;
     use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
+    use tokio::sync::oneshot;
 
     #[tokio::test]
     #[serial]
     async fn test_block() {
-        tokio::task::spawn(start_mocked_node());
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        tokio::task::spawn(start_mocked_node(shutdown_rx));
 
         let request = BlockRequest {
             network_identifier: NetworkIdentifier {
@@ -348,5 +350,7 @@ mod tests {
         );
         assert_eq!(1618486402 * 1000, response.block.timestamp);
         assert_eq!(false, response.block.metadata.is_some());
+
+        let _ = shutdown_tx.send(());
     }
 }

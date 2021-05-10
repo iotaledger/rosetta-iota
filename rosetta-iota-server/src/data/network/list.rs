@@ -30,11 +30,13 @@ mod tests {
     use super::*;
     use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
+    use tokio::sync::oneshot;
 
     #[tokio::test]
     #[serial]
     async fn test_network_list() {
-        tokio::task::spawn(start_mocked_node());
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        tokio::task::spawn(start_mocked_node(shutdown_rx));
 
         let server_options = Config {
             node_url: "http://127.0.0.1:3029".to_string(),
@@ -48,6 +50,8 @@ mod tests {
 
         assert_eq!("iota", response.network_identifiers[0].blockchain);
         assert_eq!("testnet7", response.network_identifiers[0].network);
-        assert_eq!(false, response.network_identifiers[0].sub_network_identifier.is_some())
+        assert_eq!(false, response.network_identifiers[0].sub_network_identifier.is_some());
+
+        let _ = shutdown_tx.send(());
     }
 }

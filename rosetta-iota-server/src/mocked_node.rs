@@ -1,8 +1,10 @@
 use warp::Filter;
 
+use tokio::sync::oneshot;
+
 use std::net::SocketAddr;
 
-pub async fn start_mocked_node() {
+pub async fn start_mocked_node(shutdown: oneshot::Receiver<()>) {
     let bind_addr = "0.0.0.0:3029"
         .to_string()
         .parse::<SocketAddr>()
@@ -81,13 +83,9 @@ pub async fn start_mocked_node() {
     let routes = health.or(node_info
         .or(milestones.or(utxo_changes.or(outputs.or(message.or(addresses.or(outputs_for_address.or(peers))))))));
 
-    let shutdown = async {
-        tokio::signal::ctrl_c()
-            .await
-            .expect("failed to install CTRL+C signal handler");
-    };
-
-    let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(bind_addr, shutdown);
+    let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(bind_addr, async {
+        shutdown.await.ok();
+    });
 
     server.await;
 

@@ -113,11 +113,13 @@ mod tests {
     use super::*;
     use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
+    use tokio::sync::oneshot;
 
     #[tokio::test]
     #[serial]
     async fn test_coins() {
-        tokio::task::spawn(start_mocked_node());
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        tokio::task::spawn(start_mocked_node(shutdown_rx));
 
         let request = AccountCoinsRequest {
             network_identifier: NetworkIdentifier {
@@ -153,5 +155,7 @@ mod tests {
             "f3a53f04402be2f59634ee9b073898c84d2e08b4ba06046d440b1ac27bc5ded60000",
             response.coins[0].coin_identifier.identifier
         );
+
+        let _ = shutdown_tx.send(());
     }
 }
