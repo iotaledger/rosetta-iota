@@ -8,12 +8,14 @@ use crate::{
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
 };
+use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index};
+
+use bee_message::milestone::MilestoneIndex;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index};
-use bee_message::milestone::MilestoneIndex;
+use std::time::Duration;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
@@ -68,16 +70,18 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
 
     // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
     // milestone before and after fetching the balance
-
-    let index_before = get_confirmed_milestone_index(&client).await?;
-    let balance_response = get_balance_of_address(address, &client).await?;
-    let index_after = get_confirmed_milestone_index(&client).await?;
-
-    if index_before != index_after {
-        return Err(ApiError::Retriable(
-            "confirmed milestone changed while performing the request".to_string(),
-        ));
-    }
+    // TODO: this is only a short-term solution and should be replaced in future
+    let (balance_response, index) = {
+        loop {
+            let index_before = get_confirmed_milestone_index(&client).await?;
+            let balance_response = get_balance_of_address(address, &client).await?;
+            tokio::time::sleep(Duration::from_millis(250)).await;
+            let index_after = get_confirmed_milestone_index(&client).await?;
+            if index_before == index_after {
+                break (balance_response, index_before)
+            }
+        }
+    };
 
     let amount = Amount {
         value: balance_response.balance.to_string(),
@@ -85,7 +89,7 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
         metadata: None,
     };
 
-    Ok((amount, MilestoneIndex(index_before)))
+    Ok((amount, MilestoneIndex(index)))
 }
 
 #[cfg(test)]

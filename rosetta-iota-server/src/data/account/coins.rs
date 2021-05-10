@@ -11,13 +11,15 @@ use crate::{
 use crate::client::{build_client, get_confirmed_milestone_index, get_unspent_outputs_of_address};
 
 use bee_message::milestone::MilestoneIndex;
+use bee_message::payload::transaction::TransactionId;
+use bee_message::output::OutputId;
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
 use bee_rest_api::types::responses::OutputResponse;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use bee_message::payload::transaction::TransactionId;
-use bee_message::output::OutputId;
+
+use std::time::Duration;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -90,18 +92,20 @@ async fn outputs_of_address_at_milestone(
 
     // to make sure the outputs of an address do not change in the meantime, check the index of the confirmed
     // milestone before and after performing the request
+    // TODO: this is only a short-term solution and should be replaced in future
+    let (outputs, index) = {
+        loop {
+            let index_before = get_confirmed_milestone_index(&client).await?;
+            let outputs = get_unspent_outputs_of_address(&address, &client).await?;
+            tokio::time::sleep(Duration::from_millis(250)).await;
+            let index_after = get_confirmed_milestone_index(&client).await?;
+            if index_before == index_after {
+                break (outputs, index_before)
+            }
+        }
+    };
 
-    let index_before = get_confirmed_milestone_index(&client).await?;
-    let outputs = get_unspent_outputs_of_address(&address, &client).await?;
-    let index_after = get_confirmed_milestone_index(&client).await?;
-
-    if index_before != index_after {
-        return Err(ApiError::Retriable(
-            "confirmed milestone changed while performing the request".to_string(),
-        ));
-    }
-
-    Ok((outputs, MilestoneIndex(index_before)))
+    Ok((outputs, MilestoneIndex(index)))
 }
 
 #[cfg(test)]
