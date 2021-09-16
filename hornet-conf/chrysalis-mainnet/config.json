@@ -50,14 +50,14 @@
   },
   "db": {
     "engine": "rocksdb",
-    "path": "/data/chrysalis-mainnet-db",
+    "path": "data/chrysalis-mainnet-db",
     "autoRevalidation": false
   },
   "snapshots": {
     "depth": 50,
     "interval": 200,
-    "fullPath": "/data/snapshots/chrysalis-mainnet/full_snapshot.bin",
-    "deltaPath": "/data/snapshots/chrysalis-mainnet/delta_snapshot.bin",
+    "fullPath": "data/snapshots/chrysalis-mainnet/full_snapshot.bin",
+    "deltaPath": "data/snapshots/chrysalis-mainnet/delta_snapshot.bin",
     "deltaSizeThresholdPercentage": 50.0,
     "downloadURLs": [
       {
@@ -185,7 +185,7 @@
       "streamWriteTimeout": "10s"
     },
     "db": {
-      "path": "/data/p2pstore"
+      "path": "data/p2pstore"
     },
     "reconnectInterval": "30s",
     "autopeering": {

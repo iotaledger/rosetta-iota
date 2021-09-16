@@ -50,14 +50,14 @@
   },
   "db": {
     "engine": "rocksdb",
-    "path": "/data/testnet7-db",
+    "path": "data/testnet7-db",
     "autoRevalidation": false
   },
   "snapshots": {
     "depth": 50,
     "interval": 200,
-    "fullPath": "/data/snapshots/testnet7/full_snapshot.bin",
-    "deltaPath": "/data/snapshots/testnet7/delta_snapshot.bin",
+    "fullPath": "data/snapshots/testnet7/full_snapshot.bin",
+    "deltaPath": "data/snapshots/testnet7/delta_snapshot.bin",
     "deltaSizeThresholdPercentage": 50.0,
     "downloadURLs": [
       {
@@ -201,7 +201,7 @@
       "streamWriteTimeout": "10s"
     },
     "db": {
-      "path": "/data/p2pstore"
+      "path": "data/p2pstore"
     },
     "reconnectInterval": "30s",
     "autopeering": {
