@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   hornet:
-    image: iotaledger/hornet:1.0.5
+    image: gohornet/hornet:1.0.5
     restart: "no"
     working_dir: /app
     expose:
