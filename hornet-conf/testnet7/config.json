@@ -50,7 +50,7 @@
   },
   "db": {
     "engine": "rocksdb",
-    "path": "/data/testnet7-db",
+    "path": "/data/storage/testnet7",
     "autoRevalidation": false
   },
   "snapshots": {

@@ -50,7 +50,7 @@
   },
   "db": {
     "engine": "rocksdb",
-    "path": "/data/chrysalis-mainnet-db",
+    "path": "/data/storage/chrysalis-mainnet",
     "autoRevalidation": false
   },
   "snapshots": {
