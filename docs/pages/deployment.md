@@ -3,7 +3,7 @@
 ## IOTA nodes
 
 **IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet) and [Bee](https://github.com/iotaledger/bee)) are able to start up from a more recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
-Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to bitcoin nodes running in pruning mode.
+Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to bitcoin nodes that are running in pruning mode.
 
 In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) are optimized for storing IOTA history which dates back further and provide various tools for querying data.
 
@@ -26,7 +26,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 4) Optionally, if you want to reuse a preserved node ID with your HORNET node, copy the backup´ed `p2pstore` folder to the `data` directory and make sure that the correct permissions are set, e.g.:
     ```
     cp -r ../p2pstore data
-    chown 65532:65532 p2pstore -R
+    chown 65532:65532 data/p2pstore -R
     ```
    
 5) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `testnet7`, add the peers to the `hornet/testnet7/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
@@ -83,5 +83,5 @@ The health status of the HORNET node can be checked at: http://localhost:14265/a
 
 ## Further notes:
 
-The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a recent block. **For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `testnet7`, the snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots/` directory.**
+The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. **For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `testnet7`, the snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.**
 
