@@ -6,11 +6,11 @@ edition = "2018"
 
 [dependencies]
 bee-common = "0.4"
-bee-rest-api = "0.1"
 bee-message = "0.1"
+bee-rest-api = "0.1"
 
-iota-core = { git = "https://github.com/iotaledger/iota.rs", rev= "60892fa6b649d9efa540349b68dd70a57cc300a9" }
-iota-crypto = { version = "0.5", features = ["std", "blake2b", "ed25519", "random", "slip10", "bip39", "bip39-en"]}
+iota-client = { git = "https://github.com/iotaledger/iota.rs", rev= "d24739ff5551b48b13f38e433cc6edcb6204c569" }
+iota-crypto = { version = "0.7.0", features = ["std", "blake2b", "ed25519", "random", "slip10", "bip39", "bip39-en"]}
 
 digest = "0.9"
 env_logger = "0.7"

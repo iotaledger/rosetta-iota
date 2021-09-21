@@ -16,7 +16,7 @@ use bee_message::{
 };
 use bee_rest_api::types::responses::OutputResponse;
 
-use iota::Client;
+use iota_client::Client;
 
 use log::debug;
 use serde::{Deserialize, Serialize};

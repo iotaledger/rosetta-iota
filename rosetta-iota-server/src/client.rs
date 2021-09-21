@@ -4,10 +4,10 @@ use bee_message::prelude::*;
 use bee_rest_api::types::responses::*;
 
 use bee_rest_api::types::dtos::PeerDto;
-use iota::Client;
+use iota_client::Client;
 
 pub async fn build_client(options: &Config) -> Result<Client, ApiError> {
-    let builder = iota::Client::builder()
+    let builder = Client::builder()
         .with_network(&options.network)
         .with_node(&options.node_url)
         .map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?;
@@ -38,7 +38,7 @@ pub async fn get_balance_of_address(bech32_addr: &str, client: &Client) -> Resul
     }
 }
 
-pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
+pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
     match client.get_milestone(milestone_index).await {
         Ok(milestone) => Ok(milestone),
         Err(e) => return Err(ApiError::NonRetriable(format!("can not get milestone: {}", e))),
@@ -52,7 +52,7 @@ pub async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiEr
     }
 }
 
-pub async fn get_confirmed_milestone(client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
+pub async fn get_confirmed_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
     let confirmed_milestone_index = get_confirmed_milestone_index(&client).await?;
     get_milestone(confirmed_milestone_index, &client).await
 }
@@ -64,7 +64,7 @@ pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError
     }
 }
 
-pub async fn get_latest_milestone(client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
+pub async fn get_latest_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
     let latest_milestone_index = get_latest_milestone_index(&client).await?;
     get_milestone(latest_milestone_index, &client).await
 }
