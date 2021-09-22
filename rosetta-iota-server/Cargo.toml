@@ -9,20 +9,20 @@ bee-common = "0.4"
 bee-message = "0.1"
 bee-rest-api = "0.1"
 
-iota-client = { git = "https://github.com/iotaledger/iota.rs", rev= "d24739ff5551b48b13f38e433cc6edcb6204c569" }
+iota-client = { git = "https://github.com/iotaledger/iota.rs", rev= "9414cfbac572830e3d5492b7f8f94411888b1355" }
 iota-crypto = { version = "0.7.0", features = ["std", "blake2b", "ed25519", "random", "slip10", "bip39", "bip39-en"]}
 
 digest = "0.9"
 env_logger = "0.7"
 futures = "0.3"
 hex = "0.4"
-log = "0.4"
+log = "0.4.14"
 serial_test = "0.5.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 structopt = "0.3"
-thiserror = "1.0"
-tokio = { version = "1.5", features = ["macros", "signal"] }
+thiserror = "1.0.29"
+tokio = { version = "1.11", features = ["macros", "signal"] }
 url = "2.2"
 warp = "0.3"
 
