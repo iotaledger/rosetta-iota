@@ -24,9 +24,9 @@ pub async fn get_output(output_id: OutputId, client: &Client) -> Result<OutputRe
         .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))
 }
 
-pub async fn get_unspent_outputs_of_address(bech32_addr: &str, client: &Client) -> Result<Vec<OutputResponse>, ApiError> {
-    match client.find_outputs(&[], &[bech32_addr.to_string()]).await {
-        Ok(outputs) => Ok(outputs),
+pub async fn get_unspent_outputs_of_address(bech32_addr: &str, client: &Client) -> Result<OutputsAddressResponse, ApiError> {
+    match client.get_address().outputs_response(&bech32_addr.to_string(), Default::default()).await {
+        Ok(response) => Ok(response),
         Err(e) => return Err(ApiError::NonRetriable(format!("can not get outputs of address: {}", e))),
     }
 }
@@ -45,19 +45,14 @@ pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota
     }
 }
 
-pub async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError> {
+async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError> {
     match client.get_info().await {
         Ok(res) => Ok(res.nodeinfo.confirmed_milestone_index),
         Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
     }
 }
 
-pub async fn get_confirmed_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
-    let confirmed_milestone_index = get_confirmed_milestone_index(&client).await?;
-    get_milestone(confirmed_milestone_index, &client).await
-}
-
-pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError> {
+async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError> {
     match client.get_info().await {
         Ok(res) => Ok(res.nodeinfo.latest_milestone_index),
         Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),

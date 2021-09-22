@@ -90,10 +90,7 @@ async fn parse_signed_transaction(
         for unlock_block in transaction.unlock_blocks().into_iter() {
             if let UnlockBlock::Signature(s) = unlock_block {
                 let signature = match s {
-                    SignatureUnlock::Ed25519(s) => s,
-                    _ => {
-                        return Err(ApiError::NonRetriable("signature type not supported".to_string()));
-                    }
+                    SignatureUnlock::Ed25519(s) => s
                 };
                 let bech32_addr =
                     address_from_public_key(&hex::encode(signature.public_key()))?.to_bech32(&options.bech32_hrp);
@@ -119,9 +116,6 @@ async fn essence_to_operations(
 ) -> Result<Vec<Operation>, ApiError> {
     let regular_essence = match essence {
         Essence::Regular(r) => r,
-        _ => {
-            return Err(ApiError::NonRetriable("essence type not supported".to_string()));
-        }
     };
 
     let mut operations = Vec::new();
@@ -173,14 +167,13 @@ async fn essence_to_operations(
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
-                _ => unimplemented!(),
+
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
-                _ => unimplemented!(),
             },
             _ => unimplemented!(),
         };

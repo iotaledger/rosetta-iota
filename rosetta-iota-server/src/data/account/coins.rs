@@ -8,18 +8,19 @@ use crate::{
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, NetworkIdentifier, *},
 };
-use crate::client::{build_client, get_confirmed_milestone_index, get_unspent_outputs_of_address};
+use crate::client::{build_client, get_unspent_outputs_of_address, get_output};
 
 use bee_message::milestone::MilestoneIndex;
-use bee_message::payload::transaction::TransactionId;
 use bee_message::output::OutputId;
 use bee_rest_api::types::dtos::{AddressDto, OutputDto};
-use bee_rest_api::types::responses::OutputResponse;
+use bee_rest_api::types::responses::{OutputResponse, OutputsAddressResponse};
+
+use iota_client::Client;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use std::time::Duration;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountCoinsRequest {
@@ -46,15 +47,10 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
         ));
     }
 
-    let (outputs, milestone_index) = outputs_of_address_at_milestone(&request.account_identifier.address, &options).await?;
+    let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &options).await?;
 
     let mut coins = Vec::new();
-    for output_res in outputs {
-        let output_id = {
-            let transaction_id = output_res.transaction_id.parse::<TransactionId>().map_err(|_| ApiError::NonRetriable("invalid transaction id".to_string()))?;
-            OutputId::new(transaction_id, output_res.output_index).map_err(|_| ApiError::NonRetriable("can not build output id".to_string()))?
-        };
-
+    for (output_id, output_res) in outputs {
         let amount = match output_res.output {
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
@@ -77,35 +73,48 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
 
     Ok(AccountCoinsResponse {
         block_identifier: BlockIdentifier {
-            index: *milestone_index,
-            hash: (*milestone_index).to_string(),
+            index: *ledger_index,
+            hash: (*ledger_index).to_string(),
         },
         coins,
     })
 }
 
-async fn outputs_of_address_at_milestone(
+async fn address_outputs_with_ledger_index(
     address: &str,
     options: &Config,
-) -> Result<(Vec<OutputResponse>, MilestoneIndex), ApiError> {
-    let client = build_client(options).await?;
+) -> Result<(HashMap<OutputId, OutputResponse>, MilestoneIndex), ApiError> {
+    let client: Client = build_client(options).await?;
 
-    // to make sure the outputs of an address do not change in the meantime, check the index of the confirmed
-    // milestone before and after performing the request
-    // TODO: this is only a short-term solution and should be replaced in future
-    let (outputs, index) = {
-        loop {
-            let index_before = get_confirmed_milestone_index(&client).await?;
-            let outputs = get_unspent_outputs_of_address(&address, &client).await?;
-            tokio::time::sleep(Duration::from_millis(250)).await;
-            let index_after = get_confirmed_milestone_index(&client).await?;
-            if index_before == index_after {
-                break (outputs, index_before)
+    loop {
+
+        let outputs_address_response: OutputsAddressResponse = get_unspent_outputs_of_address(&address, &client).await?;
+        let mut output_responses = HashMap::new();
+
+        let mut try_again = false;
+        for id in outputs_address_response.output_ids {
+            let output_id = id
+                .parse::<OutputId>()
+                .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
+
+            let output_response = get_output(output_id, &client).await?;
+
+            // if the output was spent in the meantime, retry
+            if output_response.is_spent {
+                try_again = true;
+                break;
+            } else {
+                output_responses.insert(output_id, output_response);
             }
         }
-    };
 
-    Ok((outputs, MilestoneIndex(index)))
+        if try_again {
+            continue
+        } else {
+            break Ok((output_responses, MilestoneIndex(outputs_address_response.ledger_index)))
+        }
+    }
+
 }
 
 #[cfg(test)]

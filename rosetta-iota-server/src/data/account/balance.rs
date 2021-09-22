@@ -8,14 +8,12 @@ use crate::{
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
 };
-use crate::client::{build_client, get_balance_of_address, get_confirmed_milestone_index};
+use crate::client::{build_client, get_balance_of_address};
 
 use bee_message::milestone::MilestoneIndex;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-
-use std::time::Duration;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
@@ -54,34 +52,21 @@ pub async fn account_balance(
         ));
     }
 
-    let (balance, milestone_index) = balance_at_milestone(&request.account_identifier.address, &options).await?;
+    let (amount, ledger_index) = balance_with_ledger_index(&request.account_identifier.address, &options).await?;
 
     Ok(AccountBalanceResponse {
         block_identifier: BlockIdentifier {
-            index: *milestone_index,
-            hash: (*milestone_index).to_string(),
+            index: *ledger_index,
+            hash: (*ledger_index).to_string(),
         },
-        balances: vec![balance],
+        balances: vec![amount],
     })
 }
 
-async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {
+async fn balance_with_ledger_index(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {
     let client = build_client(options).await?;
 
-    // to make sure the balance of an address does not change in the meantime, check the index of the confirmed
-    // milestone before and after fetching the balance
-    // TODO: this is only a short-term solution and should be replaced in future
-    let (balance_response, index) = {
-        loop {
-            let index_before = get_confirmed_milestone_index(&client).await?;
-            let balance_response = get_balance_of_address(address, &client).await?;
-            tokio::time::sleep(Duration::from_millis(250)).await;
-            let index_after = get_confirmed_milestone_index(&client).await?;
-            if index_before == index_after {
-                break (balance_response, index_before)
-            }
-        }
-    };
+    let balance_response = get_balance_of_address(address, &client).await?;
 
     let amount = Amount {
         value: balance_response.balance.to_string(),
@@ -89,7 +74,7 @@ async fn balance_at_milestone(address: &str, options: &Config) -> Result<(Amount
         metadata: None,
     };
 
-    Ok((amount, MilestoneIndex(index)))
+    Ok((amount, MilestoneIndex(balance_response.ledger_index)))
 }
 
 #[cfg(test)]

@@ -8,6 +8,7 @@ use crate::{
     operations::*,
     types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier},
 };
+use crate::client::{build_client, get_milestone, get_utxo_changes, get_output};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -21,7 +22,6 @@ use iota_client::Client;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{build_client, get_milestone, get_utxo_changes};
 use std::{
     collections::{hash_map::Entry, HashMap},
     convert::TryFrom,
@@ -111,10 +111,7 @@ async fn messages_from_utxo_changes(
             .parse::<OutputId>()
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
-        let output_response = iota_client
-            .get_output(&output_id.into())
-            .await
-            .map_err(|e| ApiError::NonRetriable(format!("can not get output information: {}", e)))?;
+        let output_response = get_output(output_id, iota_client).await?;
 
         let message_id = output_response
             .message_id
@@ -178,7 +175,6 @@ async fn from_transaction(
 ) -> Result<Transaction, ApiError> {
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
-        _ => return Err(ApiError::NonRetriable("essence type not supported".to_string())), // NOT SUPPORTED
     };
 
     let mut operations = Vec::new();
@@ -228,14 +224,12 @@ async fn from_transaction(
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
-                _ => unimplemented!(),
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
                     let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
-                _ => unimplemented!(),
             },
             _ => unimplemented!(),
         };
@@ -291,11 +285,9 @@ async fn address_and_balance_of_output(output: &Output) -> Result<(u64, Ed25519A
     let (amount, ed25519_address) = match output {
         Output::SignatureLockedSingle(r) => match r.address() {
             Address::Ed25519(addr) => (r.amount(), *addr),
-            _ => return Err(ApiError::NonRetriable("address type not supported".to_string())),
         },
         Output::SignatureLockedDustAllowance(r) => match r.address() {
             Address::Ed25519(addr) => (r.amount(), *addr),
-            _ => return Err(ApiError::NonRetriable("address type not supported".to_string())),
         },
         _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
     };

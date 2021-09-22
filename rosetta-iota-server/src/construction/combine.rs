@@ -42,9 +42,6 @@ pub(crate) async fn construction_combine_request(
 
     let regular_essence = match &unsigned_transaction.essence() {
         Essence::Regular(r) => r,
-        _ => {
-            return Err(ApiError::NonRetriable("essence type not supported".to_string()));
-        }
     };
 
     if regular_essence.inputs().len() != request.signatures.len() {
