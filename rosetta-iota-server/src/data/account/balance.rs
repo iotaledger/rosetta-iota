@@ -15,6 +15,8 @@ use bee_message::milestone::MilestoneIndex;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
+use std::time::Duration;
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AccountBalanceRequest {
     pub network_identifier: NetworkIdentifier,
@@ -52,7 +54,7 @@ pub async fn account_balance(
         ));
     }
 
-    let (amount, ledger_index) = balance_with_ledger_index(&request.account_identifier.address, &options).await?;
+    let (amount, ledger_index) = address_balance_with_ledger_index(&request.account_identifier.address, &options).await?;
 
     Ok(AccountBalanceResponse {
         block_identifier: BlockIdentifier {
@@ -63,7 +65,7 @@ pub async fn account_balance(
     })
 }
 
-async fn balance_with_ledger_index(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {
+async fn address_balance_with_ledger_index(address: &str, options: &Config) -> Result<(Amount, MilestoneIndex), ApiError> {
     let client = build_client(options).await?;
 
     let balance_response = get_balance_of_address(address, &client).await?;
@@ -83,47 +85,54 @@ mod tests {
     use crate::{config::RosettaMode, mocked_node::start_mocked_node};
     use serial_test::serial;
     use tokio::sync::oneshot;
+    use tokio::sync::oneshot::Sender;
+
+    async fn setup_mocked_node() -> Sender<()>{
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+        tokio::task::spawn(start_mocked_node(shutdown_rx));
+        tokio::time::sleep(Duration::from_millis(250)).await;
+        shutdown_tx
+    }
 
     #[tokio::test]
     #[serial]
     async fn test_balance() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
+        let node_tx = setup_mocked_node().await;
 
         let request = AccountBalanceRequest {
             network_identifier: NetworkIdentifier {
                 blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
+                network: "chrysalis-mainnet".to_string(),
                 sub_network_identifier: None,
             },
             account_identifier: AccountIdentifier {
-                address: String::from("atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek"),
+                address: String::from("iota1qrxqvakp7z3n59q4jtz2uj63pv3qljx0m6c6dql95xw4w4zwkytus5f3hgc"),
                 sub_account: None,
             },
             block_identifier: None,
         };
 
         let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
+            node_url: "http://127.0.0.1:3029/".to_string(),
+            network: "chrysalis-mainnet".to_string(),
             tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
+            bech32_hrp: "iota".to_string(),
             mode: RosettaMode::Online,
             bind_addr: "0.0.0.0:3030".to_string(),
         };
 
         let response = account_balance(request, server_options).await.unwrap();
 
-        assert_eq!(68910, response.block_identifier.index);
         assert_eq!(
-            "68910",
+            "1266229",
             response.block_identifier.hash
         );
+        assert_eq!(1266229, response.block_identifier.index);
         assert_eq!(1, response.balances.len());
         assert_eq!("IOTA", response.balances[0].currency.symbol);
         assert_eq!(0, response.balances[0].currency.decimals);
-        assert_eq!("11000000", response.balances[0].value);
+        assert_eq!("1815854577257", response.balances[0].value);
 
-        let _ = shutdown_tx.send(());
+        let _ = node_tx.send(());
     }
 }

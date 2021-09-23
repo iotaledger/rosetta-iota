@@ -50,8 +50,8 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
     let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &options).await?;
 
     let mut coins = Vec::new();
-    for (output_id, output_res) in outputs {
-        let amount = match output_res.output {
+    for (output_id, output_response) in outputs {
+        let amount = match output_response.output {
             OutputDto::SignatureLockedSingle(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
             },

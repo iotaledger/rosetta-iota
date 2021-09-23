@@ -15,7 +15,15 @@ pub async fn start_mocked_node(shutdown: oneshot::Receiver<()>) {
     let health = warp::path!("health").map(|| "");
 
     let node_info = warp::path!("api" / "v1" / "info").map(|| {
-        r#"{"data":{"name":"HORNET","version":"0.6.0-alpha","isHealthy":true,"networkId":"testnet7","bech32HRP":"atoi","minPoWScore":4000,"messagesPerSecond":32.9,"referencedMessagesPerSecond":39.1,"referencedRate":118.84498480243163,"latestMilestoneTimestamp":1618486402,"latestMilestoneIndex":68910,"confirmedMilestoneIndex":68910,"pruningIndex":51391,"features":["PoW"]}}"#
+        r#"{"data":{"name":"HORNET","version":"1.0.4","isHealthy":true,"networkId":"chrysalis-mainnet","bech32HRP":"iota","minPoWScore":4000,"messagesPerSecond":23.3,"referencedMessagesPerSecond":23.7,"referencedRate":101.71673819742489,"latestMilestoneTimestamp":1632323164,"latestMilestoneIndex":1266153,"confirmedMilestoneIndex":1266153,"pruningIndex":1205658,"features":["PoW"]}}"#
+    });
+
+    let addresses = warp::path!("api" / "v1" / "addresses" / String).map(|address| {
+        if address == "iota1qrxqvakp7z3n59q4jtz2uj63pv3qljx0m6c6dql95xw4w4zwkytus5f3hgc" {
+            r#"{"data":{"addressType":0,"address":"cc0676c1f0a33a141592c4ae4b510b220fc8cfdeb1a683e5a19d57544eb117c8","balance":1815854577257,"dustAllowed":false,"ledgerIndex":1266229}}"#
+        } else {
+            unimplemented!()
+        }
     });
 
     let milestones = warp::path!("api" / "v1" / "milestones" / u32).map(|milestone_index| {
@@ -50,13 +58,7 @@ pub async fn start_mocked_node(shutdown: oneshot::Receiver<()>) {
         }
     });
 
-    let addresses = warp::path!("api" / "v1" / "addresses" / String).map(|address| {
-        if address == "atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek" {
-            r#"{"data":{"addressType":0,"address":"426d1f47b88952fb312776234a2d0d7bbcfe5fbd4daee3d068c6b42a899d94b9","balance":11000000,"dustAllowed":false}}"#
-        } else {
-            unimplemented!()
-        }
-    });
+
 
     let outputs_for_address = warp::path!("api" / "v1" / "addresses" / String / "outputs").map(|address| {
         if address == "atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek" {
