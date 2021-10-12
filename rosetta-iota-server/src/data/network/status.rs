@@ -3,7 +3,7 @@
 
 use crate::{
     client::{build_client, get_latest_milestone, get_peers},
-    config::Config,
+    config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{NetworkIdentifier, *},
@@ -25,20 +25,20 @@ pub struct NetworkStatusResponse {
     pub peers: Vec<Peer>,
 }
 
-pub async fn network_status(request: NetworkStatusRequest, options: Config) -> Result<NetworkStatusResponse, ApiError> {
+pub async fn network_status(request: NetworkStatusRequest, rosetta_config: RosettaConfig) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint does not support offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let latest_milestone = get_latest_milestone(&client).await?;
 
@@ -74,49 +74,4 @@ pub async fn network_status(request: NetworkStatusRequest, options: Config) -> R
     };
 
     Ok(response)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::config::RosettaMode;
-
-    use crate::mocked_node::start_mocked_node;
-    use serial_test::serial;
-    use tokio::sync::oneshot;
-
-    #[tokio::test]
-    #[serial]
-    async fn test_network_status() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
-
-        let request = NetworkStatusRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
-                sub_network_identifier: None,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = network_status(request, server_options).await.unwrap();
-
-        assert_eq!(68910, response.current_block_identifier.index);
-        assert_eq!(
-            "68910",
-            response.current_block_identifier.hash
-        );
-        assert_eq!(1618486402000, response.current_block_timestamp);
-
-        let _ = shutdown_tx.send(());
-    }
 }

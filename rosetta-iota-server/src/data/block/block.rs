@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    config::Config,
+    config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     operations::*,
@@ -38,14 +38,14 @@ pub struct BlockResponse {
     pub block: Block,
 }
 
-pub async fn block(request: BlockRequest, options: Config) -> Result<BlockResponse, ApiError> {
+pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Result<BlockResponse, ApiError> {
     debug!("/block");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint does not support offline mode".to_string(),
         ));
@@ -65,11 +65,11 @@ pub async fn block(request: BlockRequest, options: Config) -> Result<BlockRespon
         (None, None) => return Err(ApiError::NonRetriable("either block index or block hash must be set".to_string())),
     };
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let milestone = get_milestone(milestone_index, &client).await?;
 
-    let transactions = build_rosetta_transactions(milestone_index, &client, &options).await?;
+    let transactions = build_rosetta_transactions(milestone_index, &client, &rosetta_config).await?;
 
     let block = Block {
         block_identifier: BlockIdentifier {
@@ -149,7 +149,7 @@ async fn messages_from_utxo_changes(
 async fn build_rosetta_transactions(
     milestone_index: u32,
     client: &Client,
-    options: &Config,
+    rosetta_config: &RosettaConfig,
 ) -> Result<Vec<Transaction>, ApiError> {
 
     let messages = messages_from_utxo_changes(milestone_index, &client).await?;
@@ -158,8 +158,8 @@ async fn build_rosetta_transactions(
 
     for (_message_id, message_info) in messages {
         let transaction = match message_info.message.payload() {
-            Some(Payload::Transaction(t)) => from_transaction(t, client, options).await?,
-            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, options).await?,
+            Some(Payload::Transaction(t)) => from_transaction(t, client, rosetta_config).await?,
+            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, rosetta_config).await?,
             _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())),
         };
         built_transactions.push(transaction);
@@ -171,7 +171,7 @@ async fn build_rosetta_transactions(
 async fn from_transaction(
     transaction_payload: &TransactionPayload,
     iota_client: &Client,
-    options: &Config,
+    rosetta_config: &RosettaConfig,
 ) -> Result<Transaction, ApiError> {
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
@@ -197,7 +197,7 @@ async fn from_transaction(
 
         operations.push(utxo_input_operation(
             output_info.transaction_id,
-            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
+            Address::Ed25519(ed25519_address).to_bech32(&rosetta_config.bech32_hrp),
             amount,
             output_info.output_index,
             operations.len(),
@@ -221,13 +221,13 @@ async fn from_transaction(
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&rosetta_config.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&rosetta_config.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },
@@ -250,7 +250,7 @@ async fn from_transaction(
     Ok(transaction)
 }
 
-async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &Config) -> Result<Transaction, ApiError> {
+async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaConfig) -> Result<Transaction, ApiError> {
     let mut operations = Vec::new();
 
     for created_output in created_outputs {
@@ -292,57 +292,4 @@ async fn address_and_balance_of_output(output: &Output) -> Result<(u64, Ed25519A
         _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
     };
     Ok((amount, ed25519_address))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
-    use serial_test::serial;
-    use tokio::sync::oneshot;
-
-    #[tokio::test]
-    #[serial]
-    async fn test_block() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
-
-        let request = BlockRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
-                sub_network_identifier: None,
-            },
-            block_identifier: PartialBlockIdentifier {
-                index: Some(68910),
-                hash: None,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = block(request, server_options).await.unwrap();
-
-        assert_eq!(68910, response.block.block_identifier.index);
-        assert_eq!(
-            "68910",
-            response.block.block_identifier.hash
-        );
-        assert_eq!(68909, response.block.parent_block_identifier.index);
-        assert_eq!(
-            "68909",
-            response.block.parent_block_identifier.hash
-        );
-        assert_eq!(1618486402 * 1000, response.block.timestamp);
-        assert_eq!(false, response.block.metadata.is_some());
-
-        let _ = shutdown_tx.send(());
-    }
 }

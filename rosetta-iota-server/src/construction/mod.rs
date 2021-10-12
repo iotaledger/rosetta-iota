@@ -8,9 +8,9 @@ use crate::{
         payloads::construction_payloads_request, preprocess::construction_preprocess_request,
         submit::construction_submit_request,
     },
-    filters::{handle, with_options},
+    filters::{handle, with_rosetta_config},
     types::{SignedTransaction, UnsignedTransaction},
-    Config,
+    RosettaConfig,
 };
 
 use warp::Filter;
@@ -24,41 +24,41 @@ pub mod payloads;
 pub mod preprocess;
 pub mod submit;
 
-pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("construction" / "derive")
                 .and(warp::body::json())
-                .and(with_options(options.clone()))
+                .and(with_rosetta_config(options.clone()))
                 .and_then(handle(construction_derive_request)),
         )
         .or(warp::path!("construction" / "preprocess")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_preprocess_request)))
         .or(warp::path!("construction" / "metadata")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_metadata_request)))
         .or(warp::path!("construction" / "payloads")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_payloads_request)))
         .or(warp::path!("construction" / "parse")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_parse_request)))
         .or(warp::path!("construction" / "combine")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_combine_request)))
         .or(warp::path!("construction" / "hash")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_hash_request)))
         .or(warp::path!("construction" / "submit")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
+            .and(with_rosetta_config(options.clone()))
             .and_then(handle(construction_submit_request)))
 }
 

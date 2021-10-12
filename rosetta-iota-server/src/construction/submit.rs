@@ -3,7 +3,7 @@
 
 use crate::{
     construction::deserialize_signed_transaction, error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*,
-    Config,
+    RosettaConfig,
 };
 
 use bee_message::prelude::*;
@@ -26,7 +26,7 @@ pub struct ConstructionSubmitResponse {
 
 pub(crate) async fn construction_submit_request(
     request: ConstructionSubmitRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 

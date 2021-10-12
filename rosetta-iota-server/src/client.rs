@@ -1,4 +1,4 @@
-use crate::{error::ApiError, Config};
+use crate::{error::ApiError, RosettaConfig};
 
 use bee_message::prelude::*;
 use bee_rest_api::types::responses::*;
@@ -6,11 +6,18 @@ use bee_rest_api::types::responses::*;
 use bee_rest_api::types::dtos::PeerDto;
 use iota_client::Client;
 
-pub async fn build_client(options: &Config) -> Result<Client, ApiError> {
-    let builder = Client::builder()
+pub async fn build_client(options: &RosettaConfig) -> Result<Client, ApiError> {
+    let mut builder = Client::builder();
+
+    if cfg!(feature = "dummy_node") {
+        builder = builder.with_node_sync_disabled()
+    }
+
+    builder = builder
         .with_network(&options.network)
         .with_node(&options.node_url)
         .map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?;
+
     Ok(builder
         .finish()
         .await

@@ -3,7 +3,7 @@
 
 use crate::{config::RosettaMode, error::ApiError, types::NetworkIdentifier};
 
-pub use config::Config;
+pub use config::RosettaConfig;
 
 use core::future::Future;
 use log::{error, info};
@@ -19,11 +19,10 @@ pub mod currency;
 pub mod data;
 pub mod error;
 pub mod filters;
-pub mod mocked_node;
 pub mod operations;
 pub mod types;
 
-pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Send + 'static) {
+pub async fn run_server(config: RosettaConfig, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
 
     let bind_addr = config
@@ -100,7 +99,7 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     Ok(warp::reply::with_status(json, status))
 }
 
-pub fn is_wrong_network(options: &Config, network_identifier: &NetworkIdentifier) -> bool {
+pub fn is_wrong_network(options: &RosettaConfig, network_identifier: &NetworkIdentifier) -> bool {
     if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
         true
     } else {
@@ -108,7 +107,7 @@ pub fn is_wrong_network(options: &Config, network_identifier: &NetworkIdentifier
     }
 }
 
-pub fn is_offline_mode_enabled(options: &Config) -> bool {
+pub fn is_offline_mode_enabled(options: &RosettaConfig) -> bool {
     if options.mode == RosettaMode::Offline {
         true
     } else {

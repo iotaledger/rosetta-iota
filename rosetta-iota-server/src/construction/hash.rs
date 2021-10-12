@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, Config};
+use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, RosettaConfig};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ pub struct ConstructionHashResponse {
 
 pub(crate) async fn construction_hash_request(
     request: ConstructionHashRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
 

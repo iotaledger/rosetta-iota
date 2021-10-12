@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*, Config};
+use crate::{construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*, RosettaConfig};
 
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
@@ -24,7 +24,7 @@ pub struct ConstructionPayloadsResponse {
 
 pub(crate) async fn construction_payloads_request(
     request: ConstructionPayloadsRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
 

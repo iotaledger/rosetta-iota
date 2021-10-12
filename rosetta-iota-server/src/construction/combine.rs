@@ -6,7 +6,7 @@ use crate::{
     error::ApiError,
     is_wrong_network,
     types::*,
-    Config,
+    RosettaConfig,
 };
 
 use bee_message::prelude::*;
@@ -30,7 +30,7 @@ pub struct ConstructionCombineResponse {
 
 pub(crate) async fn construction_combine_request(
     request: ConstructionCombineRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionCombineResponse, ApiError> {
     debug!("/construction/combine");
 

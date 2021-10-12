@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    config::Config,
+    config::RosettaConfig,
     currency::iota_currency,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
@@ -34,20 +34,20 @@ pub struct AccountCoinsResponse {
     pub coins: Vec<Coin>,
 }
 
-pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Result<AccountCoinsResponse, ApiError> {
+pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: RosettaConfig) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint is not available in offline mode".to_string(),
         ));
     }
 
-    let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &options).await?;
+    let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
 
     let mut coins = Vec::new();
     for (output_id, output_response) in outputs {
@@ -82,7 +82,7 @@ pub async fn account_coins(request: AccountCoinsRequest, options: Config) -> Res
 
 async fn address_outputs_with_ledger_index(
     address: &str,
-    options: &Config,
+    options: &RosettaConfig,
 ) -> Result<(HashMap<OutputId, OutputResponse>, MilestoneIndex), ApiError> {
     let client: Client = build_client(options).await?;
 
@@ -115,56 +115,4 @@ async fn address_outputs_with_ledger_index(
         }
     }
 
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
-    use serial_test::serial;
-    use tokio::sync::oneshot;
-
-    #[tokio::test]
-    #[serial]
-    async fn test_coins() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
-
-        let request = AccountCoinsRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
-                sub_network_identifier: None,
-            },
-            account_identifier: AccountIdentifier {
-                address: String::from("atoi1qppx6868hzy497e3yamzxj3dp4ameljlh4x6ac7sdrrtg25fnk2tjlpxcek"),
-                sub_account: None,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = account_coins(request, server_options).await.unwrap();
-
-        assert_eq!(68910, response.block_identifier.index);
-        assert_eq!(
-            "68910",
-            response.block_identifier.hash
-        );
-        assert_eq!(1, response.coins.len());
-        assert_eq!("10000000", response.coins[0].amount.value);
-        assert_eq!(
-            "f3a53f04402be2f59634ee9b073898c84d2e08b4ba06046d440b1ac27bc5ded60000",
-            response.coins[0].coin_identifier.identifier
-        );
-
-        let _ = shutdown_tx.send(());
-    }
 }

@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*, Config};
+use crate::{error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*, RosettaConfig};
 
 use bee_message::prelude::*;
 
@@ -24,7 +24,7 @@ pub struct ConstructionMetadataResponse {
 
 pub(crate) async fn construction_metadata_request(
     request: ConstructionMetadataRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionMetadataResponse, ApiError> {
     debug!("/construction/metadata");
 

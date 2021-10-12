@@ -1,7 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_wrong_network, types::*, Config};
+use crate::{error::ApiError, is_wrong_network, types::*, RosettaConfig};
 
 use bee_message::prelude::{Address, Ed25519Address};
 
@@ -23,7 +23,7 @@ pub struct ConstructionDeriveResponse {
 
 pub async fn construction_derive_request(
     request: ConstructionDeriveRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
@@ -62,7 +62,7 @@ mod tests {
         let data = r#"{"network_identifier":{"blockchain":"iota","network":"testnet7"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}"#;
         let request: ConstructionDeriveRequest = serde_json::from_str(data).unwrap();
 
-        let server_options = Config {
+        let server_options = RosettaConfig {
             node_url: "http://127.0.0.1:3029".to_string(),
             network: "testnet7".to_string(),
             tx_tag: "rosetta".to_string(),

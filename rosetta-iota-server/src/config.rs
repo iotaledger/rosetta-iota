@@ -6,14 +6,14 @@ use structopt::StructOpt;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, StructOpt)]
-pub struct Config {
+pub struct RosettaConfig {
     #[structopt(long)]
     pub bind_addr: String,
     #[structopt(long)]
     pub network: String,
     #[structopt(long)]
     pub bech32_hrp: String,
-    #[structopt(long, default_value = "Rosetta")]
+    #[structopt(long, default_value = "rosetta")]
     pub tx_tag: String,
     #[structopt(long)]
     pub node_url: String,
@@ -37,3 +37,4 @@ impl FromStr for RosettaMode {
         }
     }
 }
+

@@ -7,7 +7,7 @@ use crate::{
     is_wrong_network,
     operations::{utxo_input_operation, utxo_output_operation},
     types::*,
-    Config,
+    RosettaConfig,
 };
 
 use bee_message::prelude::*;
@@ -40,7 +40,7 @@ pub struct ConstructionParseResponse {
 
 pub(crate) async fn construction_parse_request(
     request: ConstructionParseRequest,
-    options: Config,
+    options: RosettaConfig,
 ) -> Result<ConstructionParseResponse, ApiError> {
     debug!("/construction/parse");
 
@@ -57,7 +57,7 @@ pub(crate) async fn construction_parse_request(
 
 async fn parse_unsigned_transaction(
     construction_parse_request: ConstructionParseRequest,
-    options: &Config,
+    options: &RosettaConfig,
 ) -> Result<ConstructionParseResponse, ApiError> {
     let unsigned_transaction = deserialize_unsigned_transaction(&construction_parse_request.transaction);
 
@@ -76,7 +76,7 @@ async fn parse_unsigned_transaction(
 
 async fn parse_signed_transaction(
     construction_parse_request: ConstructionParseRequest,
-    options: &Config,
+    options: &RosettaConfig,
 ) -> Result<ConstructionParseResponse, ApiError> {
     let signed_transaction = deserialize_signed_transaction(&construction_parse_request.transaction);
 
@@ -112,7 +112,7 @@ async fn parse_signed_transaction(
 async fn essence_to_operations(
     essence: &Essence,
     inputs_metadata: &HashMap<String, OutputResponse>,
-    options: &Config,
+    options: &RosettaConfig,
 ) -> Result<Vec<Operation>, ApiError> {
     let regular_essence = match essence {
         Essence::Regular(r) => r,

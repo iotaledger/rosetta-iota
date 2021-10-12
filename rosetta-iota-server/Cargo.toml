@@ -9,7 +9,7 @@ bee-common = "0.4"
 bee-message = "0.1"
 bee-rest-api = "0.1"
 
-iota-client = { git = "https://github.com/iotaledger/iota.rs", rev= "fb10a10cc793bbf9477ec89ef29bb578168f20b0" }
+iota-client = { git = "https://github.com/iotaledger/iota.rs", rev = "87c95b95d2d6a78a5bc09e1da21744fbbf52fa4c" }
 iota-crypto = { version = "0.7.0", features = ["std", "blake2b", "ed25519", "random", "slip10", "bip39", "bip39-en"]}
 
 digest = "0.9"
@@ -26,6 +26,12 @@ tokio = { version = "1.11", features = ["macros", "signal"] }
 url = "2.2"
 warp = "0.3.1"
 
+[dev-dependencies]
+serial_test = "0.5.1"
+
 [[bin]]
 name = "rosetta-iota"
 path = "src/main.rs"
+
+[features]
+dummy_node = []
