@@ -9,6 +9,7 @@ use crate::{
     types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
 };
 use crate::client::{build_client, get_balance_of_address};
+use crate::types::Currency;
 
 use bee_message::milestone::MilestoneIndex;
 
@@ -21,6 +22,8 @@ pub struct AccountBalanceRequest {
     pub account_identifier: AccountIdentifier,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub block_identifier: Option<PartialBlockIdentifier>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub currencies: Option<Vec<Currency>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -45,11 +48,22 @@ pub async fn account_balance(
         ));
     }
 
-    // historical balance lookup is not supported
+    // don't support historical balance lookup
     if request.block_identifier.is_some() {
         return Err(ApiError::NonRetriable(
             "historical balance lookup not supported".to_string(),
         ));
+    }
+
+    // only support IOTA currency
+    if let Some(currencies) = request.currencies {
+        for currency in currencies {
+            if !currency.eq(&iota_currency()) {
+                return Err(ApiError::NonRetriable(
+                    format!("invalid currency: only IOTA currency supported")
+                ));
+            }
+        }
     }
 
     let (amount, ledger_index) = address_balance_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;

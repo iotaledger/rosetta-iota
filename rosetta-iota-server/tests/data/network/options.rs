@@ -1,4 +1,6 @@
 use crate::dummy_node::dummy_node::{start_dummy_node};
+use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_BLOCKCHAIN, WRONG_NETWORK};
+use crate::{test_request, Request};
 
 use rosetta_iota_server::RosettaConfig;
 use rosetta_iota_server::config::RosettaMode;
@@ -9,32 +11,20 @@ use serial_test::serial;
 
 #[tokio::test]
 #[serial]
-async fn test_options() {
-
-    let dummy_node = start_dummy_node("127.0.0.1:3029".to_string()).await;
-
+async fn valid_request() {
     let request = NetworkOptionsRequest {
         network_identifier: NetworkIdentifier {
-            blockchain: "iota".to_string(),
-            network: "testnet7".to_string(),
+            blockchain: VALID_BLOCKCHAIN.to_string(),
+            network: VALID_NETWORK.to_string(),
             sub_network_identifier: None,
         },
     };
 
-    let server_options = RosettaConfig {
-        node_url: "http://127.0.0.1:3029".to_string(),
-        network: "testnet7".to_string(),
-        tx_tag: "rosetta".to_string(),
-        bech32_hrp: "atoi".to_string(),
-        mode: RosettaMode::Online,
-        bind_addr: "0.0.0.0:3030".to_string(),
-    };
-
-    let response = network_options(request, server_options).await.unwrap();
+    let response = test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
 
     assert_eq!("1.4.10", response.version.rosetta_version);
-    assert_eq!("0.6.0-alpha", response.version.node_version);
-    assert_eq!("0.6.0-alpha", response.version.middleware_version);
+    assert_eq!("1.0.5", response.version.node_version);
+    assert_eq!("1.0.5", response.version.middleware_version);
 
     assert_eq!("Success", response.allow.operation_statuses[0].status);
     assert_eq!(true, response.allow.operation_statuses[0].successful);
@@ -47,6 +37,34 @@ async fn test_options() {
     assert_eq!("non retriable error", response.allow.errors[0].message);
     assert_eq!(false, response.allow.errors[0].retriable);
     assert_eq!(false, response.allow.errors[0].details.is_some());
+}
 
-    dummy_node.shutdown().await;
+#[tokio::test]
+#[should_panic]
+#[serial]
+async fn wrong_blockchain() {
+    let request = NetworkOptionsRequest {
+        network_identifier: NetworkIdentifier {
+            blockchain: WRONG_BLOCKCHAIN.to_string(),
+            network: VALID_NETWORK.to_string(),
+            sub_network_identifier: None,
+        },
+    };
+
+    test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
+}
+
+#[tokio::test]
+#[should_panic]
+#[serial]
+async fn wrong_network() {
+    let request = NetworkOptionsRequest {
+        network_identifier: NetworkIdentifier {
+            blockchain: VALID_BLOCKCHAIN.to_string(),
+            network: WRONG_NETWORK.to_string(),
+            sub_network_identifier: None,
+        },
+    };
+
+    test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
 }

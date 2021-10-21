@@ -1,41 +1,31 @@
 use crate::dummy_node::dummy_node::{start_dummy_node};
+use crate::config::{default_rosetta_config, VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_NETWORK, VALID_BECH32_ADDRESS_WITH_BALANCE, WRONG_BLOCKCHAIN, WRONG_ADDRESS_FORMAT};
+use crate::{test_request, Request};
 
 use rosetta_iota_server::types::{NetworkIdentifier, AccountIdentifier};
-use rosetta_iota_server::RosettaConfig;
-use rosetta_iota_server::config::RosettaMode;
 use rosetta_iota_server::data::account::balance::*;
+use rosetta_iota_server::error::ApiError;
 
 use serial_test::serial;
 
 #[tokio::test]
 #[serial]
-async fn test_balance() {
-
-    let dummy_node = start_dummy_node("127.0.0.1:3029".to_string()).await;
-
+async fn valid_request() {
     let request = AccountBalanceRequest {
         network_identifier: NetworkIdentifier {
-            blockchain: "iota".to_string(),
-            network: "chrysalis-mainnet".to_string(),
+            blockchain: VALID_BLOCKCHAIN.to_string(),
+            network: VALID_NETWORK.to_string(),
             sub_network_identifier: None,
         },
         account_identifier: AccountIdentifier {
-            address: String::from("iota1qp6gwwy7rruk0d3j9fqzcxnfrstfedk2m65jst2tx7xmkad4agjc5r7ptjz"),
+            address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
             sub_account: None,
         },
         block_identifier: None,
+        currencies: None
     };
 
-    let server_options = RosettaConfig {
-        node_url: "http://127.0.0.1:3029".to_string(),
-        network: "chrysalis-mainnet".to_string(),
-        tx_tag: "rosetta".to_string(),
-        bech32_hrp: "iota".to_string(),
-        mode: RosettaMode::Online,
-        bind_addr: "0.0.0.0:3030".to_string(),
-    };
-
-    let response = account_balance(request, server_options).await.unwrap();
+    let response = test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
 
     assert_eq!(1438441, response.block_identifier.index);
     assert_eq!(
@@ -46,6 +36,68 @@ async fn test_balance() {
     assert_eq!("IOTA", response.balances[0].currency.symbol);
     assert_eq!(0, response.balances[0].currency.decimals);
     assert_eq!("20651169480", response.balances[0].value);
-
-    dummy_node.shutdown().await;
 }
+
+#[tokio::test]
+#[should_panic]
+#[serial]
+async fn wrong_blockchain() {
+    let request = AccountBalanceRequest {
+        network_identifier: NetworkIdentifier {
+            blockchain: WRONG_BLOCKCHAIN.to_string(),
+            network: VALID_NETWORK.to_string(),
+            sub_network_identifier: None,
+        },
+        account_identifier: AccountIdentifier {
+            address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
+            sub_account: None,
+        },
+        block_identifier: None,
+        currencies: None
+    };
+
+    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+}
+
+#[tokio::test]
+#[should_panic]
+#[serial]
+async fn wrong_network() {
+    let request = AccountBalanceRequest {
+        network_identifier: NetworkIdentifier {
+            blockchain: VALID_BLOCKCHAIN.to_string(),
+            network: WRONG_NETWORK.to_string(),
+            sub_network_identifier: None,
+        },
+        account_identifier: AccountIdentifier {
+            address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
+            sub_account: None,
+        },
+        block_identifier: None,
+        currencies: None
+    };
+
+    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+}
+
+#[tokio::test]
+#[should_panic]
+#[serial]
+async fn wrong_address_format() {
+    let request = AccountBalanceRequest {
+        network_identifier: NetworkIdentifier {
+            blockchain: VALID_BLOCKCHAIN.to_string(),
+            network: VALID_NETWORK.to_string(),
+            sub_network_identifier: None,
+        },
+        account_identifier: AccountIdentifier {
+            address: WRONG_ADDRESS_FORMAT.to_string(),
+            sub_account: None,
+        },
+        block_identifier: None,
+        currencies: None
+    };
+
+    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+}
+
