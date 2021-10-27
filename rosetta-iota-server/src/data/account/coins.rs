@@ -3,7 +3,7 @@
 
 use crate::{
     config::RosettaConfig,
-    currency::iota_currency,
+    consts::iota_currency,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, NetworkIdentifier, *},
@@ -23,12 +23,15 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountCoinsRequest {
     pub network_identifier: NetworkIdentifier,
     pub account_identifier: AccountIdentifier,
+    pub include_mempool: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountCoinsResponse {
     pub block_identifier: BlockIdentifier,
     pub coins: Vec<Coin>,
@@ -66,7 +69,6 @@ pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: Rosetta
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
-                metadata: None,
             },
         });
     }

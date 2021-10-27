@@ -14,6 +14,7 @@ pub fn with_rosetta_config(options: RosettaConfig) -> impl Filter<Extract = (Ros
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct EmptyRequest;
 
 pub fn with_empty_request() -> impl Filter<Extract = (EmptyRequest,), Error = Infallible> + Clone {

@@ -7,12 +7,14 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionHashRequest {
     pub network_identifier: NetworkIdentifier,
     pub signed_transaction: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionHashResponse {
     pub transaction_identifier: TransactionIdentifier,
 }

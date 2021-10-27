@@ -12,12 +12,14 @@ use crate::client::{build_client, get_output};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
     pub options: PreprocessOptions,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionMetadataResponse {
     pub metadata: ConstructionMetadata,
 }

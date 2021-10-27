@@ -3,13 +3,12 @@
 
 use crate::{
     config::RosettaConfig,
-    currency::iota_currency,
+    consts::iota_currency,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
-    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier},
+    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier},
 };
 use crate::client::{build_client, get_balance_of_address};
-use crate::types::Currency;
 
 use bee_message::milestone::MilestoneIndex;
 
@@ -17,16 +16,14 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountBalanceRequest {
     pub network_identifier: NetworkIdentifier,
     pub account_identifier: AccountIdentifier,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub block_identifier: Option<PartialBlockIdentifier>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub currencies: Option<Vec<Currency>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountBalanceResponse {
     pub block_identifier: BlockIdentifier,
     pub balances: Vec<Amount>,
@@ -48,24 +45,6 @@ pub async fn account_balance(
         ));
     }
 
-    // don't support historical balance lookup
-    if request.block_identifier.is_some() {
-        return Err(ApiError::NonRetriable(
-            "historical balance lookup not supported".to_string(),
-        ));
-    }
-
-    // only support IOTA currency
-    if let Some(currencies) = request.currencies {
-        for currency in currencies {
-            if !currency.eq(&iota_currency()) {
-                return Err(ApiError::NonRetriable(
-                    format!("invalid currency: only IOTA currency supported")
-                ));
-            }
-        }
-    }
-
     let (amount, ledger_index) = address_balance_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
 
     Ok(AccountBalanceResponse {
@@ -85,7 +64,6 @@ async fn address_balance_with_ledger_index(address: &str, options: &RosettaConfi
     let amount = Amount {
         value: balance_response.balance.to_string(),
         currency: iota_currency(),
-        metadata: None,
     };
 
     Ok((amount, MilestoneIndex(balance_response.ledger_index)))

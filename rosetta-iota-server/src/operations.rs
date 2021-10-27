@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    currency::iota_currency,
+    consts::iota_currency,
     types::{AccountIdentifier, Amount, CoinAction, CoinChange, CoinIdentifier, Operation, OperationIdentifier},
 };
 use bee_message::prelude::OutputId;
@@ -47,7 +47,6 @@ pub fn utxo_input_operation(
 ) -> Operation {
     let account = AccountIdentifier {
         address,
-        sub_account: None,
     };
 
     let amount = Amount {
@@ -56,7 +55,6 @@ pub fn utxo_input_operation(
             false => amount.to_string(),
         },
         currency: iota_currency(),
-        metadata: None,
     };
 
     let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
@@ -64,9 +62,8 @@ pub fn utxo_input_operation(
     Operation {
         operation_identifier: OperationIdentifier {
             index: operation_counter as u64,
-            network_index: Some(output_index as u64), // no sharding in IOTA yet :(
+            network_index: Some(output_index as u64),
         },
-        related_operations: None,
         type_: INPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()), // call coming from /data/block
@@ -81,7 +78,6 @@ pub fn utxo_input_operation(
                 false => CoinAction::CoinCreated,
             },
         }),
-        metadata: None,
     }
 }
 
@@ -94,13 +90,11 @@ pub fn utxo_output_operation(
 ) -> Operation {
     let account = AccountIdentifier {
         address,
-        sub_account: None,
     };
 
     let amount = Amount {
         value: amount.to_string(),
         currency: iota_currency(),
-        metadata: None,
     };
 
     Operation {
@@ -108,7 +102,6 @@ pub fn utxo_output_operation(
             index: operation_counter as u64,
             network_index: None,
         },
-        related_operations: None,
         type_: SIG_LOCKED_SINGLE_OUTPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()),
@@ -125,7 +118,6 @@ pub fn utxo_output_operation(
             }),
             None => None,
         },
-        metadata: None,
     }
 }
 
@@ -138,13 +130,11 @@ pub fn dust_allowance_output_operation(
 ) -> Operation {
     let account = AccountIdentifier {
         address,
-        sub_account: None,
     };
 
     let amount = Amount {
         value: amnt.to_string(),
         currency: iota_currency(),
-        metadata: None,
     };
 
     Operation {
@@ -152,7 +142,6 @@ pub fn dust_allowance_output_operation(
             index: operation_counter as u64,
             network_index: None,
         },
-        related_operations: None,
         type_: SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()),
@@ -169,6 +158,5 @@ pub fn dust_allowance_output_operation(
             }),
             None => None,
         },
-        metadata: None,
     }
 }

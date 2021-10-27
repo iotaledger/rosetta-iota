@@ -78,6 +78,11 @@ pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {
     }
 }
 
+pub async fn get_pruning_index(client: &Client) -> Result<u32, ApiError> {
+    let node_info = get_node_info(client).await?;
+    Ok(node_info.pruning_index)
+}
+
 pub async fn get_peers(client: &Client) -> Result<Vec<PeerDto>, ApiError> {
     client
         .get_peers()

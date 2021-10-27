@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionCombineRequest {
     pub network_identifier: NetworkIdentifier,
     pub unsigned_transaction: String,
@@ -24,6 +25,7 @@ pub struct ConstructionCombineRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionCombineResponse {
     pub signed_transaction: String,
 }
@@ -59,9 +61,6 @@ pub async fn combine(
         let bech32_addr = signature
             .signing_payload
             .account_identifier
-            .ok_or(ApiError::NonRetriable(
-                "signing_payload.account_identifier not populated".to_string(),
-            ))?
             .address;
 
         // check if a Signature Unlock Block already was added for the address

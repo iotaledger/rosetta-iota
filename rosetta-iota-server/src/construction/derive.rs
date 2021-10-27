@@ -11,12 +11,14 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionDeriveRequest {
     pub network_identifier: NetworkIdentifier,
     pub public_key: PublicKey,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionDeriveResponse {
     pub account_identifier: AccountIdentifier,
 }
@@ -46,7 +48,6 @@ pub async fn derive(
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier {
             address: bech32_address,
-            sub_account: None,
         },
     })
 }

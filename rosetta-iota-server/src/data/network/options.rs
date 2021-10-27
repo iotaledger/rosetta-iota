@@ -14,11 +14,13 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkOptionsRequest {
     pub network_identifier: NetworkIdentifier,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkOptionsResponse {
     pub version: Version,
     pub allow: Allow,
@@ -37,7 +39,6 @@ pub async fn network_options(
     let version = Version {
         rosetta_version: consts::ROSETTA_VERSION.to_string(),
         node_version: consts::NODE_VERSION.to_string(),
-        middleware_version: consts::MIDDLEWARE_VERSION.to_string(),
     };
 
     let operation_statuses = vec![
@@ -60,7 +61,6 @@ pub async fn network_options(
         operation_types,
         errors,
         historical_balance_lookup: false,
-        timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
         mempool_coins: false,

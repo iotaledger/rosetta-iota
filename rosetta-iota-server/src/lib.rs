@@ -15,7 +15,6 @@ pub mod client;
 pub mod config;
 pub mod construction;
 pub mod consts;
-pub mod currency;
 pub mod data;
 pub mod error;
 pub mod filters;

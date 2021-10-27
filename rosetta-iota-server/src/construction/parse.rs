@@ -25,6 +25,7 @@ use crate::operations::dust_allowance_output_operation;
 use std::{collections::HashMap, convert::TryInto, str::FromStr};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionParseRequest {
     pub network_identifier: NetworkIdentifier,
     pub signed: bool,
@@ -32,9 +33,9 @@ pub struct ConstructionParseRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionParseResponse {
     pub operations: Vec<Operation>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 
@@ -96,7 +97,6 @@ async fn parse_signed_transaction(
                     address_from_public_key(&hex::encode(signature.public_key()))?.to_bech32(&options.bech32_hrp);
                 accounts_identifiers.push(AccountIdentifier {
                     address: bech32_addr,
-                    sub_account: None,
                 });
             }
         }
@@ -105,7 +105,7 @@ async fn parse_signed_transaction(
 
     Ok(ConstructionParseResponse {
         operations,
-        account_identifier_signers: Some(account_identifier_signers),
+        account_identifier_signers: Some(account_identifier_signers)
     })
 }
 

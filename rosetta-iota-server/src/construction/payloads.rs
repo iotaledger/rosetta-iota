@@ -10,6 +10,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionPayloadsRequest {
     pub network_identifier: NetworkIdentifier,
     pub operations: Vec<Operation>,
@@ -17,6 +18,7 @@ pub struct ConstructionPayloadsRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionPayloadsResponse {
     pub unsigned_transaction: String,
     pub payloads: Vec<SigningPayload>,
@@ -111,12 +113,11 @@ pub async fn payloads(
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {
-            account_identifier: Some(AccountIdentifier {
+            account_identifier: AccountIdentifier {
                 address,
-                sub_account: None,
-            }),
+            },
             hex_bytes: hex::encode(&hash_to_sign),
-            signature_type: Some(SignatureType::Edwards25519),
+            signature_type: SignatureType::Edwards25519,
         });
     }
 

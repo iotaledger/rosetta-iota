@@ -11,17 +11,21 @@ use crate::{
 
 use log::debug;
 use serde::{Deserialize, Serialize};
+use crate::client::get_pruning_index;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkStatusRequest {
     pub network_identifier: NetworkIdentifier,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkStatusResponse {
     pub current_block_identifier: BlockIdentifier,
     pub current_block_timestamp: u64,
     pub genesis_block_identifier: BlockIdentifier,
+    pub oldest_block_identifier: BlockIdentifier,
     pub peers: Vec<Peer>,
 }
 
@@ -41,35 +45,36 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
     let client = build_client(&rosetta_config).await?;
 
     let latest_milestone = get_latest_milestone(&client).await?;
-
     let current_block_timestamp = latest_milestone.timestamp * 1000;
+    let pruning_index = get_pruning_index(&client).await?;
 
     let mut peers = vec![];
     for peer in get_peers(&client).await? {
         peers.push(Peer {
             peer_id: peer.id,
-            metadata: PeerMetadata {
-                multi_addresses: peer.multi_addresses,
-                alias: peer.alias,
-                connected: peer.connected,
-            },
         });
     }
-
-    let genesis_block_identifier = BlockIdentifier {
-        index: 1,
-        hash: 1.to_string(),
-    };
 
     let current_block_identifier = BlockIdentifier {
         index: latest_milestone.index,
         hash: latest_milestone.index.to_string(),
     };
 
+    let genesis_block_identifier = BlockIdentifier {
+        index: 1,
+        hash: 1.to_string(),
+    };
+
+    let oldest_block_identifier = BlockIdentifier {
+        index: pruning_index,
+        hash: pruning_index.to_string(),
+    };
+
     let response = NetworkStatusResponse {
         current_block_identifier,
         current_block_timestamp,
         genesis_block_identifier,
+        oldest_block_identifier,
         peers,
     };
 

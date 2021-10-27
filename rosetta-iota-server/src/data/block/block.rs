@@ -28,12 +28,14 @@ use std::{
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct BlockRequest {
     pub network_identifier: NetworkIdentifier,
     pub block_identifier: PartialBlockIdentifier,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct BlockResponse {
     pub block: Block,
 }
@@ -82,7 +84,6 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
         },
         timestamp: milestone.timestamp * 1000,
         transactions,
-        metadata: None,
     };
 
     Ok(BlockResponse { block })
@@ -244,7 +245,6 @@ async fn from_transaction(
             hash: transaction_payload.id().to_string(),
         },
         operations,
-        metadata: None,
     };
 
     Ok(transaction)
@@ -275,7 +275,6 @@ async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaC
             hash: created_outputs.first().unwrap().output_id.transaction_id().to_string(),
         },
         operations,
-        metadata: None,
     };
 
     Ok(transaction)

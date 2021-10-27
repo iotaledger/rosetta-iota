@@ -7,6 +7,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkListResponse {
     pub network_identifiers: Vec<NetworkIdentifier>,
 }
@@ -18,7 +19,6 @@ pub async fn network_list(_empty: EmptyRequest, options: RosettaConfig) -> Resul
         network_identifiers: vec![NetworkIdentifier {
             blockchain: consts::BLOCKCHAIN.to_string(),
             network: options.network.clone(),
-            sub_network_identifier: None,
         }],
     };
 
