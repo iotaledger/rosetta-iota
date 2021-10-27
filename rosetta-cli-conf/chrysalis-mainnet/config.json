@@ -9,6 +9,7 @@
   "max_retries": 5,
   "max_sync_concurrency": 5,
   "tip_delay": 5,
+  "memory_limit_disabled": true,
   "data": {
     "historical_balance_enabled": false,
     "reconciliation_disabled": false,
