@@ -33,12 +33,6 @@ pub async fn derive(
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if request.public_key.curve_type != CurveType::Edwards25519 {
-        return Err(ApiError::NonRetriable(
-            "invalid curve type: must be edwards25519".to_string(),
-        ));
-    }
-
     let public_key_bytes = hex::decode(request.public_key.hex_bytes)
         .map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);

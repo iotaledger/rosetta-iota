@@ -4,6 +4,7 @@
 use crate::Config;
 
 use rosetta_iota_server::types::{AccountIdentifier, Currency};
+use rosetta_iota_server::consts::iota_currency;
 
 use bee_common::packable::{Packable, Read};
 use bee_ledger::types::{snapshot::*, BalanceDiffs};
@@ -234,13 +235,8 @@ async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config) {
             json_entries.push(BootstrapBalanceEntry {
                 account_identifier: AccountIdentifier {
                     address: addr,
-                    sub_account: None,
                 },
-                currency: Currency {
-                    symbol: "IOTA".to_string(),
-                    decimals: 0,
-                    metadata: None,
-                },
+                currency: iota_currency(),
                 value: balance.to_string(),
             });
         }
