@@ -28,13 +28,13 @@ pub struct ConstructionCombineResponse {
     pub signed_transaction: String,
 }
 
-pub(crate) async fn construction_combine_request(
+pub async fn combine(
     request: ConstructionCombineRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionCombineResponse, ApiError> {
     debug!("/construction/combine");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 

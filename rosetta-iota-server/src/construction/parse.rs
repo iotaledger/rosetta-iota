@@ -38,20 +38,20 @@ pub struct ConstructionParseResponse {
     pub account_identifier_signers: Option<Vec<AccountIdentifier>>,
 }
 
-pub(crate) async fn construction_parse_request(
+pub async fn parse(
     request: ConstructionParseRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionParseResponse, ApiError> {
     debug!("/construction/parse");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     if request.signed {
-        parse_signed_transaction(request, &options).await
+        parse_signed_transaction(request, &rosetta_config).await
     } else {
-        parse_unsigned_transaction(request, &options).await
+        parse_unsigned_transaction(request, &rosetta_config).await
     }
 }
 

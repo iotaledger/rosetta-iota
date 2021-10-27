@@ -17,13 +17,13 @@ pub struct ConstructionHashResponse {
     pub transaction_identifier: TransactionIdentifier,
 }
 
-pub(crate) async fn construction_hash_request(
+pub async fn hash(
     request: ConstructionHashRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionHashResponse, ApiError> {
     debug!("/construction/hash");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 

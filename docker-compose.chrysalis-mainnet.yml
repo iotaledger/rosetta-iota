@@ -22,7 +22,7 @@ services:
 
   rosetta:
     build: .
-    command: --bind-addr 0.0.0.0:3030 --network chrysalis-mainnet --bech32-hrp iota --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
+    command: --bind-addr 0.0.0.0:3030 --network chrysalis-mainnet --bech32-hrp iota --node-url http://hornet:14265 --mode $MODE
     restart: "no"
     environment:
       - RUST_LOG=info

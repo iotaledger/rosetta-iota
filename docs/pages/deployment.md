@@ -53,22 +53,22 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 
     **chrysalis-mainnet: online mode**
     ```
-    MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+    MODE=online docker-compose -f docker-compose.chrysalis-mainnet.yml up
     ```
     
     **chrysalis-mainnet: offline mode**
     ```
-    MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.chrysalis-mainnet.yml up
+    MODE=offline docker-compose -f docker-compose.chrysalis-mainnet.yml up
     ```
     
     **testnet7: online mode**
     ```
-    MODE=online TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
+    MODE=online docker-compose -f docker-compose.testnet7.yml up
     ```
     
     **testnet7: offline mode**
     ```
-    MODE=offline TX_TAG=Rosetta docker-compose -f docker-compose.testnet7.yml up
+    MODE=offline docker-compose -f docker-compose.testnet7.yml up
     ```
 
 7) If you want to reuse the node ID of your HORNET node with a later deployment make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
@@ -79,7 +79,6 @@ The health status of the HORNET node can be checked at: http://localhost:14265/a
 
 #### Environment variables:
 - `MODE` ... the mode in which the implementation is to run. Can be either `offline` or `online`.
-- `TX_TAG` ... the tag that transactions created by the Construction API should carry. If no tag is specified, the tag `Rosetta` is used by default. Constructed transactions can then be found by this tag. The tag can be a maximum of 64 bytes long.
 
 ## Further notes:
 

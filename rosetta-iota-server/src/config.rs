@@ -13,8 +13,6 @@ pub struct RosettaConfig {
     pub network: String,
     #[structopt(long)]
     pub bech32_hrp: String,
-    #[structopt(long, default_value = "rosetta")]
-    pub tx_tag: String,
     #[structopt(long)]
     pub node_url: String,
     #[structopt(long, default_value = "online")]

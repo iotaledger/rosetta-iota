@@ -22,23 +22,23 @@ pub struct ConstructionMetadataResponse {
     pub metadata: ConstructionMetadata,
 }
 
-pub(crate) async fn construction_metadata_request(
+pub async fn metadata(
     request: ConstructionMetadataRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionMetadataResponse, ApiError> {
     debug!("/construction/metadata");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint is not available in offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let mut utxo_inputs_metadata = HashMap::new();
     for output_id_string in request.options.utxo_inputs {

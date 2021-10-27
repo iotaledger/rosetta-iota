@@ -22,13 +22,13 @@ pub struct ConstructionPayloadsResponse {
     pub payloads: Vec<SigningPayload>,
 }
 
-pub(crate) async fn construction_payloads_request(
+pub async fn payloads(
     request: ConstructionPayloadsRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
@@ -95,11 +95,7 @@ pub(crate) async fn construction_payloads_request(
     inputs.sort_unstable_by_key(|i| i.0.pack_new());
     outputs.sort_unstable_by_key(|o| o.pack_new());
 
-    let indexation_payload = IndexationPayload::new(options.tx_tag.as_bytes(), &[])
-        .map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
-
-    let mut transaction_payload_essence =
-        RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
+    let mut transaction_payload_essence = RegularEssenceBuilder::new();
 
     for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);

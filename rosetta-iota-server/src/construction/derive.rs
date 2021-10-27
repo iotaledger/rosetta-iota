@@ -21,13 +21,13 @@ pub struct ConstructionDeriveResponse {
     pub account_identifier: AccountIdentifier,
 }
 
-pub async fn construction_derive_request(
+pub async fn derive(
     request: ConstructionDeriveRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionDeriveResponse, ApiError> {
     debug!("/construction/derive");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
@@ -40,8 +40,8 @@ pub async fn construction_derive_request(
     let public_key_bytes = hex::decode(request.public_key.hex_bytes)
         .map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
-
-    let bech32_address = Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&options.bech32_hrp);
+    
+    let bech32_address = Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&rosetta_config.bech32_hrp);
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier {
@@ -49,32 +49,4 @@ pub async fn construction_derive_request(
             sub_account: None,
         },
     })
-}
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-    use crate::config::RosettaMode;
-
-    #[tokio::test]
-    async fn test_derive() {
-        let data = r#"{"network_identifier":{"blockchain":"iota","network":"testnet7"},"public_key":{"hex_bytes":"6f8f4d77e94bce3900078b89319e6e25b341d47669a76ae4bf26677d377533f0","curve_type":"edwards25519"}}"#;
-        let request: ConstructionDeriveRequest = serde_json::from_str(data).unwrap();
-
-        let server_options = RosettaConfig {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = construction_derive_request(request, server_options).await.unwrap();
-        assert_eq!(
-            "atoi1qpv2nr99fkjykh5ga3x62lqlztrg6t67k750v93lculsna3z7knnu9wdz4h",
-            response.account_identifier.address
-        )
-    }
 }

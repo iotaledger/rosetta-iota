@@ -24,23 +24,23 @@ pub struct ConstructionSubmitResponse {
     pub metadata: ConstructionSubmitResponseMetadata,
 }
 
-pub(crate) async fn construction_submit_request(
+pub async fn submit(
     request: ConstructionSubmitRequest,
-    options: RosettaConfig,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint is not available in offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
     let transaction = signed_transaction.transaction();

@@ -3,10 +3,10 @@
 
 use crate::{
     construction::{
-        combine::construction_combine_request, derive::construction_derive_request, hash::construction_hash_request,
-        metadata::construction_metadata_request, parse::construction_parse_request,
-        payloads::construction_payloads_request, preprocess::construction_preprocess_request,
-        submit::construction_submit_request,
+        combine::combine, derive::derive, hash::hash,
+        metadata::metadata, parse::parse,
+        payloads::payloads, preprocess::preprocess,
+        submit::submit,
     },
     filters::{handle, with_rosetta_config},
     types::{SignedTransaction, UnsignedTransaction},
@@ -30,36 +30,36 @@ pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply,
             warp::path!("construction" / "derive")
                 .and(warp::body::json())
                 .and(with_rosetta_config(options.clone()))
-                .and_then(handle(construction_derive_request)),
+                .and_then(handle(derive)),
         )
         .or(warp::path!("construction" / "preprocess")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_preprocess_request)))
+            .and_then(handle(preprocess)))
         .or(warp::path!("construction" / "metadata")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_metadata_request)))
+            .and_then(handle(metadata)))
         .or(warp::path!("construction" / "payloads")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_payloads_request)))
+            .and_then(handle(payloads)))
         .or(warp::path!("construction" / "parse")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_parse_request)))
+            .and_then(handle(parse)))
         .or(warp::path!("construction" / "combine")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_combine_request)))
+            .and_then(handle(combine)))
         .or(warp::path!("construction" / "hash")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_hash_request)))
+            .and_then(handle(hash)))
         .or(warp::path!("construction" / "submit")
             .and(warp::body::json())
             .and(with_rosetta_config(options.clone()))
-            .and_then(handle(construction_submit_request)))
+            .and_then(handle(submit)))
 }
 
 fn serialize_unsigned_transaction(unsigned_transaction: &UnsignedTransaction) -> String {

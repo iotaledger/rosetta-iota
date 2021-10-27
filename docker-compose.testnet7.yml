@@ -22,7 +22,7 @@ services:
 
   rosetta:
     build: .
-    command: --bind-addr 0.0.0.0:3030 --network testnet7 --bech32-hrp atoi --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
+    command: --bind-addr 0.0.0.0:3030 --network testnet7 --bech32-hrp atoi --node-url http://hornet:14265 --mode $MODE
     restart: "no"
     environment:
       - RUST_LOG=info

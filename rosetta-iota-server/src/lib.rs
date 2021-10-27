@@ -32,11 +32,10 @@ pub async fn run_server(config: RosettaConfig, shutdown: impl Future<Output = ()
 
     info!("Listening on {}.", bind_addr.to_string());
     info!(
-        "BIND_ADDRESS {} NETWORK {} BECH32_HRP {} TX_TAG {} NODE_URL {} MODE {:#?}",
+        "BIND_ADDRESS {} NETWORK {} BECH32_HRP {} NODE_URL {} MODE {:#?}",
         bind_addr.to_string(),
         config.network,
         config.bech32_hrp,
-        config.tx_tag,
         config.node_url,
         config.mode
     );
