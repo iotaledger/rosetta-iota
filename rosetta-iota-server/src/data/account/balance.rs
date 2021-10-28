@@ -9,6 +9,7 @@ use crate::{
     types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier},
 };
 use crate::client::{build_client, get_balance_of_address};
+use crate::types::Currency;
 
 use bee_message::milestone::MilestoneIndex;
 
@@ -20,6 +21,8 @@ use serde::{Deserialize, Serialize};
 pub struct AccountBalanceRequest {
     pub network_identifier: NetworkIdentifier,
     pub account_identifier: AccountIdentifier,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub currencies: Option<Vec<Currency>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -43,6 +46,17 @@ pub async fn account_balance(
         return Err(ApiError::NonRetriable(
             "endpoint does not support offline mode".to_string(),
         ));
+    }
+
+    // only support IOTA currency
+    if let Some(currencies) = request.currencies {
+        for currency in currencies {
+            if !currency.eq(&iota_currency()) {
+                return Err(ApiError::NonRetriable(
+                    format!("invalid currency provided: only `IOTA` currency supported")
+                ));
+            }
+        }
     }
 
     let (amount, ledger_index) = address_balance_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
