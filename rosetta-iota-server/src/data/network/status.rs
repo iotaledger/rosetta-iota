@@ -46,7 +46,7 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
 
     let latest_milestone = get_latest_milestone(&client).await?;
     let current_block_timestamp = latest_milestone.timestamp * 1000;
-    let pruning_index = get_pruning_index(&client).await?;
+    let oldest_block = get_pruning_index(&client).await? + 1;
 
     let mut peers = vec![];
     for peer in get_peers(&client).await? {
@@ -66,8 +66,8 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
     };
 
     let oldest_block_identifier = BlockIdentifier {
-        index: pruning_index,
-        hash: pruning_index.to_string(),
+        index: oldest_block,
+        hash: oldest_block.to_string(),
     };
 
     let response = NetworkStatusResponse {
