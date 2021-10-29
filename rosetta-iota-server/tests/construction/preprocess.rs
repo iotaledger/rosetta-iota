@@ -1,4 +1,4 @@
-use crate::{dummy_node::dummy_node::start_dummy_node, test_request, Request};
+use crate::{test_request, Request};
 
 use rosetta_iota_server::construction::preprocess::ConstructionPreprocessRequest;
 

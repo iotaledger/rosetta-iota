@@ -50,6 +50,12 @@ pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: Rosetta
         ));
     }
 
+    if request.include_mempool {
+        return Err(ApiError::NonRetriable(
+            "mempool coins are not supported".to_string(),
+        ));
+    }
+
     let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
 
     let mut coins = Vec::new();

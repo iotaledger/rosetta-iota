@@ -1,5 +1,7 @@
 use crate::dummy_node::dummy_node::start_dummy_node;
 
+use config::default_rosetta_config;
+
 use rosetta_iota_server::data::account::balance::{AccountBalanceRequest, AccountBalanceResponse, account_balance};
 use rosetta_iota_server::data::account::coins::{AccountCoinsRequest, AccountCoinsResponse, account_coins};
 use rosetta_iota_server::error::ApiError;
@@ -9,9 +11,6 @@ use rosetta_iota_server::data::network::options::{NetworkOptionsRequest, Network
 use rosetta_iota_server::data::network::status::{NetworkStatusRequest, NetworkStatusResponse, network_status};
 use rosetta_iota_server::data::block::block::{BlockRequest, BlockResponse, block};
 use rosetta_iota_server::construction::derive::{ConstructionDeriveRequest, ConstructionDeriveResponse, derive};
-
-use std::net::SocketAddr;
-use config::default_rosetta_config;
 use rosetta_iota_server::construction::parse::{ConstructionParseRequest, ConstructionParseResponse, parse};
 use rosetta_iota_server::construction::preprocess::{ConstructionPreprocessRequest, ConstructionPreprocessResponse, preprocess};
 use rosetta_iota_server::construction::metadata::{ConstructionMetadataRequest, ConstructionMetadataResponse, metadata};

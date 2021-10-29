@@ -35,7 +35,7 @@ async fn run_server(shutdown_rx: Receiver<()>, return_tx: Sender<()>) {
     let bind_addr = DUMMY_NODE_BIND_ADDR.to_string().parse::<SocketAddr>().unwrap();
 
     let info = warp::path!("api" / "v1" / "info").map(|| {
-        r#"{"data":{"name":"HORNET","version":"1.0.5","isHealthy":true,"networkId":"chrysalis-mainnet","bech32HRP":"iota","minPoWScore":4000,"messagesPerSecond":12,"referencedMessagesPerSecond":11,"referencedRate":91.66666666666666,"latestMilestoneTimestamp":1635331891,"latestMilestoneIndex":1565303,"confirmedMilestoneIndex":1565303,"pruningIndex":1504815,"features":["PoW"]}}"#
+        r#"{"data":{"name":"HORNET","version":"1.0.5","isHealthy":true,"networkId":"chrysalis-mainnet","bech32HRP":"iota","minPoWScore":4000,"messagesPerSecond":12,"referencedMessagesPerSecond":11,"referencedRate":91.66666666666666,"latestMilestoneTimestamp":1635331891,"latestMilestoneIndex":1438449,"confirmedMilestoneIndex":1438448,"pruningIndex":1438000,"features":["PoW"]}}"#
     });
 
     let address = warp::path!("api" / "v1" / "addresses" / String).map(|address| {

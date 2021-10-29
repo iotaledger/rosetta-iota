@@ -1,10 +1,7 @@
-use crate::dummy_node::dummy_node::{start_dummy_node};
 use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_BLOCKCHAIN, WRONG_NETWORK};
 use crate::{test_request, Request};
 
-use rosetta_iota_server::RosettaConfig;
-use rosetta_iota_server::config::RosettaMode;
-use rosetta_iota_server::data::network::options::{NetworkOptionsRequest, network_options};
+use rosetta_iota_server::data::network::options::{NetworkOptionsRequest};
 use rosetta_iota_server::types::NetworkIdentifier;
 
 use serial_test::serial;
@@ -16,7 +13,6 @@ async fn valid_request() {
         network_identifier: NetworkIdentifier {
             blockchain: VALID_BLOCKCHAIN.to_string(),
             network: VALID_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
     };
 
@@ -24,7 +20,6 @@ async fn valid_request() {
 
     assert_eq!("1.4.10", response.version.rosetta_version);
     assert_eq!("1.0.5", response.version.node_version);
-    assert_eq!("1.0.5", response.version.middleware_version);
 
     assert_eq!("Success", response.allow.operation_statuses[0].status);
     assert_eq!(true, response.allow.operation_statuses[0].successful);
@@ -47,7 +42,6 @@ async fn wrong_blockchain() {
         network_identifier: NetworkIdentifier {
             blockchain: WRONG_BLOCKCHAIN.to_string(),
             network: VALID_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
     };
 
@@ -62,7 +56,6 @@ async fn wrong_network() {
         network_identifier: NetworkIdentifier {
             blockchain: VALID_BLOCKCHAIN.to_string(),
             network: WRONG_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
     };
 

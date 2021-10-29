@@ -15,7 +15,6 @@ pub fn default_rosetta_config() -> RosettaConfig {
     RosettaConfig {
         node_url: format!("http://{}", DUMMY_NODE_BIND_ADDR),
         network: VALID_NETWORK.to_string(),
-        tx_tag: "rosetta".to_string(),
         bech32_hrp: "iota".to_string(),
         mode: RosettaMode::Online,
         bind_addr: "0.0.0.0:3030".to_string(),

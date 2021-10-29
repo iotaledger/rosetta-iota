@@ -1,10 +1,8 @@
-use crate::dummy_node::dummy_node::{start_dummy_node};
-use crate::config::{default_rosetta_config, VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_NETWORK, VALID_BECH32_ADDRESS_WITH_BALANCE, WRONG_BLOCKCHAIN, WRONG_ADDRESS_FORMAT};
+use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_NETWORK, VALID_BECH32_ADDRESS_WITH_BALANCE, WRONG_BLOCKCHAIN, WRONG_ADDRESS_FORMAT};
 use crate::{test_request, Request};
 
 use rosetta_iota_server::types::{NetworkIdentifier, AccountIdentifier};
 use rosetta_iota_server::data::account::balance::*;
-use rosetta_iota_server::error::ApiError;
 
 use serial_test::serial;
 
@@ -15,13 +13,10 @@ async fn valid_request() {
         network_identifier: NetworkIdentifier {
             blockchain: VALID_BLOCKCHAIN.to_string(),
             network: VALID_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
-            sub_account: None,
         },
-        block_identifier: None,
         currencies: None
     };
 
@@ -46,13 +41,10 @@ async fn wrong_blockchain() {
         network_identifier: NetworkIdentifier {
             blockchain: WRONG_BLOCKCHAIN.to_string(),
             network: VALID_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
-            sub_account: None,
         },
-        block_identifier: None,
         currencies: None
     };
 
@@ -67,13 +59,10 @@ async fn wrong_network() {
         network_identifier: NetworkIdentifier {
             blockchain: VALID_BLOCKCHAIN.to_string(),
             network: WRONG_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
-            sub_account: None,
         },
-        block_identifier: None,
         currencies: None
     };
 
@@ -88,13 +77,10 @@ async fn wrong_address_format() {
         network_identifier: NetworkIdentifier {
             blockchain: VALID_BLOCKCHAIN.to_string(),
             network: VALID_NETWORK.to_string(),
-            sub_network_identifier: None,
         },
         account_identifier: AccountIdentifier {
             address: WRONG_ADDRESS_FORMAT.to_string(),
-            sub_account: None,
         },
-        block_identifier: None,
         currencies: None
     };
 

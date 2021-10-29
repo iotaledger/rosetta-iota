@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    client::{build_client, get_latest_milestone, get_peers},
+    client::{build_client, get_confirmed_milestone, get_peers},
     config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{NetworkIdentifier, *},
 };
+use crate::client::get_pruning_index;
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-use crate::client::get_pruning_index;
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -44,8 +45,7 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
 
     let client = build_client(&rosetta_config).await?;
 
-    let latest_milestone = get_latest_milestone(&client).await?;
-    let current_block_timestamp = latest_milestone.timestamp * 1000;
+    let confirmed_milestone = get_confirmed_milestone(&client).await?;
     let oldest_block = get_pruning_index(&client).await? + 1;
 
     let mut peers = vec![];
@@ -55,26 +55,20 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
         });
     }
 
-    let current_block_identifier = BlockIdentifier {
-        index: latest_milestone.index,
-        hash: latest_milestone.index.to_string(),
-    };
-
-    let genesis_block_identifier = BlockIdentifier {
-        index: 1,
-        hash: 1.to_string(),
-    };
-
-    let oldest_block_identifier = BlockIdentifier {
-        index: oldest_block,
-        hash: oldest_block.to_string(),
-    };
-
     let response = NetworkStatusResponse {
-        current_block_identifier,
-        current_block_timestamp,
-        genesis_block_identifier,
-        oldest_block_identifier,
+        current_block_identifier: BlockIdentifier {
+            index: confirmed_milestone.index,
+            hash: confirmed_milestone.index.to_string(),
+        },
+        current_block_timestamp: confirmed_milestone.timestamp * 1000,
+        genesis_block_identifier: BlockIdentifier {
+            index: 1,
+            hash: 1.to_string(),
+        },
+        oldest_block_identifier: BlockIdentifier {
+            index: oldest_block,
+            hash: oldest_block.to_string(),
+        },
         peers,
     };
 
