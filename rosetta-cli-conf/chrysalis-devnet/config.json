@@ -1,7 +1,7 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "testnet7"
+    "network": "chrysalis-devnet"
   },
   "online_url": "http://localhost:3030",
   "data_directory": "rosetta-cli-db",

@@ -27,7 +27,7 @@ request_funds(1){
 
 create_account(1){
   create{
-    network = {"network":"testnet7", "blockchain":"iota"};
+    network = {"network":"chrysalis-devnet", "blockchain":"iota"};
     key = generate_key({"curve_type": "edwards25519"});
     account = derive({
       "network_identifier": {{network}},
@@ -45,9 +45,17 @@ create_account(1){
 transfer(1){
   transfer{
 
-    // This example shows how to send funds from an account A to an account B.
+    // This example shows how to send non-dust (>= 1_000_000 IOTA) from an account A to an account B.
+    // Furthermore it shows how to send dust (< 1_000_000 IOTA) to an account C.
+    // For an address to receive dust, the following must apply:
+    // An address can receive dust only if it has "sufficient space" for dust to receive.
+    // Space for dust can only be created by creating outputs of the type `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` for the address (that should receive dust).
+    // `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` can be created by the owner of the address or by the sender of dust.
+    // In this example, the sender is creating the `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` for the receiver address.
+    // Note: an address can only own a certain number of `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT`s.
+    // To learn more about the dust protection mechanism, see https://github.com/GalRogozinski/protocol-rfcs/blob/dust/text/0032-dust-protection/0032-dust-protection.md
 
-    transfer.network = {"network":"testnet7", "blockchain":"iota"};
+    transfer.network = {"network":"chrysalis-devnet", "blockchain":"iota"};
     currency = {"symbol":"IOTA", "decimals":0};
 
     // find sender
@@ -66,9 +74,30 @@ transfer(1){
       "right_value": {{available_balance}}
     });
 
+    // find dust receiver
+    dust_receiver = find_balance({
+      "not_account_identifier":[{{sender.account_identifier}}],
+      "minimum_balance":{
+        "value": "0",
+        "currency": {{currency}}
+      },
+      "create_limit": 100,
+      "create_probability": 50
+    });
+
+    dust_threshold = "1000000";
+    dust_receiver_amount = random_number({
+      "minimum": "0",
+      "maximum": {{dust_threshold}}
+    });
+    dust_allowance = "1000000";
+
+    available_balance = {{available_balance}} - {{dust_receiver_amount}};
+    available_balance = {{available_balance}} - {{dust_allowance}};
+
     // find receiver
     receiver = find_balance({
-      "not_account_identifier":[{{sender.account_identifier}}],
+      "not_account_identifier":[{{sender.account_identifier}}, {{dust_receiver.account_identifier}}],
       "minimum_balance":{
         "value": "0",
         "currency": {{currency}}
@@ -81,6 +110,7 @@ transfer(1){
 
     print_message({"sender":{{sender}}});
     print_message({"receiver":{{receiver}}});
+    print_message({"dust receiver":{{dust_receiver}}});
 
     transfer.confirmation_depth = "1";
     transfer.operations = [
@@ -108,6 +138,28 @@ transfer(1){
         "account":{{receiver.account_identifier}},
         "amount":{
           "value":{{receiver_amount}},
+          "currency":{{currency}}
+        }
+      },
+      {
+        "operation_identifier":{
+          "index":2
+        },
+        "type":"SIG_LOCKED_SINGLE_OUTPUT",
+        "account":{{dust_receiver.account_identifier}},
+        "amount":{
+          "value":{{dust_receiver_amount}},
+          "currency":{{currency}}
+        }
+      },
+      {
+        "operation_identifier":{
+          "index":3
+        },
+        "type":"SIG_LOCKED_DUST_ALLOWANCE_OUTPUT",
+        "account":{{dust_receiver.account_identifier}},
+        "amount":{
+          "value":{{dust_allowance}},
           "currency":{{currency}}
         }
       }

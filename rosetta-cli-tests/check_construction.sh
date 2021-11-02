@@ -54,7 +54,7 @@ if [ $BOOTSTRAP_BALANCES ]; then
 
   # create the bootstrap_balances.json file
   echo "Process the provided snapshots to create the bootstrap_balances.json file..."
-  RUST_BACKTRACE=1 cargo run -p rosetta-iota-snapshot --release -- --network $NETWORK --bech32-hrp $HRP
+  RUST_BACKTRACE=1 cargo run -p rosetta-iota-snapshot --release -- --bech32-hrp $HRP
   ROSETTA_UTILS_EXIT=$?
 
   if [ $ROSETTA_UTILS_EXIT -ne 0 ]; then
