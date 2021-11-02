@@ -48,7 +48,7 @@ pub struct Block {
     pub block_identifier: BlockIdentifier,
     pub parent_block_identifier: BlockIdentifier,
     pub timestamp: u64,
-    pub transactions: Vec<Transaction>,
+    pub transactions: Vec<BlockTransaction>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -146,7 +146,7 @@ pub struct SigningPayload {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct Transaction {
+pub struct BlockTransaction {
     pub transaction_identifier: TransactionIdentifier,
     pub operations: Vec<Operation>,
 }

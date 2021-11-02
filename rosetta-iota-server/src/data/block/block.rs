@@ -6,7 +6,7 @@ use crate::{
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     operations::*,
-    types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, Transaction, TransactionIdentifier},
+    types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, BlockTransaction, TransactionIdentifier},
 };
 use crate::client::{build_client, get_milestone, get_utxo_changes, get_output};
 
@@ -57,7 +57,7 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
         (Some(index), Some(hash)) => {
             let hash = hash.parse::<u32>().map_err(|_|ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string()))?;
             if index != hash {
-                return Err(ApiError::NonRetriable("block index does not related to provided block hash".to_string()));
+                return Err(ApiError::NonRetriable("block index does not relate to block hash".to_string()));
             } else {
                 index
             }
@@ -69,10 +69,6 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
 
     let client = build_client(&rosetta_config).await?;
 
-    let milestone = get_milestone(milestone_index, &client).await?;
-
-    let transactions = build_rosetta_transactions(milestone_index, &client, &rosetta_config).await?;
-
     let block = Block {
         block_identifier: BlockIdentifier {
             index: milestone_index,
@@ -82,11 +78,33 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
             index: milestone_index - 1,
             hash: (milestone_index - 1).to_string(),
         },
-        timestamp: milestone.timestamp * 1000,
-        transactions,
+        timestamp: get_milestone(milestone_index, &client).await?.timestamp * 1000,
+        transactions: build_block_transactions(milestone_index, &client, &rosetta_config).await?,
     };
 
     Ok(BlockResponse { block })
+}
+
+async fn build_block_transactions(
+    milestone_index: u32,
+    client: &Client,
+    rosetta_config: &RosettaConfig,
+) -> Result<Vec<BlockTransaction>, ApiError> {
+
+    let messages = messages_with_utxo_changes(milestone_index, &client).await?;
+
+    let mut transactions = Vec::new();
+
+    for (_message_id, message_info) in messages {
+        let transaction = match message_info.message.payload() {
+            Some(Payload::Transaction(t)) => from_transaction(t, client, rosetta_config).await?,
+            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, rosetta_config).await?,
+            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())),
+        };
+        transactions.push(transaction);
+    }
+
+    Ok(transactions)
 }
 
 struct MessageInfo {
@@ -99,7 +117,7 @@ struct CreatedOutput {
     pub output_response: OutputResponse,
 }
 
-async fn messages_from_utxo_changes(
+async fn messages_with_utxo_changes(
     milestone_index: u32,
     iota_client: &Client,
 ) -> Result<HashMap<MessageId, MessageInfo>, ApiError> {
@@ -147,33 +165,11 @@ async fn messages_from_utxo_changes(
     Ok(message_map)
 }
 
-async fn build_rosetta_transactions(
-    milestone_index: u32,
-    client: &Client,
-    rosetta_config: &RosettaConfig,
-) -> Result<Vec<Transaction>, ApiError> {
-
-    let messages = messages_from_utxo_changes(milestone_index, &client).await?;
-
-    let mut built_transactions = Vec::new();
-
-    for (_message_id, message_info) in messages {
-        let transaction = match message_info.message.payload() {
-            Some(Payload::Transaction(t)) => from_transaction(t, client, rosetta_config).await?,
-            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, rosetta_config).await?,
-            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())),
-        };
-        built_transactions.push(transaction);
-    }
-
-    Ok(built_transactions)
-}
-
 async fn from_transaction(
     transaction_payload: &TransactionPayload,
     iota_client: &Client,
     rosetta_config: &RosettaConfig,
-) -> Result<Transaction, ApiError> {
+) -> Result<BlockTransaction, ApiError> {
     let regular_essence = match transaction_payload.essence() {
         Essence::Regular(r) => r,
     };
@@ -183,7 +179,7 @@ async fn from_transaction(
     for input in regular_essence.inputs() {
         let utxo_input = match input {
             Input::Utxo(i) => i,
-            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())), // NOT SUPPORTED
+            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())),
         };
 
         let output_info = iota_client
@@ -240,7 +236,7 @@ async fn from_transaction(
         output_index += 1;
     }
 
-    let transaction = Transaction {
+    let transaction = BlockTransaction {
         transaction_identifier: TransactionIdentifier {
             hash: transaction_payload.id().to_string(),
         },
@@ -250,12 +246,12 @@ async fn from_transaction(
     Ok(transaction)
 }
 
-async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaConfig) -> Result<Transaction, ApiError> {
+async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaConfig) -> Result<BlockTransaction, ApiError> {
     let mut operations = Vec::new();
 
     for created_output in created_outputs {
         let output = Output::try_from(&created_output.output_response.output)
-            .map_err(|_| ApiError::NonRetriable("can not convert output".to_string()))?;
+            .map_err(|_| ApiError::NonRetriable("can not deserialize output".to_string()))?;
 
         let (amount, ed25519_address) = address_and_balance_of_output(&output).await?;
 
@@ -270,7 +266,7 @@ async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaC
         operations.push(mint_operation);
     }
 
-    let transaction = Transaction {
+    let transaction = BlockTransaction {
         transaction_identifier: TransactionIdentifier {
             hash: created_outputs.first().unwrap().output_id.transaction_id().to_string(),
         },
