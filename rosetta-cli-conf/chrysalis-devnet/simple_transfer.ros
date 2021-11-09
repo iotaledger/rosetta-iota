@@ -27,7 +27,7 @@ request_funds(1){
 
 create_account(1){
   create{
-    network = {"network":"chrysalis-devnet", "blockchain":"iota"};
+    network = set_variable({"network":"chrysalis-devnet", "blockchain":"iota"});
     key = generate_key({"curve_type": "edwards25519"});
     account = derive({
       "network_identifier": {{network}},
@@ -47,7 +47,7 @@ transfer(1){
 
     // This example shows how to send funds from an account A to an account B.
 
-    transfer.network = {"network":"chrysalis-devnet", "blockchain":"iota"};
+    transfer.network = set_variable({"network":"chrysalis-devnet", "blockchain":"iota"});
     currency = {"symbol":"IOTA", "decimals":0};
 
     // find sender
