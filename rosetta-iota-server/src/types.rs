@@ -237,6 +237,14 @@ pub struct Peer {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+pub struct SyncStatus {
+    pub current_index: u64,
+    pub target_index: u64,
+    pub synced: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Version {
     pub rosetta_version: String,
     pub node_version: String,
