@@ -113,6 +113,7 @@ pub async fn payloads(
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {
+            address: None,
             account_identifier: AccountIdentifier {
                 address,
             },
