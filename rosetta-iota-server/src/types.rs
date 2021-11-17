@@ -139,7 +139,8 @@ pub enum SignatureType {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SigningPayload {
-    pub address: String, // DEPRECIATED BUT IS NEEDED https://github.com/coinbase/rosetta-cli/issues/256
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<String>, // DEPRECIATED BUT IS NEEDED https://github.com/coinbase/rosetta-cli/issues/256
     pub account_identifier: AccountIdentifier,
     pub hex_bytes: String,
     pub signature_type: SignatureType,
