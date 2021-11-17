@@ -10,11 +10,14 @@ services:
       - "127.0.0.1:8081:8081/tcp"
       # node REST API
       - "127.0.0.1:14265:14265/tcp"
+      # node auto-peering protocol
+      - "0.0.0.0:14626:14626"
       # node gossip protocol
       - "0.0.0.0:15600:15600/tcp"
     expose:
       - "8081"
       - "14265"
+      - "14626"
       - "15600"
     volumes:
       - './hornet-conf/chrysalis-devnet/config.json:/app/config.json:ro'

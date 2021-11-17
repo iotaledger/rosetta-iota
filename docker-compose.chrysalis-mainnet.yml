@@ -10,7 +10,7 @@ services:
       - "127.0.0.1:8081:8081/tcp"
       # node REST API
       - "127.0.0.1:14265:14265/tcp"
-      # node gossip protocol
+      # gossip protocol
       - "0.0.0.0:15600:15600/tcp"
     expose:
       - "8081"
