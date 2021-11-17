@@ -11,7 +11,7 @@ services:
       # node REST API
       - "127.0.0.1:14265:14265/tcp"
       # node auto-peering protocol
-      - "0.0.0.0:14626:14626"
+      - "0.0.0.0:14626:14626/udp"
       # node gossip protocol
       - "0.0.0.0:15600:15600/tcp"
     expose:
