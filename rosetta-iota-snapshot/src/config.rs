@@ -1,9 +1,7 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use structopt::StructOpt;
-
-use std::str::FromStr;
 
 #[derive(Clone, Debug, StructOpt)]
 pub struct Config {
