@@ -2,12 +2,12 @@
 
 ## IOTA nodes
 
-**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet) and [Bee](https://github.com/iotaledger/bee)) are able to start up from a more recent block instead of having to synchronize from genesis. This can be achieved by bootstrapping the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
+**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet) and [Bee](https://github.com/iotaledger/bee)) are able to start up from a more recent block instead of having to synchronize from genesis. This is made possible by booting the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
 Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to bitcoin nodes that are running in pruning mode.
 
-In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) are optimized for storing IOTA history which dates back further and provide various tools for querying data.
+In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) are optimized for storing IOTA history which dates back further and provide special tools for querying data.
 
-`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. Therefore, **the Rosetta API implementation is deployed with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
+`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. Therefore, **the Rosetta API implementation is delivered with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
 
 ## Instructions
 
