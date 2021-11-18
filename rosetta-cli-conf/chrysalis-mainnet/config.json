@@ -23,12 +23,5 @@
         "from_tip": true
       }
     }
-  },
-  "construction": {
-    "constructor_dsl_file": "simple_transfer.ros",
-    "offline_url": "http://localhost:3030",
-    "end_conditions": {
-      "transfer": 1
-    }
   }
 }
