@@ -19,9 +19,9 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     ```
     cd rosetta-iota
     mkdir -p data/storage/chrysalis-mainnet && chown 65532:65532 data/storage/chrysalis-mainnet
-    mkdir -p data/storage/testnet7 && chown 65532:65532 data/storage/testnet7
+    mkdir -p data/storage/chrysalis-devnet && chown 65532:65532 data/storage/chrysalis-devnet
     mkdir -p data/snapshots/chrysalis-mainnet && chown 65532:65532 data/snapshots/chrysalis-mainnet
-    mkdir -p data/snapshots/testnet7 && chown 65532:65532 data/snapshots/testnet7
+    mkdir -p data/snapshots/chrysalis-devnet && chown 65532:65532 data/snapshots/chrysalis-devnet
     ```
 4) Optionally, if you want to reuse a preserved node ID with your HORNET node, copy the backup´ed `p2pstore` folder to the `data` directory and make sure that the correct permissions are set, e.g.:
     ```
@@ -29,7 +29,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     chown 65532:65532 data/p2pstore -R
     ```
    
-5) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `testnet7`, add the peers to the `hornet/testnet7/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
+5) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
 
     For better illustration, the `peering.json` file should then look like the following, for example:
     ```json
@@ -61,14 +61,14 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     MODE=offline docker-compose -f docker-compose.chrysalis-mainnet.yml up
     ```
     
-    **testnet7: online mode**
+    **chrysalis-devnet: online mode**
     ```
-    MODE=online docker-compose -f docker-compose.testnet7.yml up
+    MODE=online docker-compose -f docker-compose.chrysalis-devnet.yml up
     ```
     
-    **testnet7: offline mode**
+    **chrysalis-devnet: offline mode**
     ```
-    MODE=offline docker-compose -f docker-compose.testnet7.yml up
+    MODE=offline docker-compose -f docker-compose.chrysalis-devnet.yml up
     ```
 
 7) If you want to reuse the node ID of your HORNET node with a later deployment make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
@@ -82,5 +82,5 @@ The health status of the HORNET node can be checked at: http://localhost:14265/a
 
 ## Further notes:
 
-The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. **For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `testnet7`, the snapshots will be automatically downloaded from https://dbfiles.testnet.chrysalis2.com. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.**
+The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. **For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `chrysalis-devnet`, the snapshots will be automatically downloaded from http://dbfiles.chrysalis-devnet.iota.cafe. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.**
 
