@@ -24,7 +24,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     mkdir -p data/snapshots/chrysalis-devnet && chown 65532:65532 data/snapshots/chrysalis-devnet
     mkdir -p data/p2pstore && chown 65532:65532 data/p2pstore
    ```
-4) Optionally: if you want your node to use an already existing node ID, replace the `data/p2pstore` folder accordingly and make sure that the correct permissions are set:
+4) **Optionally**: if you want your node to use an already existing node ID, replace the `data/p2pstore` folder accordingly and make sure that the correct permissions are set:
     ```
     chown 65532:65532 data/p2pstore -R
     ```
@@ -47,7 +47,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
    }
    ```
    
-    Also, make sure that your peers know the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **address where you deploy the implementation and the node ID**. You can find your node ID in the HORNET logs when you start the implementation.
+    Also, make sure that your peers know the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **address where you deploy the implementation and the node ID**. You can find your node ID in the HORNET logs when you run the implementation.
     
 6) Run the implementation in the desired mode:
 
