@@ -22,13 +22,13 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     mkdir -p data/storage/chrysalis-devnet && chown 65532:65532 data/storage/chrysalis-devnet
     mkdir -p data/snapshots/chrysalis-mainnet && chown 65532:65532 data/snapshots/chrysalis-mainnet
     mkdir -p data/snapshots/chrysalis-devnet && chown 65532:65532 data/snapshots/chrysalis-devnet
+    mkdir -p data/p2pstore && chown 65532:65532 data/p2pstore
+   ```
+4) Optionally: if you want your node to use an already existing node ID, replace the `data/p2pstore` folder accordingly and make sure that the correct permissions are set:
     ```
-4) Optionally, if you want to reuse a preserved node ID with your HORNET node, copy the backup´ed `p2pstore` folder to the `data` directory and make sure that the correct permissions are set, e.g.:
-    ```
-    cp -r ../p2pstore data
     chown 65532:65532 data/p2pstore -R
     ```
-   
+ 
 5) Add your peer(s) - to which your HORNET node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
 
     For better illustration, the `peering.json` file should then look like the following, for example:
@@ -71,7 +71,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
     MODE=offline docker-compose -f docker-compose.chrysalis-devnet.yml up
     ```
 
-7) If you want to reuse the node ID of your HORNET node with a later deployment make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
+7) If you want to reuse the node ID of your HORNET node with a later deployment (**see step 4.**) make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 You can back up your node ID by preserving the `data/p2pstore` directory.
 
 Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
