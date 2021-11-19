@@ -2,7 +2,11 @@
 
 The provided scripts `check_data.sh` and `check_construction.sh` do set up rosetta-cli. They start rosetta-cli and make sure that rosetta-cli runs with the correct settings.
 
-1) To be able to run the testing scripts, make sure you have **the latest version of [Rust](https://www.rust-lang.org/tools/install) installed.** **Also make sure [jq](https://wiki.ubuntuusers.de/jq/) is installed.**
+1) To be able to run the testing scripts, make sure that the following is installed:
+    - latest version of [Rust](https://www.rust-lang.org/tools/install)
+    - [jq](https://stedolan.github.io/jq/)
+    - [curl](https://curl.se/download.html)
+
 2) Before continuing with the next step, make sure that the supplied HORNET node is running for the correct network and is fully synchronized with the network. Also make sure that an instance of the Rosetta API is available.
 3) Switch to the `rosetta-cli-tests/` directory.
 4) Start your desired rosetta-cli test:
