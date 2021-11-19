@@ -1,9 +1,9 @@
 # Deployment
 
-## IOTA nodes
+## About IOTA nodes
 
 **IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet) and [Bee](https://github.com/iotaledger/bee)) are able to start up from a more recent block instead of having to synchronize from genesis. This is made possible by booting the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
-Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to bitcoin nodes that are running in pruning mode.
+Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to nodes in the Bitcoin network that are running in pruning mode.
 
 In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) are optimized for storing IOTA history which dates back further and provide special tools for querying data.
 
@@ -74,8 +74,8 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 7) If you want to reuse the node ID of your HORNET node with a later deployment (**see step 4.**) make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 You can back up your node ID by preserving the `data/p2pstore` directory.
 
-Once the HORNET node has synced with the network, the Rosetta API will be available at: http://localhost:3030
-The health status of the HORNET node can be checked at: http://localhost:14265/api/v1/info
+Once the HORNET node has synced with the network, the Rosetta API will be available at: http://127.0.0.1:3030
+The health status of the HORNET node can be checked at: http://127.0.0.1:14265/api/v1/info
 
 #### Environment variables:
 - `MODE` ... the mode in which the implementation is to run. Can be either `offline` or `online`.
