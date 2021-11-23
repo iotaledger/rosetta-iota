@@ -42,9 +42,7 @@ pub async fn combine(
 
     let unsigned_transaction = deserialize_unsigned_transaction(&request.unsigned_transaction);
 
-    let regular_essence = match &unsigned_transaction.essence() {
-        Essence::Regular(r) => r,
-    };
+    let Essence::Regular(regular_essence) = &unsigned_transaction.essence();
 
     if regular_essence.inputs().len() != request.signatures.len() {
         return Err(ApiError::NonRetriable(

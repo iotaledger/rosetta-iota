@@ -212,7 +212,7 @@ async fn from_transaction(
         ));
     }
 
-    for (output_index, output) in regular_essence.outputs().into_iter().enumerate() {
+    for (output_index, output) in regular_essence.outputs().iter().enumerate() {
         let output_id = {
             let s = format!(
                 "{}{}",
@@ -226,13 +226,13 @@ async fn from_transaction(
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&rosetta_config.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr)).to_bech32(&rosetta_config.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&rosetta_config.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr)).to_bech32(&rosetta_config.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },

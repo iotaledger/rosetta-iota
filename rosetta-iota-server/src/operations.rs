@@ -49,7 +49,7 @@ pub fn utxo_input_operation(
 
     let amount = Amount {
         value: match consumed {
-            true => (amount as i64 * -1).to_string(),
+            true => (-(amount as i64)).to_string(),
             false => amount.to_string(),
         },
         currency: iota_currency(),

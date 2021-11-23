@@ -41,7 +41,7 @@ pub async fn payloads(
     for operation in request.operations {
         let address = operation
             .account
-            .ok_or(ApiError::NonRetriable("account not populated".to_string()))?
+            .ok_or_else(|| ApiError::NonRetriable("account not populated".to_string()))
             .address;
 
         match &operation.type_[..] {
