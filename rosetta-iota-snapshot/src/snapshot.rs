@@ -36,7 +36,7 @@ pub async fn balances_from_snapshot(config: &Config) {
     };
 
     save_sep_index(sep_index).await;
-    save_balance_diffs(balance_diffs, &config).await;
+    save_balance_diffs(balance_diffs, config).await;
 }
 
 async fn import_milestone_diffs<R: Read>(

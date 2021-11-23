@@ -26,7 +26,7 @@ async fn valid_request() {
     assert_eq!("1.0.5", response.version.node_version);
 
     assert_eq!("Success", response.allow.operation_statuses[0].status);
-    assert_eq!(true, response.allow.operation_statuses[0].successful);
+    assert!(response.allow.operation_statuses[0].successful);
 
     assert_eq!("INPUT", response.allow.operation_types[0]);
     assert_eq!("SIG_LOCKED_SINGLE_OUTPUT", response.allow.operation_types[1]);
@@ -34,8 +34,8 @@ async fn valid_request() {
 
     assert_eq!(1, response.allow.errors[0].code);
     assert_eq!("non retriable error", response.allow.errors[0].message);
-    assert_eq!(false, response.allow.errors[0].retriable);
-    assert_eq!(false, response.allow.errors[0].details.is_some());
+    assert!(!response.allow.errors[0].retriable);
+    assert!(!response.allow.errors[0].details.is_some());
 }
 
 #[tokio::test]
