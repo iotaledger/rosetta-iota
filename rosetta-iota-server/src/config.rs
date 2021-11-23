@@ -35,4 +35,3 @@ impl FromStr for RosettaMode {
         }
     }
 }
-

@@ -2,18 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    client::{build_client, get_output, get_unspent_outputs_of_address},
     config::RosettaConfig,
     consts::iota_currency,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{AccountIdentifier, NetworkIdentifier, *},
 };
-use crate::client::{build_client, get_unspent_outputs_of_address, get_output};
 
-use bee_message::milestone::MilestoneIndex;
-use bee_message::output::OutputId;
-use bee_rest_api::types::dtos::{AddressDto, OutputDto};
-use bee_rest_api::types::responses::{OutputResponse, OutputsAddressResponse};
+use bee_message::{milestone::MilestoneIndex, output::OutputId};
+use bee_rest_api::types::{
+    dtos::{AddressDto, OutputDto},
+    responses::{OutputResponse, OutputsAddressResponse},
+};
 
 use iota_client::Client;
 
@@ -37,7 +38,10 @@ pub struct AccountCoinsResponse {
     pub coins: Vec<Coin>,
 }
 
-pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: RosettaConfig) -> Result<AccountCoinsResponse, ApiError> {
+pub async fn account_coins(
+    request: AccountCoinsRequest,
+    rosetta_config: RosettaConfig,
+) -> Result<AccountCoinsResponse, ApiError> {
     debug!("/account/coins");
 
     if is_wrong_network(&rosetta_config, &request.network_identifier) {
@@ -51,12 +55,11 @@ pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: Rosetta
     }
 
     if request.include_mempool {
-        return Err(ApiError::NonRetriable(
-            "mempool coins are not supported".to_string(),
-        ));
+        return Err(ApiError::NonRetriable("mempool coins are not supported".to_string()));
     }
 
-    let (outputs, ledger_index) = address_outputs_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
+    let (outputs, ledger_index) =
+        address_outputs_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
 
     let mut coins = Vec::new();
     for (output_id, output_response) in outputs {
@@ -67,11 +70,13 @@ pub async fn account_coins(request: AccountCoinsRequest, rosetta_config: Rosetta
             OutputDto::SignatureLockedDustAllowance(r) => match r.address {
                 AddressDto::Ed25519(_) => r.amount,
             },
-            _ => unimplemented!()
+            _ => unimplemented!(),
         };
 
         coins.push(Coin {
-            coin_identifier: CoinIdentifier { identifier: output_id.to_string() },
+            coin_identifier: CoinIdentifier {
+                identifier: output_id.to_string(),
+            },
             amount: Amount {
                 value: amount.to_string(),
                 currency: iota_currency(),
@@ -95,7 +100,6 @@ async fn address_outputs_with_ledger_index(
     let client: Client = build_client(options).await?;
 
     loop {
-
         let outputs_address_response: OutputsAddressResponse = get_unspent_outputs_of_address(address, &client).await?;
         let mut output_responses = HashMap::new();
 
@@ -117,10 +121,9 @@ async fn address_outputs_with_ledger_index(
         }
 
         if try_again {
-            continue
+            continue;
         } else {
-            break Ok((output_responses, MilestoneIndex(outputs_address_response.ledger_index)))
+            break Ok((output_responses, MilestoneIndex(outputs_address_response.ledger_index)));
         }
     }
-
 }

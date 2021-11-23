@@ -93,9 +93,7 @@ async fn parse_signed_transaction(
                 let SignatureUnlock::Ed25519(signature) = s;
                 let bech32_addr =
                     address_from_public_key(&hex::encode(signature.public_key()))?.to_bech32(&options.bech32_hrp);
-                accounts_identifiers.push(AccountIdentifier {
-                    address: bech32_addr,
-                });
+                accounts_identifiers.push(AccountIdentifier { address: bech32_addr });
             }
         }
         accounts_identifiers
@@ -103,7 +101,7 @@ async fn parse_signed_transaction(
 
     Ok(ConstructionParseResponse {
         operations,
-        account_identifier_signers: Some(account_identifier_signers)
+        account_identifier_signers: Some(account_identifier_signers),
     })
 }
 
@@ -163,7 +161,6 @@ async fn essence_to_operations(
                     let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
-
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {

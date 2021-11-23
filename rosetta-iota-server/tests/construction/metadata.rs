@@ -2,6 +2,4 @@ use serial_test::serial;
 
 #[tokio::test]
 #[serial]
-async fn valid_request() {
-
-}
+async fn valid_request() {}

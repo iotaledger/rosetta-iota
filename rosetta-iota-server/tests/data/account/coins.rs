@@ -1,8 +1,15 @@
-use crate::{Request, test_request};
-use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, VALID_BECH32_ADDRESS_WITH_BALANCE, WRONG_NETWORK, WRONG_BLOCKCHAIN, WRONG_ADDRESS_FORMAT};
+use crate::{
+    config::{
+        VALID_BECH32_ADDRESS_WITH_BALANCE, VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_ADDRESS_FORMAT, WRONG_BLOCKCHAIN,
+        WRONG_NETWORK,
+    },
+    test_request, Request,
+};
 
-use rosetta_iota_server::types::{NetworkIdentifier, AccountIdentifier};
-use rosetta_iota_server::data::account::coins::*;
+use rosetta_iota_server::{
+    data::account::coins::*,
+    types::{AccountIdentifier, NetworkIdentifier},
+};
 
 use serial_test::serial;
 
@@ -17,16 +24,16 @@ async fn valid_request() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        include_mempool: false
+        include_mempool: false,
     };
 
-    let response = test_request(Request::AccountCoins(request)).await.unwrap_account_coins_response().unwrap();
+    let response = test_request(Request::AccountCoins(request))
+        .await
+        .unwrap_account_coins_response()
+        .unwrap();
 
     assert_eq!(1438495, response.block_identifier.index);
-    assert_eq!(
-        "1438495",
-        response.block_identifier.hash
-    );
+    assert_eq!("1438495", response.block_identifier.hash);
     assert_eq!(1, response.coins.len());
     assert_eq!("20651169480", response.coins[0].amount.value);
     assert_eq!(
@@ -47,10 +54,13 @@ async fn wrong_blockchain() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        include_mempool: false
+        include_mempool: false,
     };
 
-    test_request(Request::AccountCoins(request)).await.unwrap_account_coins_response().unwrap();
+    test_request(Request::AccountCoins(request))
+        .await
+        .unwrap_account_coins_response()
+        .unwrap();
 }
 
 #[tokio::test]
@@ -65,10 +75,13 @@ async fn wrong_network() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        include_mempool: false
+        include_mempool: false,
     };
 
-    test_request(Request::AccountCoins(request)).await.unwrap_account_coins_response().unwrap();
+    test_request(Request::AccountCoins(request))
+        .await
+        .unwrap_account_coins_response()
+        .unwrap();
 }
 
 #[tokio::test]
@@ -83,8 +96,11 @@ async fn wrong_address_format() {
         account_identifier: AccountIdentifier {
             address: WRONG_ADDRESS_FORMAT.to_string(),
         },
-        include_mempool: false
+        include_mempool: false,
     };
 
-    test_request(Request::AccountCoins(request)).await.unwrap_account_coins_response().unwrap();
+    test_request(Request::AccountCoins(request))
+        .await
+        .unwrap_account_coins_response()
+        .unwrap();
 }

@@ -7,7 +7,8 @@ use serial_test::serial;
 #[tokio::test]
 #[serial]
 async fn valid_request() {
-    let request: ConstructionDeriveRequest = serde_json::from_str(r#"
+    let request: ConstructionDeriveRequest = serde_json::from_str(
+        r#"
         {
            "network_identifier":{
               "blockchain":"iota",
@@ -18,7 +19,9 @@ async fn valid_request() {
               "curve_type":"edwards25519"
            }
         }
-    "#).unwrap();
+    "#,
+    )
+    .unwrap();
 
     let response = test_request(Request::ConstructionDerive(request))
         .await

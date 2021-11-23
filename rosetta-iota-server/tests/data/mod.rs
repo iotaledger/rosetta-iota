@@ -1,3 +1,3 @@
 mod account;
-mod network;
 mod block;
+mod network;

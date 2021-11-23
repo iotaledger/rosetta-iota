@@ -1,7 +1,11 @@
-use tokio::sync::oneshot;
-use tokio::sync::oneshot::{Sender, Receiver};
+use tokio::{
+    sync::{
+        oneshot,
+        oneshot::{Receiver, Sender},
+    },
+    time::Duration,
+};
 use warp::Filter;
-use tokio::time::Duration;
 
 use crate::config::DUMMY_NODE_BIND_ADDR;
 
@@ -13,10 +17,7 @@ pub async fn start_dummy_node() -> DummyNodeHandle {
     tokio::task::spawn(run_server(shutdown_rx, return_tx));
     // sleep some time to make sure the dummy node is up
     tokio::time::sleep(Duration::from_millis(100)).await;
-    DummyNodeHandle {
-        shutdown_tx,
-        return_rx
-    }
+    DummyNodeHandle { shutdown_tx, return_rx }
 }
 
 pub struct DummyNodeHandle {
@@ -26,7 +27,9 @@ pub struct DummyNodeHandle {
 
 impl DummyNodeHandle {
     pub async fn shutdown(self) {
-        self.shutdown_tx.send(()).expect("can not send shutdown signal to dummy node");
+        self.shutdown_tx
+            .send(())
+            .expect("can not send shutdown signal to dummy node");
         self.return_rx.await.expect("can not wait for the dummy node to return")
     }
 }
@@ -92,8 +95,8 @@ async fn run_server(shutdown_rx: Receiver<()>, return_tx: Sender<()>) {
         }
     });
 
-    let routes = info
-        .or(address.or(address_outputs.or(outputs.or(milestones.or(peers.or(utxo_changes.or(messages)))))));
+    let routes =
+        info.or(address.or(address_outputs.or(outputs.or(milestones.or(peers.or(utxo_changes.or(messages)))))));
 
     println!("binding dummy node at {}", bind_addr.to_string());
 
@@ -107,4 +110,3 @@ async fn run_server(shutdown_rx: Receiver<()>, return_tx: Sender<()>) {
 
     let _ = return_tx.send(());
 }
-

@@ -1,8 +1,15 @@
-use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_NETWORK, VALID_BECH32_ADDRESS_WITH_BALANCE, WRONG_BLOCKCHAIN, WRONG_ADDRESS_FORMAT};
-use crate::{test_request, Request};
+use crate::{
+    config::{
+        VALID_BECH32_ADDRESS_WITH_BALANCE, VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_ADDRESS_FORMAT, WRONG_BLOCKCHAIN,
+        WRONG_NETWORK,
+    },
+    test_request, Request,
+};
 
-use rosetta_iota_server::types::{NetworkIdentifier, AccountIdentifier};
-use rosetta_iota_server::data::account::balance::*;
+use rosetta_iota_server::{
+    data::account::balance::*,
+    types::{AccountIdentifier, NetworkIdentifier},
+};
 
 use serial_test::serial;
 
@@ -17,16 +24,16 @@ async fn valid_request() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        currencies: None
+        currencies: None,
     };
 
-    let response = test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+    let response = test_request(Request::AccountBalance(request))
+        .await
+        .unwrap_account_balance_response()
+        .unwrap();
 
     assert_eq!(1438441, response.block_identifier.index);
-    assert_eq!(
-        "1438441",
-        response.block_identifier.hash
-    );
+    assert_eq!("1438441", response.block_identifier.hash);
     assert_eq!(1, response.balances.len());
     assert_eq!("IOTA", response.balances[0].currency.symbol);
     assert_eq!(0, response.balances[0].currency.decimals);
@@ -45,10 +52,13 @@ async fn wrong_blockchain() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        currencies: None
+        currencies: None,
     };
 
-    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+    test_request(Request::AccountBalance(request))
+        .await
+        .unwrap_account_balance_response()
+        .unwrap();
 }
 
 #[tokio::test]
@@ -63,10 +73,13 @@ async fn wrong_network() {
         account_identifier: AccountIdentifier {
             address: VALID_BECH32_ADDRESS_WITH_BALANCE.to_string(),
         },
-        currencies: None
+        currencies: None,
     };
 
-    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+    test_request(Request::AccountBalance(request))
+        .await
+        .unwrap_account_balance_response()
+        .unwrap();
 }
 
 #[tokio::test]
@@ -81,9 +94,11 @@ async fn wrong_address_format() {
         account_identifier: AccountIdentifier {
             address: WRONG_ADDRESS_FORMAT.to_string(),
         },
-        currencies: None
+        currencies: None,
     };
 
-    test_request(Request::AccountBalance(request)).await.unwrap_account_balance_response().unwrap();
+    test_request(Request::AccountBalance(request))
+        .await
+        .unwrap_account_balance_response()
+        .unwrap();
 }
-

@@ -1,8 +1,9 @@
-use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_BLOCKCHAIN, WRONG_NETWORK};
-use crate::{test_request, Request};
+use crate::{
+    config::{VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_BLOCKCHAIN, WRONG_NETWORK},
+    test_request, Request,
+};
 
-use rosetta_iota_server::data::network::options::{NetworkOptionsRequest};
-use rosetta_iota_server::types::NetworkIdentifier;
+use rosetta_iota_server::{data::network::options::NetworkOptionsRequest, types::NetworkIdentifier};
 
 use serial_test::serial;
 
@@ -16,7 +17,10 @@ async fn valid_request() {
         },
     };
 
-    let response = test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
+    let response = test_request(Request::NetworkOptions(request))
+        .await
+        .unwrap_network_options_response()
+        .unwrap();
 
     assert_eq!("1.4.10", response.version.rosetta_version);
     assert_eq!("1.0.5", response.version.node_version);
@@ -45,7 +49,10 @@ async fn wrong_blockchain() {
         },
     };
 
-    test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
+    test_request(Request::NetworkOptions(request))
+        .await
+        .unwrap_network_options_response()
+        .unwrap();
 }
 
 #[tokio::test]
@@ -59,5 +66,8 @@ async fn wrong_network() {
         },
     };
 
-    test_request(Request::NetworkOptions(request)).await.unwrap_network_options_response().unwrap();
+    test_request(Request::NetworkOptions(request))
+        .await
+        .unwrap_network_options_response()
+        .unwrap();
 }

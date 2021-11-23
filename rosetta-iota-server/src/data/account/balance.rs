@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    client::{build_client, get_balance_of_address},
     config::RosettaConfig,
     consts::iota_currency,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
-    types::{AccountIdentifier, Amount, BlockIdentifier, NetworkIdentifier},
+    types::{AccountIdentifier, Amount, BlockIdentifier, Currency, NetworkIdentifier},
 };
-use crate::client::{build_client, get_balance_of_address};
-use crate::types::Currency;
 
 use bee_message::milestone::MilestoneIndex;
 
@@ -53,13 +52,14 @@ pub async fn account_balance(
         for currency in currencies {
             if !currency.eq(&iota_currency()) {
                 return Err(ApiError::NonRetriable(
-                    "invalid currency provided: only `IOTA` currency supported".to_string()
+                    "invalid currency provided: only `IOTA` currency supported".to_string(),
                 ));
             }
         }
     }
 
-    let (amount, ledger_index) = address_balance_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
+    let (amount, ledger_index) =
+        address_balance_with_ledger_index(&request.account_identifier.address, &rosetta_config).await?;
 
     Ok(AccountBalanceResponse {
         block_identifier: BlockIdentifier {
@@ -70,7 +70,10 @@ pub async fn account_balance(
     })
 }
 
-async fn address_balance_with_ledger_index(address: &str, options: &RosettaConfig) -> Result<(Amount, MilestoneIndex), ApiError> {
+async fn address_balance_with_ledger_index(
+    address: &str,
+    options: &RosettaConfig,
+) -> Result<(Amount, MilestoneIndex), ApiError> {
     let client = build_client(options).await?;
 
     let balance_response = get_balance_of_address(address, &client).await?;

@@ -1,5 +1,4 @@
-use rosetta_iota_server::RosettaConfig;
-use rosetta_iota_server::config::RosettaMode;
+use rosetta_iota_server::{config::RosettaMode, RosettaConfig};
 
 pub const DUMMY_NODE_BIND_ADDR: &str = "127.0.0.1:12345";
 

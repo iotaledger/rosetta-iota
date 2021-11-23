@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    client::{build_client, get_milestone, get_output, get_utxo_changes},
     config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     operations::*,
-    types::{Block, BlockIdentifier, NetworkIdentifier, PartialBlockIdentifier, BlockTransaction, TransactionIdentifier},
+    types::{
+        Block, BlockIdentifier, BlockTransaction, NetworkIdentifier, PartialBlockIdentifier, TransactionIdentifier,
+    },
 };
-use crate::client::{build_client, get_milestone, get_utxo_changes, get_output};
 
 use bee_message::{
     payload::transaction::Essence,
@@ -52,19 +54,29 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
             "endpoint does not support offline mode".to_string(),
         ));
     }
-    
+
     let milestone_index = match (request.block_identifier.index, request.block_identifier.hash) {
         (Some(index), Some(hash)) => {
-            let hash = hash.parse::<u32>().map_err(|_|ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string()))?;
+            let hash = hash.parse::<u32>().map_err(|_| {
+                ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string())
+            })?;
             if index != hash {
-                return Err(ApiError::NonRetriable("block index does not relate to block hash".to_string()));
+                return Err(ApiError::NonRetriable(
+                    "block index does not relate to block hash".to_string(),
+                ));
             } else {
                 index
             }
-        },
+        }
         (Some(index), None) => index,
-        (None, Some(hash)) => hash.parse::<u32>().map_err(|_| ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string()))?,
-        (None, None) => return Err(ApiError::NonRetriable("either block index or block hash must be set".to_string())),
+        (None, Some(hash)) => hash.parse::<u32>().map_err(|_| {
+            ApiError::NonRetriable("invalid block hash: can not parse milestone index from string".to_string())
+        })?,
+        (None, None) => {
+            return Err(ApiError::NonRetriable(
+                "either block index or block hash must be set".to_string(),
+            ));
+        }
     };
 
     let client = build_client(&rosetta_config).await?;
@@ -90,7 +102,6 @@ async fn build_block_transactions(
     client: &Client,
     rosetta_config: &RosettaConfig,
 ) -> Result<Vec<BlockTransaction>, ApiError> {
-
     let messages = messages_with_utxo_changes(milestone_index, client).await?;
 
     let mut transactions = Vec::new();
@@ -241,7 +252,10 @@ async fn from_transaction(
     Ok(transaction)
 }
 
-async fn from_milestone(created_outputs: &[CreatedOutput], options: &RosettaConfig) -> Result<BlockTransaction, ApiError> {
+async fn from_milestone(
+    created_outputs: &[CreatedOutput],
+    options: &RosettaConfig,
+) -> Result<BlockTransaction, ApiError> {
     let mut operations = Vec::new();
 
     for created_output in created_outputs {

@@ -45,9 +45,7 @@ pub fn utxo_input_operation(
     consumed: bool,
     online: bool,
 ) -> Operation {
-    let account = AccountIdentifier {
-        address,
-    };
+    let account = AccountIdentifier { address };
 
     let amount = Amount {
         value: match consumed {
@@ -88,9 +86,7 @@ pub fn utxo_output_operation(
     online: bool,
     output_id: Option<OutputId>,
 ) -> Operation {
-    let account = AccountIdentifier {
-        address,
-    };
+    let account = AccountIdentifier { address };
 
     let amount = Amount {
         value: amount.to_string(),
@@ -125,9 +121,7 @@ pub fn dust_allowance_output_operation(
     online: bool,
     output_id: Option<OutputId>,
 ) -> Operation {
-    let account = AccountIdentifier {
-        address,
-    };
+    let account = AccountIdentifier { address };
 
     let amount = Amount {
         value: amnt.to_string(),
@@ -154,5 +148,3 @@ pub fn dust_allowance_output_operation(
         }),
     }
 }
-
-

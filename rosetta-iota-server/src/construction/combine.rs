@@ -58,10 +58,7 @@ pub async fn combine(
 
     for signature in request.signatures {
         // get address for which the signature was produced
-        let bech32_addr = signature
-            .signing_payload
-            .account_identifier
-            .address;
+        let bech32_addr = signature.signing_payload.account_identifier.address;
 
         // check if a Signature Unlock Block already was added for the address
         if let Some(index) = index_of_signature_unlock_block_with_address.get(&bech32_addr) {

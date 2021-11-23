@@ -3,10 +3,8 @@
 
 use crate::{
     construction::{
-        combine::combine, derive::derive, hash::hash,
-        metadata::metadata, parse::parse,
-        payloads::payloads, preprocess::preprocess,
-        submit::submit,
+        combine::combine, derive::derive, hash::hash, metadata::metadata, parse::parse, payloads::payloads,
+        preprocess::preprocess, submit::submit,
     },
     filters::{handle, with_rosetta_config},
     types::{SignedTransaction, UnsignedTransaction},

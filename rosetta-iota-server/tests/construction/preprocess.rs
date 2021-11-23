@@ -7,7 +7,8 @@ use serial_test::serial;
 #[tokio::test]
 #[serial]
 async fn valid_request() {
-    let request: ConstructionPreprocessRequest = serde_json::from_str(r#"
+    let request: ConstructionPreprocessRequest = serde_json::from_str(
+        r#"
         {
            "network_identifier":{
               "blockchain":"iota",
@@ -87,7 +88,9 @@ async fn valid_request() {
               }
            ]
         }
-    "#).unwrap();
+    "#,
+    )
+    .unwrap();
 
     let response = test_request(Request::ConstructionPreprocess(request))
         .await

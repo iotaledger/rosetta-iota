@@ -114,9 +114,7 @@ pub async fn payloads(
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {
             address: None,
-            account_identifier: AccountIdentifier {
-                address,
-            },
+            account_identifier: AccountIdentifier { address },
             hex_bytes: hex::encode(&hash_to_sign),
             signature_type: SignatureType::Edwards25519,
         });

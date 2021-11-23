@@ -2,17 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    client::{build_client, get_confirmed_milestone, get_peers},
+    client::{build_client, get_confirmed_milestone, get_latest_milestone_index, get_peers, get_pruning_index},
     config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{NetworkIdentifier, *},
 };
-use crate::client::{get_pruning_index, get_latest_milestone_index};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -31,7 +29,10 @@ pub struct NetworkStatusResponse {
     pub peers: Vec<Peer>,
 }
 
-pub async fn network_status(request: NetworkStatusRequest, rosetta_config: RosettaConfig) -> Result<NetworkStatusResponse, ApiError> {
+pub async fn network_status(
+    request: NetworkStatusRequest,
+    rosetta_config: RosettaConfig,
+) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
     if is_wrong_network(&rosetta_config, &request.network_identifier) {
@@ -52,9 +53,7 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
 
     let mut peers = vec![];
     for peer in get_peers(&client).await? {
-        peers.push(Peer {
-            peer_id: peer.id,
-        });
+        peers.push(Peer { peer_id: peer.id });
     }
 
     let response = NetworkStatusResponse {
@@ -74,7 +73,7 @@ pub async fn network_status(request: NetworkStatusRequest, rosetta_config: Roset
         sync_status: SyncStatus {
             current_index: confirmed_milestone.index as u64,
             target_index: latest_milestone_index as u64,
-            synced: latest_milestone_index - confirmed_milestone.index == 0
+            synced: latest_milestone_index - confirmed_milestone.index == 0,
         },
         peers,
     };

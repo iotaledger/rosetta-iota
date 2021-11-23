@@ -9,7 +9,9 @@ use warp::Filter;
 
 use std::{convert::Infallible, future::Future};
 
-pub fn with_rosetta_config(options: RosettaConfig) -> impl Filter<Extract = (RosettaConfig,), Error = Infallible> + Clone {
+pub fn with_rosetta_config(
+    options: RosettaConfig,
+) -> impl Filter<Extract = (RosettaConfig,), Error = Infallible> + Clone {
     warp::any().map(move || options.clone())
 }
 

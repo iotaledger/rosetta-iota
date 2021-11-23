@@ -36,8 +36,9 @@ pub async fn derive(
     let public_key_bytes = hex::decode(request.public_key.hex_bytes)
         .map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
     let public_key_hash = Blake2b256::digest(&public_key_bytes);
-    
-    let bech32_address = Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&rosetta_config.bech32_hrp);
+
+    let bech32_address =
+        Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&rosetta_config.bech32_hrp);
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier {
