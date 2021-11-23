@@ -109,15 +109,12 @@ pub fn utxo_output_operation(
         },
         account: Some(account),
         amount: Some(amount),
-        coin_change: match output_id {
-            Some(output_id) => Some(CoinChange {
-                coin_identifier: CoinIdentifier {
-                    identifier: output_id.to_string(),
-                },
-                coin_action: CoinAction::CoinCreated,
-            }),
-            None => None,
-        },
+        coin_change: output_id.map(|output_id| CoinChange {
+            coin_identifier: CoinIdentifier {
+                identifier: output_id.to_string(),
+            },
+            coin_action: CoinAction::CoinCreated,
+        }),
     }
 }
 
@@ -149,14 +146,13 @@ pub fn dust_allowance_output_operation(
         },
         account: Some(account),
         amount: Some(amount),
-        coin_change: match output_id {
-            Some(output_id) => Some(CoinChange {
-                coin_identifier: CoinIdentifier {
-                    identifier: output_id.to_string(),
-                },
-                coin_action: CoinAction::CoinCreated,
-            }),
-            None => None,
-        },
+        coin_change: output_id.map(|output_id| CoinChange {
+            coin_identifier: CoinIdentifier {
+                identifier: output_id.to_string(),
+            },
+            coin_action: CoinAction::CoinCreated,
+        }),
     }
 }
+
+

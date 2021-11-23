@@ -22,6 +22,6 @@ pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply,
         )
         .or(warp::path!("account" / "coins")
             .and(warp::body::json())
-            .and(with_rosetta_config(options.clone()))
+            .and(with_rosetta_config(options))
             .and_then(handle(account_coins)))
 }

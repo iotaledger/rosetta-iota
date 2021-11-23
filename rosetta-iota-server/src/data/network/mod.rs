@@ -27,6 +27,6 @@ pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply,
             .and_then(handle(network_options)))
         .or(warp::path!("network" / "status")
             .and(warp::body::json())
-            .and(with_rosetta_config(options.clone()))
+            .and(with_rosetta_config(options))
             .and_then(handle(network_status)))
 }

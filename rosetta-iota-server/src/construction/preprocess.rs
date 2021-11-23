@@ -37,7 +37,7 @@ pub async fn preprocess(
             "INPUT" => {
                 let coin_change = operation
                     .coin_change
-                    .ok_or(ApiError::NonRetriable("coin change not populated".to_string()))?;
+                    .ok_or_else(|| ApiError::NonRetriable("coin change not populated".to_string()))?;
                 let output_id = coin_change
                     .coin_identifier
                     .identifier

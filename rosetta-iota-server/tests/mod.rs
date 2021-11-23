@@ -9,7 +9,7 @@ use rosetta_iota_server::filters::EmptyRequest;
 use rosetta_iota_server::data::network::list::{NetworkListResponse, network_list};
 use rosetta_iota_server::data::network::options::{NetworkOptionsRequest, NetworkOptionsResponse, network_options};
 use rosetta_iota_server::data::network::status::{NetworkStatusRequest, NetworkStatusResponse, network_status};
-use rosetta_iota_server::data::block::block::{BlockRequest, BlockResponse, block};
+use rosetta_iota_server::data::block::block_handler::{BlockRequest, BlockResponse, block};
 use rosetta_iota_server::construction::derive::{ConstructionDeriveRequest, ConstructionDeriveResponse, derive};
 use rosetta_iota_server::construction::parse::{ConstructionParseRequest, ConstructionParseResponse, parse};
 use rosetta_iota_server::construction::preprocess::{ConstructionPreprocessRequest, ConstructionPreprocessResponse, preprocess};

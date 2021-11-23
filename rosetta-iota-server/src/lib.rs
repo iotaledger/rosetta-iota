@@ -98,17 +98,9 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
 }
 
 pub fn is_wrong_network(options: &RosettaConfig, network_identifier: &NetworkIdentifier) -> bool {
-    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
-        true
-    } else {
-        false
-    }
+    network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network
 }
 
 pub fn is_offline_mode_enabled(options: &RosettaConfig) -> bool {
-    if options.mode == RosettaMode::Offline {
-        true
-    } else {
-        false
-    }
+    options.mode == RosettaMode::Offline
 }

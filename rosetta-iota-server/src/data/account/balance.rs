@@ -53,7 +53,7 @@ pub async fn account_balance(
         for currency in currencies {
             if !currency.eq(&iota_currency()) {
                 return Err(ApiError::NonRetriable(
-                    format!("invalid currency provided: only `IOTA` currency supported")
+                    "invalid currency provided: only `IOTA` currency supported".to_string()
                 ));
             }
         }

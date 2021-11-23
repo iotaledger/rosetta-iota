@@ -48,7 +48,7 @@ pub async fn payloads(
             "INPUT" => {
                 let output_id = operation
                     .coin_change
-                    .ok_or(ApiError::NonRetriable("coin change not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("coin change not populated".to_string()))?
                     .coin_identifier
                     .identifier;
 
@@ -64,13 +64,13 @@ pub async fn payloads(
 
                 let amount = operation
                     .amount
-                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("amount not populated".to_string()))?
                     .value
                     .parse::<u64>()
                     .unwrap();
 
                 outputs.push(Output::SignatureLockedSingle(
-                    SignatureLockedSingleOutput::new(address, amount).unwrap().into(),
+                    SignatureLockedSingleOutput::new(address, amount).unwrap(),
                 ));
             }
 
@@ -79,13 +79,13 @@ pub async fn payloads(
 
                 let amount = operation
                     .amount
-                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("amount not populated".to_string()))?
                     .value
                     .parse::<u64>()
                     .unwrap();
 
                 outputs.push(Output::SignatureLockedDustAllowance(
-                    SignatureLockedDustAllowanceOutput::new(address, amount).unwrap().into(),
+                    SignatureLockedDustAllowanceOutput::new(address, amount).unwrap(),
                 ));
             }
 

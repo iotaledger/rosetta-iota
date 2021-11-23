@@ -58,7 +58,7 @@ pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply,
             .and_then(handle(hash)))
         .or(warp::path!("construction" / "submit")
             .and(warp::body::json())
-            .and(with_rosetta_config(options.clone()))
+            .and(with_rosetta_config(options))
             .and_then(handle(submit)))
 }
 
@@ -66,7 +66,7 @@ fn serialize_unsigned_transaction(unsigned_transaction: &UnsignedTransaction) ->
     hex::encode(serde_json::to_string(unsigned_transaction).unwrap())
 }
 
-fn deserialize_unsigned_transaction(string: &String) -> UnsignedTransaction {
+fn deserialize_unsigned_transaction(string: &str) -> UnsignedTransaction {
     serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
 }
 
@@ -74,6 +74,6 @@ fn serialize_signed_transaction(signed_transaction: &SignedTransaction) -> Strin
     hex::encode(serde_json::to_string(signed_transaction).unwrap())
 }
 
-fn deserialize_signed_transaction(string: &String) -> SignedTransaction {
+fn deserialize_signed_transaction(string: &str) -> SignedTransaction {
     serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
 }

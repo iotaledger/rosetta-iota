@@ -96,7 +96,7 @@ async fn address_outputs_with_ledger_index(
 
     loop {
 
-        let outputs_address_response: OutputsAddressResponse = get_unspent_outputs_of_address(&address, &client).await?;
+        let outputs_address_response: OutputsAddressResponse = get_unspent_outputs_of_address(address, &client).await?;
         let mut output_responses = HashMap::new();
 
         let mut try_again = false;

@@ -88,11 +88,9 @@ async fn parse_signed_transaction(
 
     let account_identifier_signers = {
         let mut accounts_identifiers = Vec::new();
-        for unlock_block in transaction.unlock_blocks().into_iter() {
+        for unlock_block in transaction.unlock_blocks().iter() {
             if let UnlockBlock::Signature(s) = unlock_block {
-                let signature = match s {
-                    SignatureUnlock::Ed25519(s) => s
-                };
+                let SignatureUnlock::Ed25519(signature) = s;
                 let bech32_addr =
                     address_from_public_key(&hex::encode(signature.public_key()))?.to_bech32(&options.bech32_hrp);
                 accounts_identifiers.push(AccountIdentifier {
@@ -114,9 +112,7 @@ async fn essence_to_operations(
     inputs_metadata: &HashMap<String, OutputResponse>,
     options: &RosettaConfig,
 ) -> Result<Vec<Operation>, ApiError> {
-    let regular_essence = match essence {
-        Essence::Regular(r) => r,
-    };
+    let Essence::Regular(regular_essence) = essence;
 
     let mut operations = Vec::new();
 
@@ -134,7 +130,7 @@ async fn essence_to_operations(
         };
 
         let transaction_id = input_metadata.transaction_id.clone();
-        let output_index = input_metadata.output_index.clone();
+        let output_index = input_metadata.output_index;
 
         let (amount, ed25519_address) = match &input_metadata.output {
             OutputDto::Treasury(_) => return Err(ApiError::NonRetriable("Can't be used as input".to_string())),
@@ -164,14 +160,14 @@ async fn essence_to_operations(
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
 
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
             },

@@ -60,8 +60,8 @@ async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError>
 }
 
 pub async fn get_confirmed_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
-    let confirmed_milestone_index = get_confirmed_milestone_index(&client).await?;
-    get_milestone(confirmed_milestone_index, &client).await
+    let confirmed_milestone_index = get_confirmed_milestone_index(client).await?;
+    get_milestone(confirmed_milestone_index, client).await
 }
 
 pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError> {
@@ -72,8 +72,8 @@ pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError
 }
 
 pub async fn get_latest_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
-    let latest_milestone_index = get_latest_milestone_index(&client).await?;
-    get_milestone(latest_milestone_index, &client).await
+    let latest_milestone_index = get_latest_milestone_index(client).await?;
+    get_milestone(latest_milestone_index, client).await
 }
 
 pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {

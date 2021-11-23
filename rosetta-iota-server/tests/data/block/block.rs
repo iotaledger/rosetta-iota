@@ -2,7 +2,7 @@ use crate::config::{VALID_BLOCKCHAIN, VALID_NETWORK};
 use crate::{test_request, Request};
 
 use rosetta_iota_server::types::{NetworkIdentifier, PartialBlockIdentifier};
-use rosetta_iota_server::data::block::block::{BlockRequest};
+use rosetta_iota_server::data::block::block_handler::{BlockRequest};
 
 use serial_test::serial;
 

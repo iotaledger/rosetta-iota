@@ -91,7 +91,7 @@ async fn build_block_transactions(
     rosetta_config: &RosettaConfig,
 ) -> Result<Vec<BlockTransaction>, ApiError> {
 
-    let messages = messages_with_utxo_changes(milestone_index, &client).await?;
+    let messages = messages_with_utxo_changes(milestone_index, client).await?;
 
     let mut transactions = Vec::new();
 
@@ -170,9 +170,7 @@ async fn from_transaction(
     iota_client: &Client,
     rosetta_config: &RosettaConfig,
 ) -> Result<BlockTransaction, ApiError> {
-    let regular_essence = match transaction_payload.essence() {
-        Essence::Regular(r) => r,
-    };
+    let Essence::Regular(regular_essence) = transaction_payload.essence();
 
     let mut operations = Vec::new();
 
@@ -183,7 +181,7 @@ async fn from_transaction(
         };
 
         let output_info = iota_client
-            .get_output(&utxo_input)
+            .get_output(utxo_input)
             .await
             .map_err(|e| ApiError::NonRetriable(format!("can not get input information: {}", e)))?;
 
@@ -203,8 +201,7 @@ async fn from_transaction(
         ));
     }
 
-    let mut output_index: u16 = 0;
-    for output in regular_essence.outputs() {
+    for (output_index, output) in regular_essence.outputs().into_iter().enumerate() {
         let output_id = {
             let s = format!(
                 "{}{}",
@@ -218,13 +215,13 @@ async fn from_transaction(
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&rosetta_config.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&rosetta_config.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(addr.clone().into()).to_bech32(&rosetta_config.bech32_hrp);
+                    let bech32_address = Address::Ed25519((*addr).into()).to_bech32(&rosetta_config.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
                 }
             },
@@ -232,8 +229,6 @@ async fn from_transaction(
         };
 
         operations.push(output_operation);
-
-        output_index += 1;
     }
 
     let transaction = BlockTransaction {
@@ -246,7 +241,7 @@ async fn from_transaction(
     Ok(transaction)
 }
 
-async fn from_milestone(created_outputs: &Vec<CreatedOutput>, options: &RosettaConfig) -> Result<BlockTransaction, ApiError> {
+async fn from_milestone(created_outputs: &[CreatedOutput], options: &RosettaConfig) -> Result<BlockTransaction, ApiError> {
     let mut operations = Vec::new();
 
     for created_output in created_outputs {

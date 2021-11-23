@@ -18,7 +18,7 @@ pub async fn network_list(_empty: EmptyRequest, options: RosettaConfig) -> Resul
     let response = NetworkListResponse {
         network_identifiers: vec![NetworkIdentifier {
             blockchain: consts::BLOCKCHAIN.to_string(),
-            network: options.network.clone(),
+            network: options.network,
         }],
     };
 
