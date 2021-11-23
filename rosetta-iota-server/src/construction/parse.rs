@@ -158,13 +158,13 @@ async fn essence_to_operations(
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519((*addr)).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519(*addr).to_bech32(&options.bech32_hrp);
                     utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
             },
             Output::SignatureLockedDustAllowance(o) => match o.address() {
                 Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519((*addr)).to_bech32(&options.bech32_hrp);
+                    let bech32_address = Address::Ed25519(*addr).to_bech32(&options.bech32_hrp);
                     dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
                 }
             },
