@@ -24,7 +24,8 @@ async fn valid_request() {
         },
     };
 
-    let response = test_request(Request::Block(request))
+    // TODO
+    let _response = test_request(Request::Block(request))
         .await
         .unwrap_block_response()
         .unwrap();
