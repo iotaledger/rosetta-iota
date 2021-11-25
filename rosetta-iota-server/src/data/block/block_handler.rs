@@ -213,15 +213,8 @@ async fn from_transaction(
     }
 
     for (output_index, output) in regular_essence.outputs().iter().enumerate() {
-        let output_id = {
-            let s = format!(
-                "{}{}",
-                transaction_payload.id().to_string(),
-                hex::encode(output_index.to_le_bytes())
-            );
-            s.parse::<OutputId>()
-                .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?
-        };
+        let output_id = OutputId::new(transaction_payload.id(), output_index as u16)
+            .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
         let output_operation = match output {
             Output::SignatureLockedSingle(o) => match o.address() {
