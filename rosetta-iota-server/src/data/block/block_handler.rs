@@ -17,7 +17,6 @@ use bee_message::{
     prelude::{Output, *},
     Message,
 };
-use bee_rest_api::types::responses::OutputResponse;
 
 use iota_client::Client;
 
@@ -99,18 +98,20 @@ pub async fn block(request: BlockRequest, rosetta_config: RosettaConfig) -> Resu
 
 async fn build_block_transactions(
     milestone_index: u32,
-    client: &Client,
+    iota_client: &Client,
     rosetta_config: &RosettaConfig,
 ) -> Result<Vec<BlockTransaction>, ApiError> {
-    let messages = messages_with_utxo_changes(milestone_index, client).await?;
+    let messages = messages_of_created_outputs(milestone_index, iota_client).await?;
 
     let mut transactions = Vec::new();
 
     for (_message_id, message_info) in messages {
         let transaction = match message_info.message.payload() {
-            Some(Payload::Transaction(t)) => from_transaction(t, client, rosetta_config).await?,
-            Some(Payload::Milestone(_)) => from_milestone(&message_info.created_outputs, rosetta_config).await?,
-            _ => return Err(ApiError::NonRetriable("payload type not supported".to_string())),
+            Some(Payload::Transaction(t)) => from_transaction(t, iota_client, rosetta_config).await?,
+            Some(Payload::Milestone(_)) => {
+                from_milestone(&message_info.created_outputs, iota_client, rosetta_config).await?
+            }
+            _ => return Err(ApiError::NonRetriable("unknown payload type in message".to_string())),
         };
         transactions.push(transaction);
     }
@@ -120,15 +121,10 @@ async fn build_block_transactions(
 
 struct MessageInfo {
     pub message: Message,
-    pub created_outputs: Vec<CreatedOutput>,
+    pub created_outputs: Vec<OutputId>,
 }
 
-struct CreatedOutput {
-    pub output_id: OutputId,
-    pub output_response: OutputResponse,
-}
-
-async fn messages_with_utxo_changes(
+async fn messages_of_created_outputs(
     milestone_index: u32,
     iota_client: &Client,
 ) -> Result<HashMap<MessageId, MessageInfo>, ApiError> {
@@ -141,22 +137,16 @@ async fn messages_with_utxo_changes(
             .parse::<OutputId>()
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
-        let output_response = get_output(output_id, iota_client).await?;
-
-        let message_id = output_response
+        let message_id = get_output(output_id, iota_client)
+            .await?
             .message_id
             .parse::<MessageId>()
             .map_err(|e| ApiError::NonRetriable(format!("can not parse message id: {}", e)))?;
 
-        let created_output = CreatedOutput {
-            output_id,
-            output_response,
-        };
-
         match message_map.entry(message_id) {
             Entry::Occupied(mut entry) => {
                 let message_info: &mut MessageInfo = entry.get_mut();
-                message_info.created_outputs.push(created_output);
+                message_info.created_outputs.push(output_id);
             }
             Entry::Vacant(entry) => {
                 let message = iota_client
@@ -166,7 +156,7 @@ async fn messages_with_utxo_changes(
                     .map_err(|e| ApiError::NonRetriable(format!("can not get message: {}", e)))?;
                 let message_info = MessageInfo {
                     message,
-                    created_outputs: vec![created_output],
+                    created_outputs: vec![output_id],
                 };
                 entry.insert(message_info);
             }
@@ -188,28 +178,25 @@ async fn from_transaction(
     for input in regular_essence.inputs() {
         let utxo_input = match input {
             Input::Utxo(i) => i,
-            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())),
+            _ => return Err(ApiError::NonRetriable("unknown UTXO type".to_string())),
         };
 
-        let output_info = iota_client
-            .get_output(utxo_input)
-            .await
-            .map_err(|e| ApiError::NonRetriable(format!("can not get input information: {}", e)))?;
+        let output = Output::try_from(
+            &iota_client
+                .get_output(utxo_input)
+                .await
+                .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))?
+                .output,
+        )
+        .map_err(|e| ApiError::NonRetriable(format!("can not deserialize output: {}", e)))?;
 
-        let output = Output::try_from(&output_info.output)
-            .map_err(|e| ApiError::NonRetriable(format!("can not parse output from output information: {}", e)))?;
-
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await?;
-
-        operations.push(utxo_input_operation(
-            output_info.transaction_id,
-            Address::Ed25519(ed25519_address).to_bech32(&rosetta_config.bech32_hrp),
-            amount,
-            output_info.output_index,
+        operations.push(build_utxo_input_operation(
+            utxo_input.output_id(),
+            &output,
             operations.len(),
             true,
-            true,
-        ));
+            rosetta_config,
+        )?);
     }
 
     for (output_index, output) in regular_essence.outputs().iter().enumerate() {
@@ -217,19 +204,23 @@ async fn from_transaction(
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
         let output_operation = match output {
-            Output::SignatureLockedSingle(o) => match o.address() {
-                Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(*addr).to_bech32(&rosetta_config.bech32_hrp);
-                    utxo_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
-                }
-            },
-            Output::SignatureLockedDustAllowance(o) => match o.address() {
-                Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(*addr).to_bech32(&rosetta_config.bech32_hrp);
-                    dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), true, Some(output_id))
-                }
-            },
-            _ => unimplemented!(),
+            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
+                Some(output_id),
+                sig_locked_single_output,
+                operations.len(),
+                false,
+                rosetta_config,
+            )?,
+            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
+                build_dust_allowance_output_operation(
+                    Some(output_id),
+                    sig_locked_dust_allowance_output,
+                    operations.len(),
+                    false,
+                    rosetta_config,
+                )?
+            }
+            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
         };
 
         operations.push(output_operation);
@@ -246,47 +237,51 @@ async fn from_transaction(
 }
 
 async fn from_milestone(
-    created_outputs: &[CreatedOutput],
-    options: &RosettaConfig,
+    created_outputs: &[OutputId],
+    iota_client: &Client,
+    rosetta_config: &RosettaConfig,
 ) -> Result<BlockTransaction, ApiError> {
     let mut operations = Vec::new();
 
-    for created_output in created_outputs {
-        let output = Output::try_from(&created_output.output_response.output)
-            .map_err(|_| ApiError::NonRetriable("can not deserialize output".to_string()))?;
+    for output_id in created_outputs {
+        let output = Output::try_from(
+            &iota_client
+                .get_output(&UtxoInput::from(*output_id))
+                .await
+                .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))?
+                .output,
+        )
+        .map_err(|e| ApiError::NonRetriable(format!("can not deserialize output: {}", e)))?;
 
-        let (amount, ed25519_address) = address_and_balance_of_output(&output).await?;
-
-        let mint_operation = utxo_output_operation(
-            Address::Ed25519(ed25519_address).to_bech32(&options.bech32_hrp),
-            amount,
-            operations.len(),
-            true,
-            Some(created_output.output_id),
-        );
+        let mint_operation = match output {
+            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
+                Some(*output_id),
+                &sig_locked_single_output,
+                operations.len(),
+                true,
+                rosetta_config,
+            ),
+            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
+                build_dust_allowance_output_operation(
+                    Some(*output_id),
+                    &sig_locked_dust_allowance_output,
+                    operations.len(),
+                    true,
+                    rosetta_config,
+                )
+            }
+            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
+        }?;
 
         operations.push(mint_operation);
     }
 
     let transaction = BlockTransaction {
         transaction_identifier: TransactionIdentifier {
-            hash: created_outputs.first().unwrap().output_id.transaction_id().to_string(),
+            hash: created_outputs.first().unwrap().transaction_id().to_string(),
         },
         operations,
     };
 
     Ok(transaction)
-}
-
-async fn address_and_balance_of_output(output: &Output) -> Result<(u64, Ed25519Address), ApiError> {
-    let (amount, ed25519_address) = match output {
-        Output::SignatureLockedSingle(r) => match r.address() {
-            Address::Ed25519(addr) => (r.amount(), *addr),
-        },
-        Output::SignatureLockedDustAllowance(r) => match r.address() {
-            Address::Ed25519(addr) => (r.amount(), *addr),
-        },
-        _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
-    };
-    Ok((amount, ed25519_address))
 }

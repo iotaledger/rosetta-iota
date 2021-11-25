@@ -3,9 +3,15 @@
 
 use crate::{
     consts::iota_currency,
+    error::ApiError,
     types::{AccountIdentifier, Amount, CoinAction, CoinChange, CoinIdentifier, Operation, OperationIdentifier},
+    RosettaConfig,
 };
-use bee_message::prelude::OutputId;
+use bee_message::{
+    address::Address,
+    output::{Output, SignatureLockedSingleOutput},
+    prelude::{OutputId, SignatureLockedDustAllowanceOutput},
+};
 
 // operation types
 pub const INPUT: &str = "INPUT";
@@ -36,31 +42,36 @@ pub fn operation_status_skipped() -> String {
     SKIPPED.into()
 }
 
-pub fn utxo_input_operation(
-    transaction_id: String,
-    address: String,
-    amount: u64,
-    output_index: u16,
-    operation_counter: usize,
-    consumed: bool,
+pub fn build_utxo_input_operation(
+    output_id: &OutputId,
+    output: &Output,
+    operation_index: usize,
     online: bool,
-) -> Operation {
-    let account = AccountIdentifier { address };
+    rosetta_config: &RosettaConfig,
+) -> Result<Operation, ApiError> {
+    let (amount, ed25519_address) = match output {
+        Output::SignatureLockedSingle(r) => match r.address() {
+            Address::Ed25519(addr) => (r.amount(), *addr),
+        },
+        Output::SignatureLockedDustAllowance(r) => match r.address() {
+            Address::Ed25519(addr) => (r.amount(), *addr),
+        },
+        _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
+    };
+
+    let account = AccountIdentifier {
+        address: Address::Ed25519(ed25519_address).to_bech32(&rosetta_config.bech32_hrp),
+    };
 
     let amount = Amount {
-        value: match consumed {
-            true => (-(amount as i64)).to_string(),
-            false => amount.to_string(),
-        },
+        value: (-(amount as i64)).to_string(),
         currency: iota_currency(),
     };
 
-    let output_id = format!("{}{}", transaction_id, hex::encode(output_index.to_le_bytes()));
-
-    Operation {
+    Ok(Operation {
         operation_identifier: OperationIdentifier {
-            index: operation_counter as u64,
-            network_index: Some(output_index as u64),
+            index: operation_index as u64,
+            network_index: Some(output_id.index() as u64),
         },
         type_: INPUT.into(),
         status: match online {
@@ -70,30 +81,31 @@ pub fn utxo_input_operation(
         account: Some(account),
         amount: Some(amount),
         coin_change: Some(CoinChange {
-            coin_identifier: CoinIdentifier { identifier: output_id },
-            coin_action: match consumed {
-                true => CoinAction::CoinSpent,
-                false => CoinAction::CoinCreated,
+            coin_identifier: CoinIdentifier {
+                identifier: output_id.to_string(),
             },
+            coin_action: CoinAction::CoinSpent,
         }),
-    }
+    })
 }
 
-pub fn utxo_output_operation(
-    address: String,
-    amount: u64,
+pub fn build_sig_locked_single_output_operation(
+    output_id: Option<OutputId>,
+    output: &SignatureLockedSingleOutput,
     operation_counter: usize,
     online: bool,
-    output_id: Option<OutputId>,
-) -> Operation {
-    let account = AccountIdentifier { address };
+    rosetta_config: &RosettaConfig,
+) -> Result<Operation, ApiError> {
+    let account = AccountIdentifier {
+        address: output.address().to_bech32(&rosetta_config.bech32_hrp),
+    };
 
     let amount = Amount {
-        value: amount.to_string(),
+        value: output.amount().to_string(),
         currency: iota_currency(),
     };
 
-    Operation {
+    Ok(Operation {
         operation_identifier: OperationIdentifier {
             index: operation_counter as u64,
             network_index: None,
@@ -111,24 +123,26 @@ pub fn utxo_output_operation(
             },
             coin_action: CoinAction::CoinCreated,
         }),
-    }
+    })
 }
 
-pub fn dust_allowance_output_operation(
-    address: String,
-    amnt: u64,
+pub fn build_dust_allowance_output_operation(
+    output_id: Option<OutputId>,
+    output: &SignatureLockedDustAllowanceOutput,
     operation_counter: usize,
     online: bool,
-    output_id: Option<OutputId>,
-) -> Operation {
-    let account = AccountIdentifier { address };
+    rosetta_config: &RosettaConfig,
+) -> Result<Operation, ApiError> {
+    let account = AccountIdentifier {
+        address: output.address().to_bech32(&rosetta_config.bech32_hrp),
+    };
 
     let amount = Amount {
-        value: amnt.to_string(),
+        value: output.amount().to_string(),
         currency: iota_currency(),
     };
 
-    Operation {
+    Ok(Operation {
         operation_identifier: OperationIdentifier {
             index: operation_counter as u64,
             network_index: None,
@@ -146,5 +160,5 @@ pub fn dust_allowance_output_operation(
             },
             coin_action: CoinAction::CoinCreated,
         }),
-    }
+    })
 }

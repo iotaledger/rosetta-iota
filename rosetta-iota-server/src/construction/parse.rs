@@ -5,24 +5,25 @@ use crate::{
     construction::{deserialize_signed_transaction, deserialize_unsigned_transaction},
     error::ApiError,
     is_wrong_network,
-    operations::{utxo_input_operation, utxo_output_operation},
+    operations::{
+        build_dust_allowance_output_operation, build_sig_locked_single_output_operation, build_utxo_input_operation,
+    },
     types::*,
     RosettaConfig,
 };
 
 use bee_message::prelude::*;
-use bee_rest_api::types::{
-    dtos::{AddressDto, OutputDto},
-    responses::OutputResponse,
-};
+use bee_rest_api::types::responses::OutputResponse;
 
 use crypto::hashes::{blake2b::Blake2b256, Digest};
 
 use log::debug;
 use serde::{Deserialize, Serialize};
 
-use crate::operations::dust_allowance_output_operation;
-use std::{collections::HashMap, convert::TryInto, str::FromStr};
+use std::{
+    collections::HashMap,
+    convert::{TryFrom, TryInto},
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -108,7 +109,7 @@ async fn parse_signed_transaction(
 async fn essence_to_operations(
     essence: &Essence,
     inputs_metadata: &HashMap<String, OutputResponse>,
-    options: &RosettaConfig,
+    rosetta_config: &RosettaConfig,
 ) -> Result<Vec<Operation>, ApiError> {
     let Essence::Regular(regular_essence) = essence;
 
@@ -117,59 +118,47 @@ async fn essence_to_operations(
     for input in regular_essence.inputs() {
         let utxo_input = match input {
             Input::Utxo(i) => i,
-            _ => return Err(ApiError::NonRetriable("input type not supported".to_string())),
+            _ => return Err(ApiError::NonRetriable("unknown input type".to_string())),
         };
 
         let input_metadata = match inputs_metadata.get(&utxo_input.to_string()) {
             Some(metadata) => metadata,
-            None => {
-                return Err(ApiError::NonRetriable("metadata for input missing".to_string()));
-            }
+            None => return Err(ApiError::NonRetriable("missing metadata for input".to_string())),
         };
 
-        let transaction_id = input_metadata.transaction_id.clone();
-        let output_index = input_metadata.output_index;
+        let output = Output::try_from(&input_metadata.output)
+            .map_err(|e| ApiError::NonRetriable(format!("can not deserialize output: {}", e)))?;
 
-        let (amount, ed25519_address) = match &input_metadata.output {
-            OutputDto::Treasury(_) => return Err(ApiError::NonRetriable("Can't be used as input".to_string())),
-            OutputDto::SignatureLockedSingle(x) => match x.address.clone() {
-                AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address),
-            },
-            OutputDto::SignatureLockedDustAllowance(x) => match x.address.clone() {
-                AddressDto::Ed25519(ed25519) => (x.amount, ed25519.address),
-            },
-        };
-
-        let bech32_address =
-            Address::Ed25519(Ed25519Address::from_str(&ed25519_address).unwrap()).to_bech32(&options.bech32_hrp);
-
-        operations.push(utxo_input_operation(
-            transaction_id,
-            bech32_address,
-            amount,
-            output_index,
+        operations.push(build_utxo_input_operation(
+            utxo_input.output_id(),
+            &output,
             operations.len(),
             true,
-            false,
-        ));
+            rosetta_config,
+        )?);
     }
 
     for output in regular_essence.outputs() {
         let output_operation = match output {
-            Output::SignatureLockedSingle(o) => match o.address() {
-                Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(*addr).to_bech32(&options.bech32_hrp);
-                    utxo_output_operation(bech32_address, o.amount(), operations.len(), false, None)
-                }
-            },
-            Output::SignatureLockedDustAllowance(o) => match o.address() {
-                Address::Ed25519(addr) => {
-                    let bech32_address = Address::Ed25519(*addr).to_bech32(&options.bech32_hrp);
-                    dust_allowance_output_operation(bech32_address, o.amount(), operations.len(), false, None)
-                }
-            },
-            _ => unimplemented!(),
-        };
+            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
+                None,
+                sig_locked_single_output,
+                operations.len(),
+                false,
+                rosetta_config,
+            ),
+            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
+                build_dust_allowance_output_operation(
+                    None,
+                    sig_locked_dust_allowance_output,
+                    operations.len(),
+                    false,
+                    rosetta_config,
+                )
+            }
+            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
+        }?;
+
         operations.push(output_operation);
     }
 
