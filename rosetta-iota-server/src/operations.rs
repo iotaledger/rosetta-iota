@@ -7,11 +7,7 @@ use crate::{
     types::{AccountIdentifier, Amount, CoinAction, CoinChange, CoinIdentifier, Operation, OperationIdentifier},
     RosettaConfig,
 };
-use bee_message::{
-    address::Address,
-    output::{Output},
-    prelude::{OutputId},
-};
+use bee_message::{address::Address, output::Output, prelude::OutputId};
 
 // operation types
 pub const INPUT: &str = "INPUT";

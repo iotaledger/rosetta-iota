@@ -5,9 +5,7 @@ use crate::{
     construction::{deserialize_signed_transaction, deserialize_unsigned_transaction},
     error::ApiError,
     is_wrong_network,
-    operations::{
-        build_utxo_output_operation, build_utxo_input_operation,
-    },
+    operations::{build_utxo_input_operation, build_utxo_output_operation},
     types::*,
     RosettaConfig,
 };
@@ -139,13 +137,7 @@ async fn essence_to_operations(
     }
 
     for output in regular_essence.outputs() {
-        let output_operation = build_utxo_output_operation(
-            None,
-            output,
-            operations.len(),
-            false,
-            rosetta_config,
-        )?;
+        let output_operation = build_utxo_output_operation(None, output, operations.len(), false, rosetta_config)?;
 
         operations.push(output_operation);
     }

@@ -203,13 +203,8 @@ async fn from_transaction(
         let output_id = OutputId::new(transaction_payload.id(), output_index as u16)
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
-        let output_operation = build_utxo_output_operation(
-            Some(output_id),
-            output,
-            operations.len(),
-            true,
-            rosetta_config,
-        )?;
+        let output_operation =
+            build_utxo_output_operation(Some(output_id), output, operations.len(), true, rosetta_config)?;
 
         operations.push(output_operation);
     }
@@ -241,13 +236,8 @@ async fn from_milestone(
         )
         .map_err(|e| ApiError::NonRetriable(format!("can not deserialize output: {}", e)))?;
 
-        let mint_operation = build_utxo_output_operation(
-            Some(*output_id),
-            &output,
-            operations.len(),
-            true,
-            rosetta_config,
-        )?;
+        let mint_operation =
+            build_utxo_output_operation(Some(*output_id), &output, operations.len(), true, rosetta_config)?;
 
         operations.push(mint_operation);
     }
