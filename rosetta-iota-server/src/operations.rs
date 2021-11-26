@@ -46,7 +46,7 @@ pub fn build_utxo_input_operation(
     output_id: &OutputId,
     output: &Output,
     operation_index: usize,
-    online: bool,
+    is_online: bool,
     rosetta_config: &RosettaConfig,
 ) -> Result<Operation, ApiError> {
     let (amount, ed25519_address) = match output {
@@ -74,7 +74,7 @@ pub fn build_utxo_input_operation(
             network_index: Some(output_id.index() as u64),
         },
         type_: INPUT.into(),
-        status: match online {
+        status: match is_online {
             true => Some(SUCCESS.into()), // call coming from /data/block
             false => None,                // call coming from /construction/parse
         },
@@ -93,7 +93,7 @@ pub fn build_utxo_output_operation(
     output_id: Option<OutputId>,
     output: &Output,
     operation_counter: usize,
-    online: bool,
+    is_online: bool,
     rosetta_config: &RosettaConfig,
 ) -> Result<Operation, ApiError> {
     let (amount, ed25519_address) = match output {
@@ -111,7 +111,7 @@ pub fn build_utxo_output_operation(
     };
 
     let amount = Amount {
-        value: (-(amount as i64)).to_string(),
+        value: amount.to_string(),
         currency: iota_currency(),
     };
 
@@ -125,7 +125,7 @@ pub fn build_utxo_output_operation(
             Output::SignatureLockedDustAllowance(_) => SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
             _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
         },
-        status: match online {
+        status: match is_online {
             true => Some(SUCCESS.into()),
             false => None,
         },
