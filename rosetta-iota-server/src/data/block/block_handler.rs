@@ -203,25 +203,13 @@ async fn from_transaction(
         let output_id = OutputId::new(transaction_payload.id(), output_index as u16)
             .map_err(|e| ApiError::NonRetriable(format!("can not parse output id: {}", e)))?;
 
-        let output_operation = match output {
-            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
-                Some(output_id),
-                sig_locked_single_output,
-                operations.len(),
-                false,
-                rosetta_config,
-            )?,
-            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
-                build_dust_allowance_output_operation(
-                    Some(output_id),
-                    sig_locked_dust_allowance_output,
-                    operations.len(),
-                    false,
-                    rosetta_config,
-                )?
-            }
-            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
-        };
+        let output_operation = build_utxo_output_operation(
+            Some(output_id),
+            output,
+            operations.len(),
+            true,
+            rosetta_config,
+        )?;
 
         operations.push(output_operation);
     }
@@ -253,25 +241,13 @@ async fn from_milestone(
         )
         .map_err(|e| ApiError::NonRetriable(format!("can not deserialize output: {}", e)))?;
 
-        let mint_operation = match output {
-            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
-                Some(*output_id),
-                &sig_locked_single_output,
-                operations.len(),
-                true,
-                rosetta_config,
-            ),
-            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
-                build_dust_allowance_output_operation(
-                    Some(*output_id),
-                    &sig_locked_dust_allowance_output,
-                    operations.len(),
-                    true,
-                    rosetta_config,
-                )
-            }
-            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
-        }?;
+        let mint_operation = build_utxo_output_operation(
+            Some(*output_id),
+            &output,
+            operations.len(),
+            true,
+            rosetta_config,
+        )?;
 
         operations.push(mint_operation);
     }

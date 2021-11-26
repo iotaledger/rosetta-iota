@@ -6,7 +6,7 @@ use crate::{
     error::ApiError,
     is_wrong_network,
     operations::{
-        build_dust_allowance_output_operation, build_sig_locked_single_output_operation, build_utxo_input_operation,
+        build_utxo_output_operation, build_utxo_input_operation,
     },
     types::*,
     RosettaConfig,
@@ -139,25 +139,13 @@ async fn essence_to_operations(
     }
 
     for output in regular_essence.outputs() {
-        let output_operation = match output {
-            Output::SignatureLockedSingle(sig_locked_single_output) => build_sig_locked_single_output_operation(
-                None,
-                sig_locked_single_output,
-                operations.len(),
-                false,
-                rosetta_config,
-            ),
-            Output::SignatureLockedDustAllowance(sig_locked_dust_allowance_output) => {
-                build_dust_allowance_output_operation(
-                    None,
-                    sig_locked_dust_allowance_output,
-                    operations.len(),
-                    false,
-                    rosetta_config,
-                )
-            }
-            _ => return Err(ApiError::NonRetriable("unknown output type".to_string())),
-        }?;
+        let output_operation = build_utxo_output_operation(
+            None,
+            output,
+            operations.len(),
+            false,
+            rosetta_config,
+        )?;
 
         operations.push(output_operation);
     }

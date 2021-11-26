@@ -9,8 +9,8 @@ use crate::{
 };
 use bee_message::{
     address::Address,
-    output::{Output, SignatureLockedSingleOutput},
-    prelude::{OutputId, SignatureLockedDustAllowanceOutput},
+    output::{Output},
+    prelude::{OutputId},
 };
 
 // operation types
@@ -89,19 +89,29 @@ pub fn build_utxo_input_operation(
     })
 }
 
-pub fn build_sig_locked_single_output_operation(
+pub fn build_utxo_output_operation(
     output_id: Option<OutputId>,
-    output: &SignatureLockedSingleOutput,
+    output: &Output,
     operation_counter: usize,
     online: bool,
     rosetta_config: &RosettaConfig,
 ) -> Result<Operation, ApiError> {
+    let (amount, ed25519_address) = match output {
+        Output::SignatureLockedSingle(r) => match r.address() {
+            Address::Ed25519(addr) => (r.amount(), *addr),
+        },
+        Output::SignatureLockedDustAllowance(r) => match r.address() {
+            Address::Ed25519(addr) => (r.amount(), *addr),
+        },
+        _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
+    };
+
     let account = AccountIdentifier {
-        address: output.address().to_bech32(&rosetta_config.bech32_hrp),
+        address: Address::Ed25519(ed25519_address).to_bech32(&rosetta_config.bech32_hrp),
     };
 
     let amount = Amount {
-        value: output.amount().to_string(),
+        value: (-(amount as i64)).to_string(),
         currency: iota_currency(),
     };
 
@@ -110,44 +120,11 @@ pub fn build_sig_locked_single_output_operation(
             index: operation_counter as u64,
             network_index: None,
         },
-        type_: SIG_LOCKED_SINGLE_OUTPUT.into(),
-        status: match online {
-            true => Some(SUCCESS.into()),
-            false => None,
+        type_: match output {
+            Output::SignatureLockedSingle(_) => SIG_LOCKED_SINGLE_OUTPUT.into(),
+            Output::SignatureLockedDustAllowance(_) => SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
+            _ => return Err(ApiError::NonRetriable("output type not supported".to_string())),
         },
-        account: Some(account),
-        amount: Some(amount),
-        coin_change: output_id.map(|output_id| CoinChange {
-            coin_identifier: CoinIdentifier {
-                identifier: output_id.to_string(),
-            },
-            coin_action: CoinAction::CoinCreated,
-        }),
-    })
-}
-
-pub fn build_dust_allowance_output_operation(
-    output_id: Option<OutputId>,
-    output: &SignatureLockedDustAllowanceOutput,
-    operation_counter: usize,
-    online: bool,
-    rosetta_config: &RosettaConfig,
-) -> Result<Operation, ApiError> {
-    let account = AccountIdentifier {
-        address: output.address().to_bech32(&rosetta_config.bech32_hrp),
-    };
-
-    let amount = Amount {
-        value: output.amount().to_string(),
-        currency: iota_currency(),
-    };
-
-    Ok(Operation {
-        operation_identifier: OperationIdentifier {
-            index: operation_counter as u64,
-            network_index: None,
-        },
-        type_: SIG_LOCKED_DUST_ALLOWANCE_OUTPUT.into(),
         status: match online {
             true => Some(SUCCESS.into()),
             false => None,
