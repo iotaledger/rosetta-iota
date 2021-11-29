@@ -4,18 +4,18 @@
   </a>
 </p>
 <h3 align="center">
-   rosetta-iota - integrate IOTA easily, quickly and reliably!
+   Integrate IOTA easily, quickly and reliably!
 </h3>
 
 ## Overview
 
-`rosetta-iota` implements the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information [here](https://www.rosetta-api.org/).
+`rosetta-iota` implements the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information [here](https://www.rosetta-api.org).
 
 ## Features
 
- - Implementation of both Data API and Construction API
- - Stateless, offline, curve-based transaction construction
- - [Storage Pruning](https://www.rosetta-api.org/docs/storage_pruning.html#docsNav) using a block height-based configuration setting
+ - implementation of both [Data API](https://www.rosetta-api.org/docs/data_api_introduction.html) and [Construction API](https://www.rosetta-api.org/docs/construction_api_introduction.html)
+ - stateless, offline, curve-based transaction construction
+ - [Storage pruning](https://www.rosetta-api.org/docs/storage_pruning.html)
   
 ## Documentation
 
