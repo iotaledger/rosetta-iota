@@ -29,4 +29,4 @@ The provided scripts `check_data.sh` and `check_construction.sh` do set up roset
     ```
    
 The testing scripts make use of following environment variable:
-- `NETWORK` = ...the network that should be tested on; can be either `chrysalis-mainnet` or `chrysalis-devnet`
+- `NETWORK` = ... the network that should be tested on; can be either `chrysalis-mainnet` or `chrysalis-devnet`
