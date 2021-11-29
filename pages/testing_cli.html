@@ -4,47 +4,27 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Testing with rosetta-cli - rosetta-iota</title>
-        
-        
-
-
         <!-- Custom HTML head -->
-        
-
-
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        
         <link rel="icon" href="../favicon.svg">
-        
-        
         <link rel="shortcut icon" href="../favicon.png">
-        
         <link rel="stylesheet" href="../css/variables.css">
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
-        
         <link rel="stylesheet" href="../css/print.css" media="print">
-        
-
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        
         <link rel="stylesheet" href="../fonts/fonts.css">
-        
-
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
         <link rel="stylesheet" href="../tomorrow-night.css">
         <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
-
-        
     </head>
     <body>
         <!-- Provide site root to javascript -->
@@ -103,7 +83,6 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
                 <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
@@ -120,33 +99,26 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        
                         <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
-                        
                     </div>
 
                     <h1 class="menu-title">rosetta-iota</h1>
 
                     <div class="right-buttons">
-                        
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
-                        
-                        
                         <a href="https://github.com/iotaledger/rosetta-iota" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -154,8 +126,6 @@
                         </ul>
                     </div>
                 </div>
-                
-
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script type="text/javascript">
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
@@ -168,107 +138,79 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
-<h2 id="testing-on-testnet"><a class="header" href="#testing-on-testnet">Testing on testnet</a></h2>
-<p>The provided scripts <code>check_data.sh</code> and <code>check_construction.sh</code> build on top of rosetta-cli. They help with bootstrapping rosetta-cli and make sure that rosetta-cli runs with the correct configuration values.</p>
+<p>The provided scripts <code>check_data.sh</code> and <code>check_construction.sh</code> do set up rosetta-cli. They start rosetta-cli and make sure that rosetta-cli runs with the correct settings.</p>
 <ol>
 <li>
-<p>To be able to run the testing scripts, make sure you have <strong>the latest version of <a href="https://www.rust-lang.org/tools/install">Rust</a> installed.</strong> <strong>Also make sure <a href="https://wiki.ubuntuusers.de/jq/">jq</a> is installed.</strong></p>
+<p>To be able to run the testing scripts, make sure that the following is installed:</p>
+<ul>
+<li>latest version of <a href="https://www.rust-lang.org/tools/install">Rust</a></li>
+<li><a href="https://stedolan.github.io/jq/">jq</a></li>
+<li><a href="https://curl.se/download.html">curl</a></li>
+</ul>
+</li>
+<li>
+<p>Before continuing with the next step, make sure that the supplied HORNET node is running for the correct network and is fully synchronized with the network. Also make sure that an instance of the Rosetta API is available.</p>
 </li>
 <li>
 <p>Switch to the <code>rosetta-cli-tests/</code> directory.</p>
 </li>
 <li>
-<p>Ensure the HORNET node is running <strong>for the correct network</strong> and an instance of the Rosetta API is available.</p>
-<p>To validate the correctness of <code>rosetta-iota</code> run the commands below:</p>
+<p>Start your desired rosetta-cli test:</p>
 <p><strong>chrysalis-mainnet: check data</strong></p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=chrysalis-mainnet ./check_data.sh
+<pre><code>NETWORK=chrysalis-mainnet ./check_data.sh
 </code></pre>
 <p><strong>chrysalis-mainnet: check construction</strong></p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=chrysalis-mainnet ./check_construction.sh
+<pre><code>NETWORK=chrysalis-mainnet ./check_construction.sh
 </code></pre>
-<p><strong>testnet7: check data</strong></p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_data.sh
+<p><strong>chrysalis-devnet: check data</strong></p>
+<pre><code>NETWORK=chrysalis-devnet ./check_data.sh
 </code></pre>
-<p><strong>testnet7: check construction</strong></p>
-<pre><code>INSTALL=1 BOOTSTRAP_BALANCES=1 NETWORK=testnet7 ./check_construction.sh
+<p><strong>chrysalis-devnet: check construction</strong></p>
+<pre><code>NETWORK=chrysalis-devnet ./check_construction.sh
 </code></pre>
 </li>
 </ol>
-<p>The testing scripts make use of following environment variables:</p>
+<p>The testing scripts make use of following environment variable:</p>
 <ul>
-<li><code>INSTALL_ROSETTA_CLI=1</code> ...installs rosetta-cli to the current folder</li>
-<li><code>BOOTSTRAP_BALANCES=1</code> ...deletes the rosetta-cli database, downloads the latest available IOTA snapshots and bootstraps balances</li>
-<li><code>NO_BOOTSTRAP=1</code> ...keeps the rosetta-cli database and continues synching from the available state</li>
-<li><code>NETWORK</code> = ...the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>testnet7</code></li>
+<li><code>NETWORK</code> = ...the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>chrysalis-devnet</code></li>
 </ul>
-<h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
-<p><strong>It seems like the rosetta-cli construction check sometimes just keeps printing <code>waiting for implementation to reach tip before testing…</code> and doesn't want to start. However, restarting the construction check fixes the issue. Sometimes it needs multiple tries. Unfortunately we couldn't find the cause for this issue yet.</strong></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
                             <a rel="prev" href="../pages/deployment.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                        
-
-                        
                             <a rel="next" href="../pages/testing_curl.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
-                        
-
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
                     <a rel="prev" href="../pages/deployment.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                
-
-                
                     <a rel="next" href="../pages/testing_curl.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
-                
             </nav>
 
         </div>
 
-        
-
-        
-
-        
-
-        
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>
-        
-
-        
-
-        
         <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
-        
-
         <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
         <script src="../book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
-        
-
-        
-
     </body>
 </html>
