@@ -48,11 +48,10 @@ transfer(1){
     // This example shows how to send non-dust (>= 1_000_000 IOTA) from an account A to an account B.
     // Furthermore it shows how to send dust (< 1_000_000 IOTA) to an account C.
     // For an address to receive dust, the following must apply:
-    // An address can receive dust only if it has "sufficient space" for dust to receive.
-    // Space for dust can only be created by creating outputs of the type `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` for the address (that should receive dust).
-    // `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` can be created by the owner of the address or by the sender of dust.
-    // In this example, the sender is creating the `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` for the receiver address.
-    // Note: an address can only own a certain number of `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT`s.
+    // An address can receive dust only if it owns a SIG_LOCKED_DUST_ALLOWANCE_OUTPUT with >= 1_000_000 IOTA
+    // This SIG_LOCKED_DUST_ALLOWANCE_OUTPUT can be created by the dust receiver beforehand on the receiving address, or directly created by the dust sender within the dust transaction.
+    // In this example, the sender is creating the `SIG_LOCKED_DUST_ALLOWANCE_OUTPUT` in the dust transaction.
+    // Note: 1 SIG_LOCKED_DUST_ALLOWANCE_OUTPUT only suffices for 10 dust outputs. Furthermore, 1 address can only own at max 100 SIG_LOCKED_DUST_ALLOWANCE_OUTPUTs.
     // To learn more about the dust protection mechanism, see https://github.com/GalRogozinski/protocol-rfcs/blob/dust/text/0032-dust-protection/0032-dust-protection.md
 
     transfer.network = {"network":"chrysalis-devnet", "blockchain":"iota"};
