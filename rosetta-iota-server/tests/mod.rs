@@ -125,48 +125,6 @@ impl Response {
             panic!("can not cast type")
         }
     }
-    fn unwrap_construction_metadata(self) -> Result<ConstructionMetadataResponse, ApiError> {
-        if let Response::ConstructionMetadata(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
-    fn unwrap_construction_parse_response(self) -> Result<ConstructionParseResponse, ApiError> {
-        if let Response::ConstructionParse(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
-    fn unwrap_construction_payloads_response(self) -> Result<ConstructionPayloadsResponse, ApiError> {
-        if let Response::ConstructionPayloads(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
-    fn unwrap_construction_combine_response(self) -> Result<ConstructionCombineResponse, ApiError> {
-        if let Response::ConstructionCombine(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
-    fn unwrap_construction_hash_response(self) -> Result<ConstructionHashResponse, ApiError> {
-        if let Response::ConstructionHash(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
-    fn unwrap_construction_submit_response(self) -> Result<ConstructionSubmitResponse, ApiError> {
-        if let Response::ConstructionSubmit(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
 }
 
 pub async fn test_request(request: Request) -> Response {

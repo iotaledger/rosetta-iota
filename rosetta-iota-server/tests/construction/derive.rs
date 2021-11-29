@@ -1,8 +1,8 @@
 use crate::{test_request, Request};
-use crate::config::{WRONG_BLOCKCHAIN, VALID_NETWORK};
+
 
 use rosetta_iota_server::construction::derive::ConstructionDeriveRequest;
-use rosetta_iota_server::types::{NetworkIdentifier, PublicKey, CurveType};
+
 
 use serial_test::serial;
 
