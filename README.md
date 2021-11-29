@@ -4,12 +4,12 @@
   </a>
 </p>
 <h3 align="center">
-   rosetta-iota
+   rosetta-iota - integrate IOTA easily, quickly and reliably!
 </h3>
 
 ## Overview
 
-`rosetta-iota` provides a reference implementation of the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information [here](https://www.rosetta-api.org/).
+`rosetta-iota` implements the Rosetta API for IOTA in Rust. If you haven't heard of the Rosetta API, you can find more information [here](https://www.rosetta-api.org/).
 
 ## Features
 
