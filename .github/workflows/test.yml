@@ -1,4 +1,4 @@
-name: Check
+name: Test
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - stable
 
 jobs:
-  check:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -56,8 +56,8 @@ jobs:
           path: target
           key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
 
-      - name: Build
+      - name: Tests
         uses: actions-rs/cargo@v1
         with:
-          command: check
-          args: --all --release
+          command: test
+          args: --all --all-features --release
