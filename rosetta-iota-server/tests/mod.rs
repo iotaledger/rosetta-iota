@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::dummy_node::start_dummy_node;
 
 use config::default_rosetta_config;

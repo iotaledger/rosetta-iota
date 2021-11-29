@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use crate::{
     config::{
         VALID_BECH32_ADDRESS_WITH_BALANCE, VALID_BLOCKCHAIN, VALID_NETWORK, WRONG_ADDRESS_FORMAT, WRONG_BLOCKCHAIN,

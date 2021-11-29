@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 use rosetta_iota_server::{config::RosettaMode, RosettaConfig};
 
 pub const DUMMY_NODE_BIND_ADDR: &str = "127.0.0.1:12345";

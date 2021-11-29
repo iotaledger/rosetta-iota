@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{construction::deserialize_signed_transaction, error::ApiError, is_wrong_network, types::*, RosettaConfig};
