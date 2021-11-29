@@ -35,14 +35,17 @@ pub async fn derive(
 
     let public_key_bytes = hex::decode(request.public_key.hex_bytes)
         .map_err(|e| ApiError::NonRetriable(format!("invalid public key provided: {}", e)))?;
-    let public_key_hash = Blake2b256::digest(&public_key_bytes);
 
-    let bech32_address =
-        Address::Ed25519(Ed25519Address::new(public_key_hash.into())).to_bech32(&rosetta_config.bech32_hrp);
+    // serde only allows Ed25519 curve type; however the Ed25519 key size still needs to be checked
+    if public_key_bytes.len() != 32 {
+        return Err(ApiError::NonRetriable(format!("invalid Ed25519 key length: expected a length of 32 bytes but received {} bytes", public_key_bytes.len())));
+    }
+
+    let blake2b_hash = Blake2b256::digest(&public_key_bytes);
 
     Ok(ConstructionDeriveResponse {
         account_identifier: AccountIdentifier {
-            address: bech32_address,
+            address: Address::Ed25519(Ed25519Address::new(blake2b_hash.into())).to_bech32(&rosetta_config.bech32_hrp),
         },
     })
 }

@@ -1,4 +1,4 @@
-use crate::dummy_node::dummy_node::start_dummy_node;
+use crate::dummy_node::start_dummy_node;
 
 use config::default_rosetta_config;
 
