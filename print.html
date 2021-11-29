@@ -145,7 +145,7 @@
 <a href="https://www.rosetta-api.org/docs/welcome.html">General Rosetta API Documentation</a></p>
 <h2 id="why-rosetta-iota-"><a class="header" href="#why-rosetta-iota-">Why <code>rosetta-iota</code> ?</a></h2>
 <ul>
-<li><strong>Automatically</strong> starts a pre-configured IOTA full-node</li>
+<li>Automatically starts a pre-configured IOTA full-node</li>
 <li><a href="https://www.rosetta-api.org/docs/data_api_introduction.html">Data API</a> to access blocks, transactions, and balances in a standard format</li>
 <li><a href="https://www.rosetta-api.org/docs/construction_api_introduction.html">Construction API</a> to create curve-based transactions with standardized operations in an offline execution environment</li>
 <li>Stateless</li>
@@ -193,7 +193,7 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
      &quot;alias&quot;: &quot;Alice&quot;
    },
    {
-     &quot;multiAddress&quot;: &quot;/dns/121.56.12.23/tcp/15600/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9&quot;,
+     &quot;multiAddress&quot;: &quot;/ip4/121.56.12.23/tcp/15600/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9&quot;,
      &quot;alias&quot;: &quot;Bob&quot;
    }
  ]
@@ -221,14 +221,15 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 You can back up your node ID by preserving the <code>data/p2pstore</code> directory.</p>
 </li>
 </ol>
-<p>Once the HORNET node has synced with the network, the Rosetta API will be available at: http://127.0.0.1:3030
-The health status of the HORNET node can be checked at: http://127.0.0.1:14265/api/v1/info</p>
+<p>Once the HORNET node has synced with the network, the Rosetta API will be available at:
+http://127.0.0.1:3030</p>
+<p>The health status of the HORNET node can be checked at: http://127.0.0.1:14265/api/v1/info</p>
 <h4 id="environment-variables"><a class="header" href="#environment-variables">Environment variables:</a></h4>
 <ul>
-<li><code>MODE</code> ... the mode in which the implementation is to run. Can be either <code>offline</code> or <code>online</code>.</li>
+<li><code>MODE</code> ... the mode in which the implementation is to run; can be either <code>offline</code> or <code>online</code></li>
 </ul>
 <h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
-<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. <strong>For <code>chrysalis-mainnet</code>, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For <code>chrysalis-devnet</code>, the snapshots will be automatically downloaded from http://dbfiles.chrysalis-devnet.iota.cafe. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the <code>data/snapshots</code> directory.</strong></p>
+<p>The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For <code>chrysalis-mainnet</code>, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For <code>chrysalis-devnet</code>, the snapshots will be automatically downloaded from http://dbfiles.chrysalis-devnet.iota.cafe. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the <code>data/snapshots</code> directory.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing-with-rosetta-cli"><a class="header" href="#testing-with-rosetta-cli">Testing with rosetta-cli</a></h1>
 <p>The provided scripts <code>check_data.sh</code> and <code>check_construction.sh</code> do set up rosetta-cli. They start rosetta-cli and make sure that rosetta-cli runs with the correct settings.</p>
 <ol>
@@ -264,7 +265,7 @@ The health status of the HORNET node can be checked at: http://127.0.0.1:14265/a
 </ol>
 <p>The testing scripts make use of following environment variable:</p>
 <ul>
-<li><code>NETWORK</code> = ...the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>chrysalis-devnet</code></li>
+<li><code>NETWORK</code> = ... the network that should be tested on; can be either <code>chrysalis-mainnet</code> or <code>chrysalis-devnet</code></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="testing-with-curl"><a class="header" href="#testing-with-curl">Testing with curl</a></h1>
 <p>Curl commands can be used for manual inspection of each API endpoint.</p>
