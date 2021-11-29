@@ -9,7 +9,7 @@
 
 ## Why `rosetta-iota` ?
 
-- **Automatically** starts a pre-configured IOTA full-node
+ - Automatically starts a pre-configured IOTA full-node
  - [Data API](https://www.rosetta-api.org/docs/data_api_introduction.html) to access blocks, transactions, and balances in a standard format
  - [Construction API](https://www.rosetta-api.org/docs/construction_api_introduction.html) to create curve-based transactions with standardized operations in an offline execution environment
  - Stateless

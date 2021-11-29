@@ -40,7 +40,7 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
          "alias": "Alice"
        },
        {
-         "multiAddress": "/dns/121.56.12.23/tcp/15600/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9",
+         "multiAddress": "/ip4/121.56.12.23/tcp/15600/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9",
          "alias": "Bob"
        }
      ]
@@ -74,13 +74,15 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
 7) If you want to reuse the node ID of your HORNET node with a later deployment (**see step 4.**) make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 You can back up your node ID by preserving the `data/p2pstore` directory.
 
-Once the HORNET node has synced with the network, the Rosetta API will be available at: http://127.0.0.1:3030
+Once the HORNET node has synced with the network, the Rosetta API will be available at:
+http://127.0.0.1:3030
+
 The health status of the HORNET node can be checked at: http://127.0.0.1:14265/api/v1/info
 
 #### Environment variables:
-- `MODE` ... the mode in which the implementation is to run. Can be either `offline` or `online`.
+- `MODE` ... the mode in which the implementation is to run; can be either `offline` or `online`
 
 ## Further notes:
 
-The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. **For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `chrysalis-devnet`, the snapshots will be automatically downloaded from http://dbfiles.chrysalis-devnet.iota.cafe. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.**
+The HORNET node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For `chrysalis-mainnet`, the snapshots will be automatically downloaded from https://chrysalis-dbfiles.iota.org. For `chrysalis-devnet`, the snapshots will be automatically downloaded from http://dbfiles.chrysalis-devnet.iota.cafe. If you want to bootstrap the HORNET node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.
 
