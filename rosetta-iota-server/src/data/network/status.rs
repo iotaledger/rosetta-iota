@@ -1,9 +1,9 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    client::{build_client, get_latest_milestone, get_peers},
-    config::Config,
+    client::{build_client, get_confirmed_milestone, get_latest_milestone_index, get_peers, get_pruning_index},
+    config::RosettaConfig,
     error::ApiError,
     is_offline_mode_enabled, is_wrong_network,
     types::{NetworkIdentifier, *},
@@ -13,110 +13,70 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkStatusRequest {
     pub network_identifier: NetworkIdentifier,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkStatusResponse {
     pub current_block_identifier: BlockIdentifier,
     pub current_block_timestamp: u64,
     pub genesis_block_identifier: BlockIdentifier,
+    pub oldest_block_identifier: BlockIdentifier,
+    pub sync_status: SyncStatus,
     pub peers: Vec<Peer>,
 }
 
-pub async fn network_status(request: NetworkStatusRequest, options: Config) -> Result<NetworkStatusResponse, ApiError> {
+pub async fn network_status(
+    request: NetworkStatusRequest,
+    rosetta_config: RosettaConfig,
+) -> Result<NetworkStatusResponse, ApiError> {
     debug!("/network/status");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint does not support offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
-    let latest_milestone = get_latest_milestone(&client).await?;
-
-    let current_block_timestamp = latest_milestone.timestamp * 1000;
+    let confirmed_milestone = get_confirmed_milestone(&client).await?;
+    let oldest_block = get_pruning_index(&client).await? + 1;
+    let latest_milestone_index = get_latest_milestone_index(&client).await?;
 
     let mut peers = vec![];
     for peer in get_peers(&client).await? {
-        peers.push(Peer {
-            peer_id: peer.id,
-            metadata: PeerMetadata {
-                multi_addresses: peer.multi_addresses,
-                alias: peer.alias,
-                connected: peer.connected,
-            },
-        });
+        peers.push(Peer { peer_id: peer.id });
     }
 
-    let genesis_block_identifier = BlockIdentifier {
-        index: 1,
-        hash: 1.to_string(),
-    };
-
-    let current_block_identifier = BlockIdentifier {
-        index: latest_milestone.index,
-        hash: latest_milestone.index.to_string(),
-    };
-
     let response = NetworkStatusResponse {
-        current_block_identifier,
-        current_block_timestamp,
-        genesis_block_identifier,
+        current_block_identifier: BlockIdentifier {
+            index: confirmed_milestone.index,
+            hash: confirmed_milestone.index.to_string(),
+        },
+        current_block_timestamp: confirmed_milestone.timestamp * 1000,
+        genesis_block_identifier: BlockIdentifier {
+            index: 1,
+            hash: 1.to_string(),
+        },
+        oldest_block_identifier: BlockIdentifier {
+            index: oldest_block,
+            hash: oldest_block.to_string(),
+        },
+        sync_status: SyncStatus {
+            current_index: confirmed_milestone.index as u64,
+            target_index: latest_milestone_index as u64,
+            synced: latest_milestone_index - confirmed_milestone.index == 0,
+        },
         peers,
     };
 
     Ok(response)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::config::RosettaMode;
-
-    use crate::mocked_node::start_mocked_node;
-    use serial_test::serial;
-    use tokio::sync::oneshot;
-
-    #[tokio::test]
-    #[serial]
-    async fn test_network_status() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
-
-        let request = NetworkStatusRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
-                sub_network_identifier: None,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = network_status(request, server_options).await.unwrap();
-
-        assert_eq!(68910, response.current_block_identifier.index);
-        assert_eq!(
-            "68910",
-            response.current_block_identifier.hash
-        );
-        assert_eq!(1618486402000, response.current_block_timestamp);
-
-        let _ = shutdown_tx.send(());
-    }
 }

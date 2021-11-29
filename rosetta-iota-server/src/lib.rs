@@ -1,9 +1,9 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{config::RosettaMode, error::ApiError, types::NetworkIdentifier};
 
-pub use config::Config;
+pub use config::RosettaConfig;
 
 use core::future::Future;
 use log::{error, info};
@@ -15,15 +15,13 @@ pub mod client;
 pub mod config;
 pub mod construction;
 pub mod consts;
-pub mod currency;
 pub mod data;
 pub mod error;
 pub mod filters;
-pub mod mocked_node;
 pub mod operations;
 pub mod types;
 
-pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Send + 'static) {
+pub async fn run_server(config: RosettaConfig, shutdown: impl Future<Output = ()> + Send + 'static) {
     env_logger::init();
 
     let bind_addr = config
@@ -33,11 +31,10 @@ pub async fn run_server(config: Config, shutdown: impl Future<Output = ()> + Sen
 
     info!("Listening on {}.", bind_addr.to_string());
     info!(
-        "BIND_ADDRESS {} NETWORK {} BECH32_HRP {} TX_TAG {} NODE_URL {} MODE {:#?}",
+        "BIND_ADDRESS {} NETWORK {} BECH32_HRP {} NODE_URL {} MODE {:#?}",
         bind_addr.to_string(),
         config.network,
         config.bech32_hrp,
-        config.tx_tag,
         config.node_url,
         config.mode
     );
@@ -100,18 +97,10 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infa
     Ok(warp::reply::with_status(json, status))
 }
 
-pub fn is_wrong_network(options: &Config, network_identifier: &NetworkIdentifier) -> bool {
-    if network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network {
-        true
-    } else {
-        false
-    }
+pub fn is_wrong_network(options: &RosettaConfig, network_identifier: &NetworkIdentifier) -> bool {
+    network_identifier.blockchain != consts::BLOCKCHAIN || network_identifier.network != options.network
 }
 
-pub fn is_offline_mode_enabled(options: &Config) -> bool {
-    if options.mode == RosettaMode::Offline {
-        true
-    } else {
-        false
-    }
+pub fn is_offline_mode_enabled(options: &RosettaConfig) -> bool {
+    options.mode == RosettaMode::Offline
 }

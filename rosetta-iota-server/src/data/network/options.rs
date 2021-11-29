@@ -1,8 +1,8 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    config::Config,
+    config::RosettaConfig,
     consts,
     error::ApiError,
     is_wrong_network,
@@ -14,11 +14,13 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkOptionsRequest {
     pub network_identifier: NetworkIdentifier,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct NetworkOptionsResponse {
     pub version: Version,
     pub allow: Allow,
@@ -26,18 +28,17 @@ pub struct NetworkOptionsResponse {
 
 pub async fn network_options(
     request: NetworkOptionsRequest,
-    options: Config,
+    rosetta_config: RosettaConfig,
 ) -> Result<NetworkOptionsResponse, ApiError> {
     debug!("/network/options");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("wrong network".to_string()));
     }
 
     let version = Version {
         rosetta_version: consts::ROSETTA_VERSION.to_string(),
         node_version: consts::NODE_VERSION.to_string(),
-        middleware_version: consts::MIDDLEWARE_VERSION.to_string(),
     };
 
     let operation_statuses = vec![
@@ -60,7 +61,6 @@ pub async fn network_options(
         operation_types,
         errors,
         historical_balance_lookup: false,
-        timestamp_start_index: Some(0),
         call_methods: vec![],
         balance_exemptions: vec![],
         mempool_coins: false,
@@ -69,56 +69,4 @@ pub async fn network_options(
     let response = NetworkOptionsResponse { version, allow };
 
     Ok(response)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{config::RosettaMode, mocked_node::start_mocked_node};
-    use serial_test::serial;
-    use tokio::sync::oneshot;
-
-    #[tokio::test]
-    #[serial]
-    async fn test_network_options() {
-        let (shutdown_tx, shutdown_rx) = oneshot::channel();
-        tokio::task::spawn(start_mocked_node(shutdown_rx));
-
-        let request = NetworkOptionsRequest {
-            network_identifier: NetworkIdentifier {
-                blockchain: "iota".to_string(),
-                network: "testnet7".to_string(),
-                sub_network_identifier: None,
-            },
-        };
-
-        let server_options = Config {
-            node_url: "http://127.0.0.1:3029".to_string(),
-            network: "testnet7".to_string(),
-            tx_tag: "rosetta".to_string(),
-            bech32_hrp: "atoi".to_string(),
-            mode: RosettaMode::Online,
-            bind_addr: "0.0.0.0:3030".to_string(),
-        };
-
-        let response = network_options(request, server_options).await.unwrap();
-
-        assert_eq!("1.4.10", response.version.rosetta_version);
-        assert_eq!("0.6.0-alpha", response.version.node_version);
-        assert_eq!("0.6.0-alpha", response.version.middleware_version);
-
-        assert_eq!("Success", response.allow.operation_statuses[0].status);
-        assert_eq!(true, response.allow.operation_statuses[0].successful);
-
-        assert_eq!("INPUT", response.allow.operation_types[0]);
-        assert_eq!("SIG_LOCKED_SINGLE_OUTPUT", response.allow.operation_types[1]);
-        assert_eq!("SIG_LOCKED_DUST_ALLOWANCE_OUTPUT", response.allow.operation_types[2]);
-
-        assert_eq!(1, response.allow.errors[0].code);
-        assert_eq!("non retriable error", response.allow.errors[0].message);
-        assert_eq!(false, response.allow.errors[0].retriable);
-        assert_eq!(false, response.allow.errors[0].details.is_some());
-
-        let _ = shutdown_tx.send(());
-    }
 }

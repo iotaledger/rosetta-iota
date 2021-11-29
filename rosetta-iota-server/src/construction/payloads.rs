@@ -1,7 +1,7 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*, Config};
+use crate::{construction::serialize_unsigned_transaction, error::ApiError, is_wrong_network, types::*, RosettaConfig};
 
 use bee_common::packable::Packable;
 use bee_message::prelude::*;
@@ -10,6 +10,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionPayloadsRequest {
     pub network_identifier: NetworkIdentifier,
     pub operations: Vec<Operation>,
@@ -17,18 +18,19 @@ pub struct ConstructionPayloadsRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionPayloadsResponse {
     pub unsigned_transaction: String,
     pub payloads: Vec<SigningPayload>,
 }
 
-pub(crate) async fn construction_payloads_request(
+pub async fn payloads(
     request: ConstructionPayloadsRequest,
-    options: Config,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionPayloadsResponse, ApiError> {
     debug!("/construction/payloads");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
@@ -39,14 +41,14 @@ pub(crate) async fn construction_payloads_request(
     for operation in request.operations {
         let address = operation
             .account
-            .ok_or(ApiError::NonRetriable("account not populated".to_string()))?
+            .ok_or_else(|| ApiError::NonRetriable("account not populated".to_string()))?
             .address;
 
         match &operation.type_[..] {
             "INPUT" => {
                 let output_id = operation
                     .coin_change
-                    .ok_or(ApiError::NonRetriable("coin change not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("coin change not populated".to_string()))?
                     .coin_identifier
                     .identifier;
 
@@ -62,13 +64,13 @@ pub(crate) async fn construction_payloads_request(
 
                 let amount = operation
                     .amount
-                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("amount not populated".to_string()))?
                     .value
                     .parse::<u64>()
                     .unwrap();
 
                 outputs.push(Output::SignatureLockedSingle(
-                    SignatureLockedSingleOutput::new(address, amount).unwrap().into(),
+                    SignatureLockedSingleOutput::new(address, amount).unwrap(),
                 ));
             }
 
@@ -77,13 +79,13 @@ pub(crate) async fn construction_payloads_request(
 
                 let amount = operation
                     .amount
-                    .ok_or(ApiError::NonRetriable("amount not populated".to_string()))?
+                    .ok_or_else(|| ApiError::NonRetriable("amount not populated".to_string()))?
                     .value
                     .parse::<u64>()
                     .unwrap();
 
                 outputs.push(Output::SignatureLockedDustAllowance(
-                    SignatureLockedDustAllowanceOutput::new(address, amount).unwrap().into(),
+                    SignatureLockedDustAllowanceOutput::new(address, amount).unwrap(),
                 ));
             }
 
@@ -95,11 +97,7 @@ pub(crate) async fn construction_payloads_request(
     inputs.sort_unstable_by_key(|i| i.0.pack_new());
     outputs.sort_unstable_by_key(|o| o.pack_new());
 
-    let indexation_payload = IndexationPayload::new(options.tx_tag.as_bytes(), &[])
-        .map_err(|e| ApiError::NonRetriable(format!("can not build indexation payload: {}", e)))?;
-
-    let mut transaction_payload_essence =
-        RegularEssenceBuilder::new().with_payload(Payload::Indexation(Box::new(indexation_payload)));
+    let mut transaction_payload_essence = RegularEssenceBuilder::new();
 
     for (i, _) in inputs.clone() {
         transaction_payload_essence = transaction_payload_essence.add_input(i);
@@ -115,12 +113,10 @@ pub(crate) async fn construction_payloads_request(
 
     for (_, address) in inputs {
         signing_payloads.push(SigningPayload {
-            account_identifier: Some(AccountIdentifier {
-                address,
-                sub_account: None,
-            }),
+            address: None,
+            account_identifier: AccountIdentifier { address },
             hex_bytes: hex::encode(&hash_to_sign),
-            signature_type: Some(SignatureType::Edwards25519),
+            signature_type: SignatureType::Edwards25519,
         });
     }
 

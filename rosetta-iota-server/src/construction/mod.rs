@@ -1,16 +1,14 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
     construction::{
-        combine::construction_combine_request, derive::construction_derive_request, hash::construction_hash_request,
-        metadata::construction_metadata_request, parse::construction_parse_request,
-        payloads::construction_payloads_request, preprocess::construction_preprocess_request,
-        submit::construction_submit_request,
+        combine::combine, derive::derive, hash::hash, metadata::metadata, parse::parse, payloads::payloads,
+        preprocess::preprocess, submit::submit,
     },
-    filters::{handle, with_options},
+    filters::{handle, with_rosetta_config},
     types::{SignedTransaction, UnsignedTransaction},
-    Config,
+    RosettaConfig,
 };
 
 use warp::Filter;
@@ -24,49 +22,49 @@ pub mod payloads;
 pub mod preprocess;
 pub mod submit;
 
-pub fn routes(options: Config) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(options: RosettaConfig) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::post()
         .and(
             warp::path!("construction" / "derive")
                 .and(warp::body::json())
-                .and(with_options(options.clone()))
-                .and_then(handle(construction_derive_request)),
+                .and(with_rosetta_config(options.clone()))
+                .and_then(handle(derive)),
         )
         .or(warp::path!("construction" / "preprocess")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_preprocess_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(preprocess)))
         .or(warp::path!("construction" / "metadata")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_metadata_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(metadata)))
         .or(warp::path!("construction" / "payloads")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_payloads_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(payloads)))
         .or(warp::path!("construction" / "parse")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_parse_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(parse)))
         .or(warp::path!("construction" / "combine")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_combine_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(combine)))
         .or(warp::path!("construction" / "hash")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_hash_request)))
+            .and(with_rosetta_config(options.clone()))
+            .and_then(handle(hash)))
         .or(warp::path!("construction" / "submit")
             .and(warp::body::json())
-            .and(with_options(options.clone()))
-            .and_then(handle(construction_submit_request)))
+            .and(with_rosetta_config(options))
+            .and_then(handle(submit)))
 }
 
 fn serialize_unsigned_transaction(unsigned_transaction: &UnsignedTransaction) -> String {
     hex::encode(serde_json::to_string(unsigned_transaction).unwrap())
 }
 
-fn deserialize_unsigned_transaction(string: &String) -> UnsignedTransaction {
+fn deserialize_unsigned_transaction(string: &str) -> UnsignedTransaction {
     serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
 }
 
@@ -74,6 +72,6 @@ fn serialize_signed_transaction(signed_transaction: &SignedTransaction) -> Strin
     hex::encode(serde_json::to_string(signed_transaction).unwrap())
 }
 
-fn deserialize_signed_transaction(string: &String) -> SignedTransaction {
+fn deserialize_signed_transaction(string: &str) -> SignedTransaction {
     serde_json::from_slice(&hex::decode(string).unwrap()).unwrap()
 }

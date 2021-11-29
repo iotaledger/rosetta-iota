@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use structopt::StructOpt;
@@ -6,15 +6,13 @@ use structopt::StructOpt;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, StructOpt)]
-pub struct Config {
+pub struct RosettaConfig {
     #[structopt(long)]
     pub bind_addr: String,
     #[structopt(long)]
     pub network: String,
     #[structopt(long)]
     pub bech32_hrp: String,
-    #[structopt(long, default_value = "Rosetta")]
-    pub tx_tag: String,
     #[structopt(long)]
     pub node_url: String,
     #[structopt(long, default_value = "online")]

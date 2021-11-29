@@ -2,17 +2,20 @@ version: '3.3'
 
 services:
   hornet:
-    image: iotaledger/hornet:v1.0.1
+    image: gohornet/hornet:1.0.5
     restart: "no"
     working_dir: /app
-    expose:
-      # Node API
-      - "14265"
-      # libp2p/gossip protocol
-      - "15600"
     ports:
+      # node dashboard
+      - "127.0.0.1:8081:8081/tcp"
+      # node REST API
       - "127.0.0.1:14265:14265/tcp"
+      # gossip protocol
       - "0.0.0.0:15600:15600/tcp"
+    expose:
+      - "8081"
+      - "14265"
+      - "15600"
     volumes:
       - './hornet-conf/chrysalis-mainnet/config.json:/app/config.json:ro'
       - './hornet-conf/chrysalis-mainnet/peering.json:/app/peering.json'
@@ -22,12 +25,12 @@ services:
 
   rosetta:
     build: .
-    command: --bind-addr 0.0.0.0:3030 --network chrysalis-mainnet --bech32-hrp iota --tx-tag $TX_TAG --node-url http://hornet:14265 --mode $MODE
+    command: --bind-addr 0.0.0.0:3030 --network chrysalis-mainnet --bech32-hrp iota --node-url http://hornet:14265 --mode $MODE
     restart: "no"
     environment:
       - RUST_LOG=info
+    ports:
+      - "0.0.0.0:3030:3030/tcp"
     expose:
       # Rosetta API
       - "3030"
-    ports:
-      - "0.0.0.0:3030:3030/tcp"

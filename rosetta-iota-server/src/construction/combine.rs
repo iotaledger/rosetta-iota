@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
@@ -6,7 +6,7 @@ use crate::{
     error::ApiError,
     is_wrong_network,
     types::*,
-    Config,
+    RosettaConfig,
 };
 
 use bee_message::prelude::*;
@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionCombineRequest {
     pub network_identifier: NetworkIdentifier,
     pub unsigned_transaction: String,
@@ -24,28 +25,24 @@ pub struct ConstructionCombineRequest {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionCombineResponse {
     pub signed_transaction: String,
 }
 
-pub(crate) async fn construction_combine_request(
+pub async fn combine(
     request: ConstructionCombineRequest,
-    options: Config,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionCombineResponse, ApiError> {
     debug!("/construction/combine");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
     let unsigned_transaction = deserialize_unsigned_transaction(&request.unsigned_transaction);
 
-    let regular_essence = match &unsigned_transaction.essence() {
-        Essence::Regular(r) => r,
-        _ => {
-            return Err(ApiError::NonRetriable("essence type not supported".to_string()));
-        }
-    };
+    let Essence::Regular(regular_essence) = &unsigned_transaction.essence();
 
     if regular_essence.inputs().len() != request.signatures.len() {
         return Err(ApiError::NonRetriable(
@@ -59,13 +56,7 @@ pub(crate) async fn construction_combine_request(
 
     for signature in request.signatures {
         // get address for which the signature was produced
-        let bech32_addr = signature
-            .signing_payload
-            .account_identifier
-            .ok_or(ApiError::NonRetriable(
-                "signing_payload.account_identifier not populated".to_string(),
-            ))?
-            .address;
+        let bech32_addr = signature.signing_payload.account_identifier.address;
 
         // check if a Signature Unlock Block already was added for the address
         if let Some(index) = index_of_signature_unlock_block_with_address.get(&bech32_addr) {

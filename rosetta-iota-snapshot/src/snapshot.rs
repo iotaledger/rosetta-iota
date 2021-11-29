@@ -3,7 +3,10 @@
 
 use crate::Config;
 
-use rosetta_iota_server::types::{AccountIdentifier, Currency};
+use rosetta_iota_server::{
+    consts::iota_currency,
+    types::{AccountIdentifier, Currency},
+};
 
 use bee_common::packable::{Packable, Read};
 use bee_ledger::types::{snapshot::*, BalanceDiffs};
@@ -12,12 +15,7 @@ use bee_tangle::solid_entry_point::SolidEntryPoint;
 
 use serde::{Deserialize, Serialize};
 
-use std::{
-    fs,
-    fs::OpenOptions,
-    io::BufReader,
-    path::Path,
-};
+use std::{fs, fs::OpenOptions, io::BufReader, path::Path};
 
 pub async fn balances_from_snapshot(config: &Config) {
     let full_path = Path::new("full_snapshot.bin");
@@ -38,7 +36,7 @@ pub async fn balances_from_snapshot(config: &Config) {
     };
 
     save_sep_index(sep_index).await;
-    save_balance_diffs(balance_diffs, &config).await;
+    save_balance_diffs(balance_diffs, config).await;
 }
 
 async fn import_milestone_diffs<R: Read>(
@@ -232,15 +230,8 @@ async fn save_balance_diffs(balance_diffs: BalanceDiffs, config: &Config) {
 
         if balance > 0 {
             json_entries.push(BootstrapBalanceEntry {
-                account_identifier: AccountIdentifier {
-                    address: addr,
-                    sub_account: None,
-                },
-                currency: Currency {
-                    symbol: "IOTA".to_string(),
-                    decimals: 0,
-                    metadata: None,
-                },
+                account_identifier: AccountIdentifier { address: addr },
+                currency: iota_currency(),
                 value: balance.to_string(),
             });
         }

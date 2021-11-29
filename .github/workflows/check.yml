@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - dev
+      - stable
   pull_request:
     branches:
       - dev
+      - stable
 
 jobs:
   check:
@@ -17,34 +19,45 @@ jobs:
         rust: [nightly, beta, stable]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install ${{ matrix.rust }}
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        override: true
+      - name: Install LLVM and Clang (Windows)
+        uses: KyleMayes/install-llvm-action@32c4866ebb71e0949e8833eb49beeebed48532bd
+        if: matrix.os == 'windows-latest'
+        with:
+          version: "11.0"
+          directory: ${{ runner.temp }}/llvm
 
-    - name: Cache cargo registry
-      uses: actions/cache@v2
-      with:
-        path: ~/.cargo/registry
-        key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+      - name: Set LIBCLANG_PATH (Windows)
+        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+        if: matrix.os == 'windows-latest'
 
-    - name: Cache cargo index
-      uses: actions/cache@v2
-      with:
-        path: ~/.cargo/git
-        key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install ${{ matrix.rust }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
 
-    - name: Cache cargo target
-      uses: actions/cache@v2
-      with:
-        path: target
-        key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/registry
+          key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
 
-    - name: Check
-      uses: actions-rs/cargo@v1
-      with:
-        command: check
-        args: --all --release
+      - name: Cache cargo index
+        uses: actions/cache@v2
+        with:
+          path: ~/.cargo/git
+          key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Cache cargo target
+        uses: actions/cache@v2
+        with:
+          path: target
+          key: ${{ matrix.os }}-${{ matrix.rust }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all --release

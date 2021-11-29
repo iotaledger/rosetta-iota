@@ -6,21 +6,31 @@ on:
   push:
     branches:
       - dev
+      - stable
     paths:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
+      - ".github/workflows/audit.yml"
   pull_request:
     branches:
       - dev
+      - stable
     paths:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
+      - ".github/workflows/audit.yml"
 
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - run: cp -r .github/workflows/.cargo .cargo
       - uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

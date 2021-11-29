@@ -1,7 +1,7 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*, Config};
+use crate::{error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*, RosettaConfig};
 
 use bee_message::prelude::*;
 
@@ -12,33 +12,35 @@ use crate::client::{build_client, get_output};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionMetadataRequest {
     pub network_identifier: NetworkIdentifier,
     pub options: PreprocessOptions,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionMetadataResponse {
     pub metadata: ConstructionMetadata,
 }
 
-pub(crate) async fn construction_metadata_request(
+pub async fn metadata(
     request: ConstructionMetadataRequest,
-    options: Config,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionMetadataResponse, ApiError> {
     debug!("/construction/metadata");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint is not available in offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let mut utxo_inputs_metadata = HashMap::new();
     for output_id_string in request.options.utxo_inputs {

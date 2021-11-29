@@ -1,0 +1,39 @@
+version: '3.3'
+
+services:
+  hornet:
+    image: gohornet/hornet:1.0.5
+    restart: "no"
+    working_dir: /app
+    ports:
+      # node dashboard
+      - "127.0.0.1:8081:8081/tcp"
+      # node REST API
+      - "127.0.0.1:14265:14265/tcp"
+      # node auto-peering protocol
+      - "0.0.0.0:14626:14626/udp"
+      # node gossip protocol
+      - "0.0.0.0:15600:15600/tcp"
+    expose:
+      - "8081"
+      - "14265"
+      - "14626"
+      - "15600"
+    volumes:
+      - './hornet-conf/chrysalis-devnet/config.json:/app/config.json:ro'
+      - './hornet-conf/chrysalis-devnet/peering.json:/app/peering.json'
+      - './data:/data'
+      - '/etc/ssl/certs:/etc/ssl/certs:ro'
+      - '/etc/localtime:/etc/localtime:ro'
+
+  rosetta:
+    build: .
+    command: --bind-addr 0.0.0.0:3030 --network chrysalis-devnet --bech32-hrp atoi --node-url http://hornet:14265 --mode $MODE
+    restart: "no"
+    environment:
+      - RUST_LOG=info
+    ports:
+      - "0.0.0.0:3030:3030/tcp"
+    expose:
+      # Rosetta API
+      - "3030"

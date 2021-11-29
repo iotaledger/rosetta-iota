@@ -1,16 +1,26 @@
-use crate::{error::ApiError, Config};
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
+use crate::{error::ApiError, RosettaConfig};
 
 use bee_message::prelude::*;
 use bee_rest_api::types::responses::*;
 
 use bee_rest_api::types::dtos::PeerDto;
-use iota::Client;
+use iota_client::Client;
 
-pub async fn build_client(options: &Config) -> Result<Client, ApiError> {
-    let builder = iota::Client::builder()
+pub async fn build_client(options: &RosettaConfig) -> Result<Client, ApiError> {
+    let mut builder = Client::builder();
+
+    if cfg!(feature = "dummy_node") {
+        builder = builder.with_node_sync_disabled()
+    }
+
+    builder = builder
         .with_network(&options.network)
         .with_node(&options.node_url)
         .map_err(|e| ApiError::NonRetriable(format!("unable to build client: {}", e)))?;
+
     Ok(builder
         .finish()
         .await
@@ -24,9 +34,16 @@ pub async fn get_output(output_id: OutputId, client: &Client) -> Result<OutputRe
         .map_err(|e| ApiError::NonRetriable(format!("can not get output: {}", e)))
 }
 
-pub async fn get_unspent_outputs_of_address(bech32_addr: &str, client: &Client) -> Result<Vec<OutputResponse>, ApiError> {
-    match client.find_outputs(&[], &[bech32_addr.to_string()]).await {
-        Ok(outputs) => Ok(outputs),
+pub async fn get_unspent_outputs_of_address(
+    bech32_addr: &str,
+    client: &Client,
+) -> Result<OutputsAddressResponse, ApiError> {
+    match client
+        .get_address()
+        .outputs_response(&bech32_addr.to_string(), Default::default())
+        .await
+    {
+        Ok(response) => Ok(response),
         Err(e) => return Err(ApiError::NonRetriable(format!("can not get outputs of address: {}", e))),
     }
 }
@@ -38,23 +55,23 @@ pub async fn get_balance_of_address(bech32_addr: &str, client: &Client) -> Resul
     }
 }
 
-pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
+pub async fn get_milestone(milestone_index: u32, client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
     match client.get_milestone(milestone_index).await {
         Ok(milestone) => Ok(milestone),
         Err(e) => return Err(ApiError::NonRetriable(format!("can not get milestone: {}", e))),
     }
 }
 
-pub async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError> {
+async fn get_confirmed_milestone_index(client: &Client) -> Result<u32, ApiError> {
     match client.get_info().await {
         Ok(res) => Ok(res.nodeinfo.confirmed_milestone_index),
         Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
     }
 }
 
-pub async fn get_confirmed_milestone(client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
-    let confirmed_milestone_index = get_confirmed_milestone_index(&client).await?;
-    get_milestone(confirmed_milestone_index, &client).await
+pub async fn get_confirmed_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
+    let confirmed_milestone_index = get_confirmed_milestone_index(client).await?;
+    get_milestone(confirmed_milestone_index, client).await
 }
 
 pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError> {
@@ -64,9 +81,9 @@ pub async fn get_latest_milestone_index(client: &Client) -> Result<u32, ApiError
     }
 }
 
-pub async fn get_latest_milestone(client: &Client) -> Result<iota::MilestoneResponse, ApiError> {
-    let latest_milestone_index = get_latest_milestone_index(&client).await?;
-    get_milestone(latest_milestone_index, &client).await
+pub async fn get_latest_milestone(client: &Client) -> Result<iota_client::MilestoneResponse, ApiError> {
+    let latest_milestone_index = get_latest_milestone_index(client).await?;
+    get_milestone(latest_milestone_index, client).await
 }
 
 pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {
@@ -74,6 +91,11 @@ pub async fn get_node_info(client: &Client) -> Result<InfoResponse, ApiError> {
         Ok(res) => Ok(res.nodeinfo),
         Err(e) => return Err(ApiError::NonRetriable(format!("unable to get node info: {}", e))),
     }
+}
+
+pub async fn get_pruning_index(client: &Client) -> Result<u32, ApiError> {
+    let node_info = get_node_info(client).await?;
+    Ok(node_info.pruning_index)
 }
 
 pub async fn get_peers(client: &Client) -> Result<Vec<PeerDto>, ApiError> {

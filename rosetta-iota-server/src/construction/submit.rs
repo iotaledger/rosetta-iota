@@ -1,9 +1,9 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
     construction::deserialize_signed_transaction, error::ApiError, is_offline_mode_enabled, is_wrong_network, types::*,
-    Config,
+    RosettaConfig,
 };
 
 use bee_message::prelude::*;
@@ -13,34 +13,36 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionSubmitRequest {
     pub network_identifier: NetworkIdentifier,
     pub signed_transaction: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ConstructionSubmitResponse {
     pub transaction_identifier: TransactionIdentifier,
     pub metadata: ConstructionSubmitResponseMetadata,
 }
 
-pub(crate) async fn construction_submit_request(
+pub async fn submit(
     request: ConstructionSubmitRequest,
-    options: Config,
+    rosetta_config: RosettaConfig,
 ) -> Result<ConstructionSubmitResponse, ApiError> {
     debug!("/construction/submit");
 
-    if is_wrong_network(&options, &request.network_identifier) {
+    if is_wrong_network(&rosetta_config, &request.network_identifier) {
         return Err(ApiError::NonRetriable("request was made for wrong network".to_string()));
     }
 
-    if is_offline_mode_enabled(&options) {
+    if is_offline_mode_enabled(&rosetta_config) {
         return Err(ApiError::NonRetriable(
             "endpoint is not available in offline mode".to_string(),
         ));
     }
 
-    let client = build_client(&options).await?;
+    let client = build_client(&rosetta_config).await?;
 
     let signed_transaction = deserialize_signed_transaction(&request.signed_transaction);
     let transaction = signed_transaction.transaction();

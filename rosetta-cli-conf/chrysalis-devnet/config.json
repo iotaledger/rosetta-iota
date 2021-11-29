@@ -1,14 +1,15 @@
 {
   "network": {
     "blockchain": "iota",
-    "network": "testnet7"
+    "network": "chrysalis-devnet"
   },
   "online_url": "http://localhost:3030",
   "data_directory": "rosetta-cli-db",
-  "http_timeout": 10,
+  "http_timeout": 300,
   "max_retries": 5,
   "max_sync_concurrency": 5,
   "tip_delay": 5,
+  "memory_limit_disabled": true,
   "data": {
     "historical_balance_enabled": false,
     "reconciliation_disabled": false,
