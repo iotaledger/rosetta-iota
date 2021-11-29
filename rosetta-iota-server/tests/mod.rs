@@ -83,13 +83,6 @@ impl Response {
             panic!("can not cast type")
         }
     }
-    fn unwrap_block_response(self) -> Result<BlockResponse, ApiError> {
-        if let Response::Block(r) = self {
-            r
-        } else {
-            panic!("can not cast type")
-        }
-    }
     fn unwrap_network_list_response(self) -> Result<NetworkListResponse, ApiError> {
         if let Response::NetworkList(r) = self {
             r
