@@ -25,8 +25,4 @@ async fn valid_request() {
     };
 
     // TODO
-    let _response = test_request(Request::Block(request))
-        .await
-        .unwrap_block_response()
-        .unwrap();
 }
