@@ -1,8 +1,6 @@
 use crate::{test_request, Request};
 
-
 use rosetta_iota_server::construction::derive::ConstructionDeriveRequest;
-
 
 use serial_test::serial;
 
@@ -54,7 +52,7 @@ async fn wrong_blockchain() {
         }
     "#,
     )
-        .unwrap();
+    .unwrap();
 
     test_request(Request::ConstructionDerive(request))
         .await
@@ -80,7 +78,7 @@ async fn wrong_network() {
         }
     "#,
     )
-        .unwrap();
+    .unwrap();
 
     test_request(Request::ConstructionDerive(request))
         .await
@@ -106,7 +104,7 @@ async fn wrong_hex_bytes() {
         }
     "#,
     )
-        .unwrap();
+    .unwrap();
 
     test_request(Request::ConstructionDerive(request))
         .await
@@ -132,7 +130,7 @@ async fn wrong_curve() {
         }
     "#,
     )
-        .unwrap();
+    .unwrap();
 
     test_request(Request::ConstructionDerive(request))
         .await
