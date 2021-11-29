@@ -96,7 +96,7 @@ async fn run_server(shutdown_rx: Receiver<()>, return_tx: Sender<()>) {
     let routes =
         info.or(address.or(address_outputs.or(outputs.or(milestones.or(peers.or(utxo_changes.or(messages)))))));
 
-    println!("binding dummy node at {}", bind_addr.to_string());
+    println!("binding dummy node at {}", bind_addr);
 
     let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(bind_addr, async {
         shutdown_rx.await.ok();
