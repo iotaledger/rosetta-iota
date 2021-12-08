@@ -38,7 +38,7 @@ async fn valid_request() {
     assert_eq!(1, response.allow.errors[0].code);
     assert_eq!("non retriable error", response.allow.errors[0].message);
     assert!(!response.allow.errors[0].retriable);
-    assert!(!response.allow.errors[0].details.is_some());
+    assert!(response.allow.errors[0].details.is_none());
 }
 
 #[tokio::test]
