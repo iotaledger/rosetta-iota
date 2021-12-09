@@ -27,17 +27,17 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
     ```
 5) Hornet exposes different functionality on different ports:
       
-      - **14265 TCP** - Node REST API port (exposed to localhost only)
+      - **15600 TCP** - node gossip protocol port (exposed to the Internet)
       
-      - **15600 TCP** - Node communication port (exposed to the Internet)
-      
+      - **14265 TCP** - node REST API port (exposed to localhost only)
+            
       The Rosetta API exposes following ports:
       
       - **3030 TCP** - Rosetta API port (exposed to localhost only)
       
-      The mentioned ports are important for flawless node operation. Make sure port **15600** is accessible from the Internet. If you want to change the ports, you can do so in the docker-compose files.
+      The mentioned ports are important for flawless node operation. Make sure port **15600** is accessible from the Internet else your node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.
          
-6) Add your peer(s) - to which your Hornet node should connect. For `chrysalis-mainnet`, add the peers to the `Hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `Hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
+6) Add your peer(s) - to which your node should connect. For `chrysalis-mainnet`, add the peers to the `Hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `Hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
 
     For better illustration, the `peering.json` file should then look like the following, for example:
     ```json
@@ -56,11 +56,15 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
    ```
           
 7) Share your own Hornet multiaddress with your peers so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of:
-    - the Internet address to reach your Hornet node
-    - the node communication port (per default 15600)
-    - the node ID; you can find your node ID in the logs when you run the implementation. Please search the logs for a `peer configured, ID:` entry.
+    - the Internet address to reach your node (e.g. `/dns/xyz.com` or `/ip4/121.56.12.23`)
+    - the node gossip protocol port (e.g. /`tcp/15600`)
+    - your node ID (e.g. `/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9`)
+    
+    You can find your node ID in the logs when you run the implementation. Please look for an entry like:
+    
+    ![image description](../images/find_node_id.png)
        
-8) Run the implementation for the desired network and specify the mode in which the implementation should run; can be either `offline` or `online`:
+8) Run the implementation in `online/offline` mode for the desired network:
 
     **chrysalis-mainnet**
     ```
@@ -72,12 +76,12 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
     MODE=online docker-compose -f docker-compose.chrysalis-devnet.yml up
     ```
 
-9) If you want to use your node ID of your Hornet node with a later deployment (**see step 4.**) make sure you back up the `data/p2pstore` directory. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
+9) If you want to reuse the node ID with a later deployment (**see step 4.**) make sure you back up the `data/p2pstore` directory. Otherwise, you cannot reuse the same node ID for subsequent deployments. 
 
-10) Your node will now try to synchronize with its peers. You can check the health status of your Hornet node at: [http://127.0.0.1:14265/api/v1/info](http://127.0.0.1:14265/api/v1/info)
-11) Congratulations! Once the Hornet node is healthy, the Rosetta API will be available at port [3030]().
+10) Your node will now try to synchronize with its peers. You can check its health status at: [http://127.0.0.1:14265/api/v1/info](http://127.0.0.1:14265/api/v1/info)
+11) Congratulations, you are done! You can access the Rosetta API at port [3030]().
 
 ## Further notes:
 
-The Hornet node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For `chrysalis-mainnet`, the snapshots will be automatically downloaded from [https://chrysalis-dbfiles.iota.org](https://chrysalis-dbfiles.iota.org). For `chrysalis-devnet`, the snapshots will be automatically downloaded from [http://dbfiles.chrysalis-devnet.iota.cafe](http://dbfiles.chrysalis-devnet.iota.cafe). If you want to bootstrap the Hornet node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.
+The node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For `chrysalis-mainnet`, the snapshots will be automatically downloaded from [https://chrysalis-dbfiles.iota.org](https://chrysalis-dbfiles.iota.org). For `chrysalis-devnet`, the snapshots will be automatically downloaded from [http://dbfiles.chrysalis-devnet.iota.cafe](http://dbfiles.chrysalis-devnet.iota.cafe). If you want to bootstrap the node yourself, you can do so by placing your snapshots appropriately in the `data/snapshots` directory.
 
