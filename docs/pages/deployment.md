@@ -21,7 +21,7 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
     mkdir -p data/snapshots/chrysalis-devnet && chown 65532:65532 data/snapshots/chrysalis-devnet
     mkdir -p data/p2pstore && chown 65532:65532 data/p2pstore
    ```
-4) **Optionally**: if you want your node to use an already existing node ID, replace the `data/p2pstore` folder accordingly and make sure that the correct permissions are set:
+4) **Optionally**: if you want your Hornet node to use an already existing node ID, replace the `data/p2pstore` folder accordingly and make sure that the correct permissions are set:
     ```
     chown 65532:65532 data/p2pstore -R
     ```
@@ -35,9 +35,9 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
       
       - **3030 TCP** - Rosetta API port (exposed to localhost only)
       
-      The mentioned ports are important for flawless node operation. Make sure port **15600** is accessible from the Internet else your node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.
+      The mentioned ports are important for flawless operation. Make sure port **15600** is accessible from the Internet else your Hornet node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.
          
-6) Add your peer(s) - to which your node should connect. For `chrysalis-mainnet`, add the peers to the `Hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `Hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
+6) Add your peer(s) - to which your Hornet node should connect. For `chrysalis-mainnet`, add the peers to the `hornet/chrysalis-mainnet/peering.json` file. For `chrysalis-devnet`, add the peers to the `hornet/chrysalis-devnet/peering.json` file. If you don't have any peers, please contact us and we will help you find some.
 
     For better illustration, the `peering.json` file should then look like the following, for example:
     ```json
@@ -56,11 +56,11 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
    ```
           
 7) Share your own Hornet multiaddress with your peers so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of:
-    - the Internet address to reach your node (e.g. `/dns/xyz.com` or `/ip4/121.56.12.23`)
-    - the node gossip protocol port (e.g. /`tcp/15600`)
-    - your node ID (e.g. `/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9`)
+    - the Internet address of your node (e.g. `/dns/xyz.com` or `/ip4/121.56.12.23`)
+    - the node gossip protocol port (e.g. `/tcp/15600`)
+    - the node ID (e.g. `/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9`)
     
-    You can find your node ID in the logs when you run the implementation. Please look for an entry like:
+    You will find your node ID in the logs when you run the implementation. Please look for an entry like:
     
     ![image description](../images/find_node_id.png)
        
@@ -78,8 +78,9 @@ Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta
 
 9) If you want to reuse the node ID with a later deployment (**see step 4.**) make sure you back up the `data/p2pstore` directory. Otherwise, you cannot reuse the same node ID for subsequent deployments. 
 
-10) Your node will now try to synchronize with its peers. You can check its health status at: [http://127.0.0.1:14265/api/v1/info](http://127.0.0.1:14265/api/v1/info)
-11) Congratulations, you are done! You can access the Rosetta API at port [3030]().
+10) Congratulations, your node will now try to synchronize with its peers. You can check its health status at: [http://127.0.0.1:14265/api/v1/info](http://127.0.0.1:14265/api/v1/info)
+    
+    After the Hornet node is synchronized with its peers, you can start using the Rosetta API at port [3030]().
 
 ## Further notes:
 

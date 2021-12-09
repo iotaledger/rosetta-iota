@@ -6,13 +6,13 @@ services:
     restart: "no"
     working_dir: /app
     ports:
-      # node REST API
-      - "127.0.0.1:14265:14265/tcp"
       # node gossip protocol
       - "0.0.0.0:15600:15600/tcp"
+      # node REST API
+      - "127.0.0.1:14265:14265/tcp"
     expose:
-      - "14265"
       - "15600"
+      - "14265"
     volumes:
       - './hornet-conf/chrysalis-mainnet/config.json:/app/config.json:ro'
       - './hornet-conf/chrysalis-mainnet/peering.json:/app/peering.json'
