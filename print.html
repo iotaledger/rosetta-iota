@@ -177,7 +177,7 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 </code></pre>
 </li>
 <li>
-<p><strong>Optionally</strong>: if you want your node to use an already existing node ID, replace the <code>data/p2pstore</code> folder accordingly and make sure that the correct permissions are set:</p>
+<p><strong>Optionally</strong>: if you want your Hornet node to use an already existing node ID, replace the <code>data/p2pstore</code> folder accordingly and make sure that the correct permissions are set:</p>
 <pre><code>chown 65532:65532 data/p2pstore -R
 </code></pre>
 </li>
@@ -195,10 +195,10 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 <ul>
 <li><strong>3030 TCP</strong> - Rosetta API port (exposed to localhost only)</li>
 </ul>
-<p>The mentioned ports are important for flawless node operation. Make sure port <strong>15600</strong> is accessible from the Internet else your node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.</p>
+<p>The mentioned ports are important for flawless operation. Make sure port <strong>15600</strong> is accessible from the Internet else your Hornet node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.</p>
 </li>
 <li>
-<p>Add your peer(s) - to which your node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>Hornet/chrysalis-mainnet/peering.json</code> file. For <code>chrysalis-devnet</code>, add the peers to the <code>Hornet/chrysalis-devnet/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
+<p>Add your peer(s) - to which your Hornet node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>hornet/chrysalis-mainnet/peering.json</code> file. For <code>chrysalis-devnet</code>, add the peers to the <code>hornet/chrysalis-devnet/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
 <p>For better illustration, the <code>peering.json</code> file should then look like the following, for example:</p>
 <pre><code class="language-json">{
  &quot;peers&quot;: [
@@ -217,11 +217,11 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 <li>
 <p>Share your own Hornet multiaddress with your peers so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of:</p>
 <ul>
-<li>the Internet address to reach your node (e.g. <code>/dns/xyz.com</code> or <code>/ip4/121.56.12.23</code>)</li>
-<li>the node gossip protocol port (e.g. /<code>tcp/15600</code>)</li>
-<li>your node ID (e.g. <code>/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9</code>)</li>
+<li>the Internet address of your node (e.g. <code>/dns/xyz.com</code> or <code>/ip4/121.56.12.23</code>)</li>
+<li>the node gossip protocol port (e.g. <code>/tcp/15600</code>)</li>
+<li>the node ID (e.g. <code>/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9</code>)</li>
 </ul>
-<p>You can find your node ID in the logs when you run the implementation. Please look for an entry like:</p>
+<p>You will find your node ID in the logs when you run the implementation. Please look for an entry like:</p>
 <p><img src="pages/../images/find_node_id.png" alt="image description" /></p>
 </li>
 <li>
@@ -237,10 +237,8 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 <p>If you want to reuse the node ID with a later deployment (<strong>see step 4.</strong>) make sure you back up the <code>data/p2pstore</code> directory. Otherwise, you cannot reuse the same node ID for subsequent deployments. </p>
 </li>
 <li>
-<p>Your node will now try to synchronize with its peers. You can check its health status at: <a href="http://127.0.0.1:14265/api/v1/info">http://127.0.0.1:14265/api/v1/info</a></p>
-</li>
-<li>
-<p>Congratulations, you are done! You can access the Rosetta API at port <a href="pages/">3030</a>.</p>
+<p>Congratulations, your node will now try to synchronize with its peers. You can check its health status at: <a href="http://127.0.0.1:14265/api/v1/info">http://127.0.0.1:14265/api/v1/info</a></p>
+<p>After the Hornet node is synchronized with its peers, you can start using the Rosetta API at port <a href="pages/">3030</a>.</p>
 </li>
 </ol>
 <h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
