@@ -177,8 +177,7 @@
     "profile": "auto",
     "disablePlugins": [],
     "enablePlugins": [
-      "Spammer",
-      "Autopeering"
+      "Spammer"
     ]
   },
   "p2p": {
@@ -201,10 +200,7 @@
     "reconnectInterval": "30s",
     "autopeering": {
       "bindAddress": "0.0.0.0:14626",
-      "entryNodes": [
-        "/dns/entry-hornet-0.h.chrysalis-devnet.iota.cafe/udp/14626/autopeering/iotab4LmPqc3GLin7voytPr8oQnHToQad3ULbvhPZwq",
-        "/dns/entry-hornet-1.h.chrysalis-devnet.iota.cafe/udp/14626/autopeering/iotaUTEYvLskg8ZqLHBaCK5BiYNt6R1byksZQXobVUn"
-      ],
+      "entryNodes": [],
       "entryNodesPreferIPv6": false,
       "runAsEntryNode": false
     }
