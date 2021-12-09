@@ -169,20 +169,20 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 <p>Hornet exposes different functionality on different ports:</p>
 <ul>
 <li>
-<p><strong>14265 TCP</strong> - Node REST API port (exposed to localhost only)</p>
+<p><strong>15600 TCP</strong> - node gossip protocol port (exposed to the Internet)</p>
 </li>
 <li>
-<p><strong>15600 TCP</strong> - Node communication port (exposed to the Internet)</p>
+<p><strong>14265 TCP</strong> - node REST API port (exposed to localhost only)</p>
 </li>
 </ul>
 <p>The Rosetta API exposes following ports:</p>
 <ul>
 <li><strong>3030 TCP</strong> - Rosetta API port (exposed to localhost only)</li>
 </ul>
-<p>The mentioned ports are important for flawless node operation. Make sure port <strong>15600</strong> is accessible from the Internet. If you want to change the ports, you can do so in the docker-compose files.</p>
+<p>The mentioned ports are important for flawless node operation. Make sure port <strong>15600</strong> is accessible from the Internet else your node will not be able to interact with other nodes. If you want to change a port, you can do so in the docker-compose files.</p>
 </li>
 <li>
-<p>Add your peer(s) - to which your Hornet node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>Hornet/chrysalis-mainnet/peering.json</code> file. For <code>chrysalis-devnet</code>, add the peers to the <code>Hornet/chrysalis-devnet/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
+<p>Add your peer(s) - to which your node should connect. For <code>chrysalis-mainnet</code>, add the peers to the <code>Hornet/chrysalis-mainnet/peering.json</code> file. For <code>chrysalis-devnet</code>, add the peers to the <code>Hornet/chrysalis-devnet/peering.json</code> file. If you don't have any peers, please contact us and we will help you find some.</p>
 <p>For better illustration, the <code>peering.json</code> file should then look like the following, for example:</p>
 <pre><code class="language-json">{
  &quot;peers&quot;: [
@@ -201,13 +201,15 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 <li>
 <p>Share your own Hornet multiaddress with your peers so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of:</p>
 <ul>
-<li>the Internet address to reach your Hornet node</li>
-<li>the node communication port (per default 15600)</li>
-<li>the node ID; you can find your node ID in the logs when you run the implementation. Please search the logs for a <code>peer configured, ID:</code> entry.</li>
+<li>the Internet address to reach your node (e.g. <code>/dns/xyz.com</code> or <code>/ip4/121.56.12.23</code>)</li>
+<li>the node gossip protocol port (e.g. /<code>tcp/15600</code>)</li>
+<li>your node ID (e.g. <code>/p2p/12D3KooWRNYKZXYqZngxQee5BefmzcW5Zk6Tc6iE92U2uZwArHw9</code>)</li>
 </ul>
+<p>You can find your node ID in the logs when you run the implementation. Please look for an entry like:</p>
+<p><img src="../images/find_node_id.png" alt="image description" /></p>
 </li>
 <li>
-<p>Run the implementation for the desired network and specify the mode in which the implementation should run; can be either <code>offline</code> or <code>online</code>:</p>
+<p>Run the implementation in <code>online/offline</code> mode for the desired network:</p>
 <p><strong>chrysalis-mainnet</strong></p>
 <pre><code>MODE=online docker-compose -f docker-compose.chrysalis-mainnet.yml up
 </code></pre>
@@ -216,17 +218,17 @@ mkdir -p data/p2pstore &amp;&amp; chown 65532:65532 data/p2pstore
 </code></pre>
 </li>
 <li>
-<p>If you want to use your node ID of your Hornet node with a later deployment (<strong>see step 4.</strong>) make sure you back up the <code>data/p2pstore</code> directory. Otherwise, you cannot preserve the same node ID for subsequent deployments. </p>
+<p>If you want to reuse the node ID with a later deployment (<strong>see step 4.</strong>) make sure you back up the <code>data/p2pstore</code> directory. Otherwise, you cannot reuse the same node ID for subsequent deployments. </p>
 </li>
 <li>
-<p>Your node will now try to synchronize with its peers. You can check the health status of your Hornet node at: <a href="http://127.0.0.1:14265/api/v1/info">http://127.0.0.1:14265/api/v1/info</a></p>
+<p>Your node will now try to synchronize with its peers. You can check its health status at: <a href="http://127.0.0.1:14265/api/v1/info">http://127.0.0.1:14265/api/v1/info</a></p>
 </li>
 <li>
-<p>Congratulations! Once the Hornet node is healthy, the Rosetta API will be available at port <a href="">3030</a>.</p>
+<p>Congratulations, you are done! You can access the Rosetta API at port <a href="">3030</a>.</p>
 </li>
 </ol>
 <h2 id="further-notes"><a class="header" href="#further-notes">Further notes:</a></h2>
-<p>The Hornet node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For <code>chrysalis-mainnet</code>, the snapshots will be automatically downloaded from <a href="https://chrysalis-dbfiles.iota.org">https://chrysalis-dbfiles.iota.org</a>. For <code>chrysalis-devnet</code>, the snapshots will be automatically downloaded from <a href="http://dbfiles.chrysalis-devnet.iota.cafe">http://dbfiles.chrysalis-devnet.iota.cafe</a>. If you want to bootstrap the Hornet node yourself, you can do so by placing your snapshots appropriately in the <code>data/snapshots</code> directory.</p>
+<p>The node will be bootstrapped automatically with recent snapshots to start synchronizing from a more recent block. For <code>chrysalis-mainnet</code>, the snapshots will be automatically downloaded from <a href="https://chrysalis-dbfiles.iota.org">https://chrysalis-dbfiles.iota.org</a>. For <code>chrysalis-devnet</code>, the snapshots will be automatically downloaded from <a href="http://dbfiles.chrysalis-devnet.iota.cafe">http://dbfiles.chrysalis-devnet.iota.cafe</a>. If you want to bootstrap the node yourself, you can do so by placing your snapshots appropriately in the <code>data/snapshots</code> directory.</p>
 
                     </main>
 
