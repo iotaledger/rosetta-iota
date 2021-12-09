@@ -2,12 +2,9 @@
 
 ## About IOTA nodes
 
-**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet) and [Bee](https://github.com/iotaledger/bee)) are able to start up from a more recent block instead of having to synchronize from genesis. This is made possible by booting the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md). 
-Also, by default, IOTA full-nodes prune history from time to time in a safe way - basically similar to nodes in the Bitcoin network that are running in pruning mode.
+**IOTA full-nodes** (such as [HORNET](https://github.com/gohornet/hornet)) are able to start up from a more recent block instead of having to synchronize from genesis. This is made possible by booting the IOTA full-node with recent [snapshots](https://github.com/luca-moser/protocol-rfcs/blob/local-snapshot-file-format/text/0000-local-snapshot-file-format/0000-local-snapshot-file-format.md).
 
-In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaledger/chronicle.rs)) are optimized for storing IOTA history which dates back further and provide special tools for querying data.
-
-`rosetta-iota` aims for a more reliable integration and better performance with limiting state storage. Therefore, **the Rosetta API implementation is delivered with an IOTA full-node** ([HORNET](https://github.com/gohornet/hornet.git)).
+Furthermore, IOTA full-nodes implement the [Storage Pruning](https://www.rosetta-api.org/docs/storage_pruning.html) feature. Per default, they prune history from time to time in a safe way - similar to the nodes in the Bitcoin network that run in pruning mode.
 
 ## Instructions
 
@@ -47,40 +44,24 @@ In contrast, **IOTA Permanodes** (such as [Chronicle](https://github.com/iotaled
    }
    ```
    
-    Also, make sure that your peers know the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **address where you deploy the implementation and the node ID**. You can find your node ID in the HORNET logs when you run the implementation.
-    
-6) Run the implementation in the desired mode:
+    Also, make sure that your peers know the multiaddress of your HORNET node so that they will be able to mutually tether. A multiaddress - as illustrated above - consists of the **internet address and the node ID**. You can find your node ID in the HORNET logs when you run the implementation.
+       
+6) Run the implementation for the desired network and specify the mode in which the implementation should run; can be either `offline` or `online`:
 
-    **chrysalis-mainnet: online mode**
+    **chrysalis-mainnet**
     ```
     MODE=online docker-compose -f docker-compose.chrysalis-mainnet.yml up
     ```
     
-    **chrysalis-mainnet: offline mode**
-    ```
-    MODE=offline docker-compose -f docker-compose.chrysalis-mainnet.yml up
-    ```
-    
-    **chrysalis-devnet: online mode**
+    **chrysalis-devnet**
     ```
     MODE=online docker-compose -f docker-compose.chrysalis-devnet.yml up
     ```
-    
-    **chrysalis-devnet: offline mode**
-    ```
-    MODE=offline docker-compose -f docker-compose.chrysalis-devnet.yml up
-    ```
 
-7) If you want to reuse the node ID of your HORNET node with a later deployment (**see step 4.**) make sure you back up the private and public key files that make up your node ID. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
-You can back up your node ID by preserving the `data/p2pstore` directory.
+7) If you want to use your node ID of your HORNET node with a later deployment (**see step 4.**) make sure you back up the `data/p2pstore` directory. Otherwise, you cannot preserve the same node ID for subsequent deployments. 
 
-Once the HORNET node has synced with the network, the Rosetta API will be available at:
-http://127.0.0.1:3030
-
-The health status of the HORNET node can be checked at: http://127.0.0.1:14265/api/v1/info
-
-#### Environment variables:
-- `MODE` ... the mode in which the implementation is to run; can be either `offline` or `online`
+8) Your node will now try to synchronize with its peers. You can check the health status of your HORNET node at: http://127.0.0.1:14265/api/v1/info
+9) Congratulations! Once the HORNET node is healthy, the Rosetta API will be available at port [3030]().
 
 ## Further notes:
 
